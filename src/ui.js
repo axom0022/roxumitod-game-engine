@@ -197,14 +197,14 @@ function srow(label, ctrl, extra) {
 }
 
 function srownum(label, value, field, id, step) {
-  return srow(label, '<input class="inp num" type="number" step="' + (step || 0.1) + '" value="' + esc(value) + '" data-node="' + esc(id) + '" data-field="' + field + '">');
+  return srow(label, '<input class="inp num" type="text" inputmode="decimal" data-num="1" data-step="' + (step || 0.1) + '" value="' + esc(value) + '" data-node="' + esc(id) + '" data-field="' + field + '">');
 }
 
 function vectorrow(label, node, kind, axis) {
   var arr = node[kind] || [0, 0, 0];
   var html = '<div class="frow"><div class="flabel">' + label + '</div><div class="vecrow">';
   for (var i = 0; i < 3; i++) {
-    html += '<div class="vec"><span class="axis ' + axis[i] + '">' + axis[i].toUpperCase() + '</span><input class="inp num" type="number" step="0.1" value="' + (+arr[i]).toFixed(2).replace(/\.00$/, "") + '" data-node="' + esc(node.id) + '" data-field="' + kind + "." + i + '"></div>';
+    html += '<div class="vec"><span class="axis ' + axis[i] + '" data-grip="1">' + axis[i].toUpperCase() + '</span><input class="inp num" type="text" inputmode="decimal" data-num="1" data-step="' + (kind === "rot" ? 5 : 0.1) + '" value="' + (+arr[i]).toFixed(2).replace(/\.00$/, "") + '" data-node="' + esc(node.id) + '" data-field="' + kind + "." + i + '"></div>';
   }
   html += "</div></div>";
   return html;
@@ -219,7 +219,7 @@ function colorrow(label, color, attrs) {
 }
 
 function sliderrow(label, value, min, max, step, attrs, numin) {
-  return '<div class="frow"><div class="flabel">' + label + '</div><div class="fctrl"><input class="slider" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" ' + attrs + ">" + (numin === false ? "" : '<input class="inp num numin" type="number" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" ' + attrs + ">") + "</div></div>";
+  return '<div class="frow"><div class="flabel">' + label + '</div><div class="fctrl"><input class="slider" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + value + '" ' + attrs + ">" + (numin === false ? "" : '<input class="inp num numin" type="text" inputmode="decimal" data-num="1" data-step="' + step + '" data-min="' + min + '" data-max="' + max + '" value="' + value + '" ' + attrs + ">") + "</div></div>";
 }
 
 function selectrow(label, options, value, attrs) {

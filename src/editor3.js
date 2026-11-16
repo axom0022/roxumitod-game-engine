@@ -164,9 +164,76 @@ acts.closetab = function (el) {
   if (app.tab === key) app.tab = "scene";
   refreshall();
 };
-acts.selectnode = function (el) {
-  app.selid = el.getAttribute("data-id");
-  refreshpickers();
+acts.selectnode = function (el, ev) {
+  var id = el.getAttribute("data-id");
+  var ids = app.selids && app.selids.length ? app.selids.slice(0) : app.selid ? [app.selid] : [];
+  if (ev && (ev.ctrlKey || ev.metaKey)) {
+    var at = ids.indexOf(id);
+    if (at >= 0) ids.splice(at, 1);
+    else ids.push(id);
+    app.selid = ids.indexOf(app.selid) >= 0 ? app.selid : ids.length ? ids[ids.length - 1] : null;
+  } else if (ev && ev.shiftKey && app.selid) {
+    var rows = qsa("#objlist .objrow");
+    var from = -1;
+    var to = -1;
+    rows.forEach(function (r, i) {
+      if (r.getAttribute("data-id") === app.selid) from = i;
+      if (r.getAttribute("data-id") === id) to = i;
+    });
+    if (from >= 0 && to >= 0) {
+      ids = [];
+      for (var k = Math.min(from, to); k <= Math.max(from, to); k++) ids.push(rows[k].getAttribute("data-id"));
+    } else ids = [id];
+    app.selid = id;
+  } else {
+    ids = [id];
+    app.selid = id;
+  }
+  app.selids = ids;
+  renderright();
+  selpaint();
+};
+
+acts.objfilter = function (el) {
+  app.objfilt = el.getAttribute("data-filter");
+  renderdock();
+};
+
+acts.objopenall = function () {
+  app.expanded = {};
+  walk(app.scene.objects, function (n) {
+    app.expanded[n.id] = true;
+  });
+  renderdock();
+};
+
+acts.objcloseall = function () {
+  walk(app.scene.objects, function (n) {
+    app.expanded[n.id] = false;
+  });
+  renderdock();
+};
+
+acts.objgroup = function () {
+  var pick = selectionnodes();
+  if (!pick.length) return;
+  var fold = basenode("folder", { name: uniqueid(app.scene.objects, "Folder"), pos: [0, 0, 0] });
+  if (typeof partinit === "function") partinit(fold);
+  app.scene.objects.push(fold);
+  app.expanded[fold.id] = true;
+  pick.forEach(function (n) {
+    if (n !== fold) reparentnode(n, fold);
+  });
+  app.selid = fold.id;
+  app.selids = [fold.id];
+  commit("group");
+  toast(pick.length + " actors grouped into " + fold.name, "ok");
+};
+
+acts.objclear = function () {
+  app.selid = null;
+  app.selids = [];
+  refreshall();
 };
 acts.togglenode = function (el) {
   var id = el.getAttribute("data-id");
@@ -747,18 +814,27 @@ acts.savesession = function () {
   toast("Restored from history", "ok");
 };
 acts.objduplicate = function () {
-  var n = selected();
-  if (n) duplicatenode(n);
+  var pick = selectionnodes();
+  if (!pick.length) return;
+  pick.forEach(function (n) {
+    duplicatenode(n);
+  });
 };
 acts.objdelete = function () {
-  var n = selected();
-  if (n) deletenode(n);
+  var pick = selectionnodes();
+  if (!pick.length) return;
+  pick.slice(0).reverse().forEach(function (n) {
+    if (findnode(app.scene.objects, n.id)) deletenode(n);
+  });
+  app.selid = null;
+  app.selids = [];
+  refreshall();
 };
 acts.objcopy = function () {
   var n = selected();
   if (n) {
     app.clipboard = JSON.stringify(n);
-    toast("Coplayd " + n.name, "ok");
+    toast("Copied " + n.name, "ok");
   }
 };
 acts.objpaste = function () {

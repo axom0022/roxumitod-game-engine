@@ -7,11 +7,12 @@ function nmesh(name) {
 
 function addgroups() {
   return [
-    { head: "Lighting", items: ["pointlight", "spotlight", "arealight"] },
+    { head: "Lighting", items: ["pointlight", "spotlight", "arealight", "sky"] },
     { head: "Sound", items: ["soundemitter", "musiczone"] },
     { head: "Effects", items: ["emitter", "trail", "beam"] },
     { head: "Gameplay", items: ["spawn", "checkpoint", "portal", "door", "hazard", "pickup", "zone", "platform", "seat"] },
-    { head: "Data", items: ["attachment", "billboard", "remote", "numbervalue", "stringvalue"] },
+    { head: "Data", items: ["attachment", "billboard", "remote", "numbervalue", "stringvalue", "team"] },
+    { head: "Organisation", items: ["folder", "highlight", "decal"] },
     { head: "Scripting", items: ["script", "modulescript", "scenescript", "clientscript", "serverscript", "toolscript"] },
     { head: "Screen UI", items: ["screengui", "frame", "imagelabel", "textbutton", "textbox", "scrollframe"] },
     { head: "Advanced", items: ["mesh", "skinned", "procmesh", "landscape", "spline", "foliage", "clustercell", "levelinstance"] }
@@ -51,6 +52,11 @@ nodemeta.remote = { label: "Remote event", icon: "network", group: "objects" };
 nodemeta.numbervalue = { label: "Number value", icon: "variable", group: "objects" };
 nodemeta.stringvalue = { label: "Text value", icon: "variable", group: "objects" };
 nodemeta.seat = { label: "Seat", icon: "door", group: "objects" };
+nodemeta.folder = { label: "Folder", icon: "folder", group: "objects" };
+nodemeta.highlight = { label: "Highlight", icon: "eye", group: "objects" };
+nodemeta.decal = { label: "Decal", icon: "image", group: "objects" };
+nodemeta.team = { label: "Team", icon: "flag", group: "objects" };
+nodemeta.sky = { label: "Sky", icon: "sun", group: "objects" };
 
 nodemeta.mesh = nmesh("Static mesh");
 nodemeta.skinned = { label: "Skeletal mesh", icon: "human", group: "objects" };
@@ -93,7 +99,12 @@ var partdefaults = {
   remote: { color: "#8fb0ff", event: "remote", scl: [0.5, 0.5, 0.5] },
   numbervalue: { color: "#7fd6ff", value: 0, scl: [0.4, 0.4, 0.4] },
   stringvalue: { color: "#9affd0", text: "", scl: [0.4, 0.4, 0.4] },
-  seat: { color: "#c08b52", scl: [1.2, 0.3, 1.2] }
+  seat: { color: "#c08b52", scl: [1.2, 0.3, 1.2] },
+  folder: { color: "#d5d9e0", scl: [1, 1, 1] },
+  highlight: { color: "#4fa3ff", scl: [1.2, 1.2, 1.2] },
+  decal: { color: "#ffffff", sprite: "crate", scl: [1, 1, 1] },
+  team: { color: "#4fa3ff", team: "Blue", scl: [0.5, 0.5, 0.5] },
+  sky: { color: "#8ec9ff", scl: [1, 1, 1] }
 };
 
 function partscript(name) {
@@ -132,6 +143,7 @@ function partinit(n) {
   if (n.type === "zone" || n.type === "portal" || n.type === "checkpoint" || n.type === "door" || n.type === "spawn") n.comps.push("collider");
   if (n.type === "seat") n.comps.push("collider");
   if (n.type === "billboard" || n.type === "stringvalue") n.comps.push("text");
+  if (n.type === "decal" && !n.sprite) n.sprite = "crate";
   if (n.type === "platform") {
     n.comps.push("collider");
     n.behaviors = n.behaviors && n.behaviors.length ? n.behaviors : [{ type: "move", name: "Move " + (n.axis || "x"), axis: n.axis || "x", speed: n.speed || 1.2, range: n.dist || 3 }];

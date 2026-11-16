@@ -99,7 +99,9 @@ See [`docs/multiplayer.md`](docs/multiplayer.md).
 
 ## Controls
 
-Right mouse look, right mouse plus `WASD` fly, `Ctrl` plus wheel for camera speed, `Alt` `G`, `H`, `J` and `K` for perspective, front, top and side, camera bookmarks on the number row, `End` to drop an actor to the floor and `Shift` plus `P` to pilot one. Actors can be locked so they cannot be picked or transformed. The full list is in [`docs/controls.md`](docs/controls.md) and under `Tools → Controls & shortcuts`.
+Right mouse look, right mouse plus `WASD` fly, `Ctrl` plus wheel for camera speed, `Alt` `G`, `H`, `J` and `K` for perspective, front, top and side, camera bookmarks on the number row, `End` to drop an actor to the floor and `Shift` plus `P` to pilot one. Actors can be locked so they cannot be picked or transformed.
+
+Direct control is the default. A right tap in the viewport opens the actor menu at the cursor. The Outliner selects on click, extends with `Ctrl` and `Shift`, renames on double click and takes a folder group with `Ctrl+G`. Every number in Details scrubs on drag, accepts typed arithmetic and steps on the arrow keys. The magnet in the viewport rail sets the move and rotate snap, `Alt` gives a fine step and `Shift` a wide one. A right click in the viewport or on an Outliner row opens the actions for whatever is selected. The full list is in [`docs/controls.md`](docs/controls.md) and under `Tools → Controls & shortcuts`.
 
 ## Packaging
 

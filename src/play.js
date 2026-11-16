@@ -92,12 +92,16 @@ function startplay() {
   var doors = [];
   var checkpoints = [];
   var seats = [];
+  var skynode = null;
+  var teamnode = null;
   walk(app.scene.objects, function (n) {
     if (n.type === "zone") zones.push({ node: n, inside: false });
     else if (n.type === "portal") portals.push(n);
     else if (n.type === "door") doors.push(n);
     else if (n.type === "checkpoint") checkpoints.push({ node: n, hit: false });
     else if (n.type === "seat") seats.push(n);
+    else if (n.type === "sky") skynode = n;
+    else if (n.type === "team") teamnode = n;
   });
   game = {
     zones: zones,
@@ -105,9 +109,11 @@ function startplay() {
     doors: doors,
     checkpoints: checkpoints,
     seats: seats,
+    team: teamnode,
     hero: hero,
     hw: hs[0] * 0.42,
     hh: hs[1] * 0.5,
+    skycolor: skynode ? skynode.color : null,
     start: hero.pos.slice(),
     x: hero.pos[0],
     y: hero.pos[1],
@@ -139,6 +145,12 @@ function startplay() {
     winat: 0
   };
   gameover = {};
+  app.skysave = app.scene.env ? app.scene.env.color : null;
+  if (game.skycolor && app.scene.env) {
+    app.scene.env.color = game.skycolor;
+    app.scene.env.bgtype = "color";
+  }
+  if (game.team) toast(game.team.team + " entered the level", "ok");
   fxreset();
   bindgamekeys();
   if (typeof uibind === "function") uibind();
@@ -172,6 +184,8 @@ function stopplay() {
   }
   app.play = false;
   game = null;
+  if (app.skysave && app.scene.env) app.scene.env.color = app.skysave;
+  app.skysave = null;
   if (typeof scriptstopall === "function") scriptstopall();
   if (typeof plugfire === "function") plugfire("playstop", null);
   gameover = null;

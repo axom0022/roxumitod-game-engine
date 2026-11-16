@@ -34,11 +34,17 @@ Children inherit the parent transform. Dragging in the World Outliner re-parents
 
 ## The World Outliner
 
-The left dock lists every actor in a hierarchy. Each row has a visibility toggle, a lock, and a context menu with duplicate, delete, rename, focus and re-parent. The search box filters by name across the whole tree.
+The left dock lists every actor in a hierarchy. Each row has a visibility toggle, a lock, and a context menu with duplicate, delete, rename, focus and re-parent. The search box matches names, types and tags across the whole tree, and the filter chips narrow the list to shapes, scripts, lights, models or screen UI.
+
+Selection is direct. Click a row to select it, `Ctrl` click to add or remove, `Shift` click to take a range, `Ctrl+A` for everything, and double click a name to rename it in place. The footer reports how many actors are selected and carries **Group**, **Copy** and **Delete** for the whole selection. **Group** moves the selection into a folder actor so a level stays readable as it grows.
+
+The same actions are one right click away in the viewport: duplicate, copy, group, hide, focus, add an actor, paste, snapping and delete.
 
 ## Details
 
 The right dock edits the selection: the transform, the component stack, the tags and the variables. Changes apply live in the viewport and are undoable with `Ctrl+Z`.
+
+Every number is a direct numeral field. Drag across it to scrub, type an expression such as `2*3+1`, press `ArrowUp` and `ArrowDown` to step, and double click to reset. Position, rotation and scale sit on coloured axis badges that match the viewport gizmo, and a transform edit applies to every actor in a multi selection. The full list is in [`controls.md`](controls.md).
 
 ## Play in viewport
 
@@ -67,6 +73,23 @@ Elements are children of the ScreenGui in the World Outliner, so they move with 
 ### Physical elements
 
 Tick **Physical** on an element (or on the whole ScreenGui) and that element leaves the screen layer and is drawn in the 3D world instead, at its Position, as a world space element. Untick it to put it back on screen. Physical elements are pickable, movable and scaled with the normal transform gizmos.
+
+## Scene service actors
+
+Outside the solid shapes, the palette carries actors that describe how a level behaves rather than how it looks. They cost nothing to render beyond a small marker in the viewport.
+
+| Actor | What it does |
+| --- | --- |
+| Folder | Groups actors in the Outliner and the Details tree. Drop an actor on a folder to move it inside |
+| Highlight | Draws a translucent marker around the actor it is parented to, useful for objective markers and tutorials |
+| Decal | Paints a sprite onto the surface of the actor it is parented to |
+| Team | Names a side and gives it a colour. The play HUD announces the team and scripts can read it |
+| Sky | Replaces the level background colour for the duration of play mode, then restores it on stop |
+| Seat | A low block the player can stand on. Scripts receive a seat event when the player reaches it |
+| Attachment | A transform only actor, used as a mount point for beams, effects and cameras |
+| Billboard text | A label that always faces the camera |
+| Remote event | A named event for scripts, raised with `fireevent` and received in `onevent` |
+| Number value, Text value | Shared values that scripts and the logic graph read and write |
 
 ## Advanced actors
 

@@ -368,7 +368,7 @@ function navbind() {
       ev.preventDefault();
       ev.stopPropagation();
       navfly = true;
-      window.dragstate = { mode: "look", sx: ev.clientX, sy: ev.clientY, moved: false };
+      window.dragstate = { mode: "look", sx: ev.clientX, sy: ev.clientY, cx: ev.clientX, cy: ev.clientY, moved: false };
       stage.setPointerCapture && stage.setPointerCapture(ev.pointerId);
       return;
     }
@@ -387,6 +387,7 @@ function navbind() {
       var dy = ev.clientY - ds.sy;
       ds.sx = ev.clientX;
       ds.sy = ev.clientY;
+      if (!ds.moved && (Math.abs(ev.clientX - ds.cx) > 5 || Math.abs(ev.clientY - ds.cy) > 5)) ds.moved = true;
       navlook(dx, dy);
       ev.stopPropagation();
     } else if (ds.mode === "navpan") {
@@ -398,8 +399,15 @@ function navbind() {
       ev.stopPropagation();
     }
   }, true);
-  stage.addEventListener("pointerup", function () {
+  stage.addEventListener("pointerup", function (ev) {
+    var ds = window.dragstate;
     navfly = false;
+    if (ds && ds.mode === "look" && !ds.moved && ev.button === 2) {
+      window.dragstate = null;
+      contextpick(ev);
+      return;
+    }
+    window.dragstate = null;
   }, true);
   stage.addEventListener("pointerleave", function () {
     navfly = false;

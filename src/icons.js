@@ -140,6 +140,8 @@ function icfill(name, cls) {
   return '<svg class="ico' + c + '" viewBox="0 0 24 24" fill="currentColor" stroke="none">' + body + '</svg>';
 }
 
+icons.magnet = '<path d="M6 4v8a6 6 0 0 0 12 0V4"/><path d="M6 4h3v4H6zM15 4h3v4h-3z"/>';
+icons.group = '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>';
 icons.marquee = '<path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M16 4h3a1 1 0 0 1 1 1v3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M8 20H5a1 1 0 0 1-1-1v-3"/><rect x="8" y="8" width="8" height="8" rx="1" stroke-dasharray="2 2"/>';
 icons.tree = '<path d="M12 3l5 6h-3l4 5h-4l2 3H8l2-3H6l4-5H7z"/><path d="M12 17v4"/>';
 icons.rock = '<path d="M4 17l3-8 5-4 5 3 3 9z"/><path d="M7 17l2-4 3 2 2-2 3 4"/>';

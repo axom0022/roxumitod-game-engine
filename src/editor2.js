@@ -72,7 +72,7 @@ function partsection(node) {
   var t = node.type;
   var body = "";
   var num = function (label, key, min, max, step) {
-    return srow(label, '<input class="slider" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '"><input class="inp num numin" type="number" min="' + min + '" max="' + max + '" step="' + step + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '">');
+    return srow(label, '<input class="slider" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '"><input class="inp num numin" type="text" inputmode="decimal" data-num="1" data-step="' + step + '" data-min="' + min + '" data-max="' + max + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '">');
   };
   var text = function (label, key) {
     return srow(label, '<input class="inp" value="' + esc(node[key] === undefined ? "" : node[key]) + '" data-part="' + key + '">');
@@ -120,6 +120,16 @@ function partsection(node) {
     body += col() + num("Value", "value", -1000, 1000, 1);
   } else if (t === "stringvalue") {
     body += col() + text("Value", "text");
+  } else if (t === "decal") {
+    body += text("Sprite key", "sprite") + sgnote("Paints a sprite onto the actor it is parented to.");
+  } else if (t === "team") {
+    body += col() + text("Team name", "team") + sgnote("Actors tagged with this team share the colour in play mode.");
+  } else if (t === "sky") {
+    body += col() + sgnote("Replaces the level background while the game plays.");
+  } else if (t === "folder") {
+    body += '<div class="emptyhint">Folders group actors. Drop actors onto a folder in the Outliner to move them inside.</div>';
+  } else if (t === "highlight") {
+    body += col() + sgnote("Draws a translucent marker around the actor it is parented to.");
   } else if (t === "imagelabel") {
     body += col() + text("Sprite key", "sprite");
   } else {
@@ -144,7 +154,7 @@ function compsection(node, comp) {
     body += '<div class="row mb6" style="padding-left:8px;gap:6px"><button class="btn sm" data-act="newsprite">' + ic("pen", "ico-sm") + 'New sprite</button><button class="btn sm" data-act="editsprite">' + ic("brush", "ico-sm") + "Edit</button></div>";
     body += srow("Pixels per meter (0 = auto)", '<input class="inp num" type="number" value="' + (node.ppm || 64) + '" data-node="' + node.id + '" data-field="ppm">');
     body += srow("Color", '<div class="colorbox"><input type="color" value="' + esc(node.color || "#ffffff") + '" data-node="' + node.id + '" data-field="color"></div><input class="inp" value="' + esc(node.color || "#ffffff") + '" data-node="' + node.id + '" data-field="color">');
-    body += '<div class="frow"><div class="flabel">Opacity</div><div class="fctrl"><input class="slider" type="range" min="0" max="1" step="0.01" value="' + node.opacity + '" data-node="' + node.id + '" data-field="opacity"><input class="inp num numin" type="number" min="0" max="1" step="0.01" value="' + node.opacity + '" data-node="' + node.id + '" data-field="opacity"></div></div>';
+    body += '<div class="frow"><div class="flabel">Opacity</div><div class="fctrl"><input class="slider" type="range" min="0" max="1" step="0.01" value="' + node.opacity + '" data-node="' + node.id + '" data-field="opacity"><input class="inp num numin" type="text" inputmode="decimal" data-num="1" data-step="0.01" data-min="0" data-max="1" value="' + node.opacity + '" data-node="' + node.id + '" data-field="opacity"></div></div>';
     body += '<div class="frow"><div class="flabel"></div><div class="fctrl" style="gap:22px">' + check("Flip X", !!node.flipx, 'data-node="' + node.id + '" data-field="flipx"') + check("Flip Y", !!node.flipy, 'data-node="' + node.id + '" data-field="flipy"') + "</div></div>";
     body += srow("Face camera", '<select class="inp" data-node="' + node.id + '" data-field="facecamera"><option value="false"' + (!node.facecamera ? " selected" : "") + '>No</option><option value="true"' + (node.facecamera ? " selected" : "") + ">Yes</option></select>");
   } else if (comp === "camera") {

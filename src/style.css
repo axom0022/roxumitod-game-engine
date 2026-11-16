@@ -1736,3 +1736,45 @@ html.acc-bigtext{font-size:14px}
 html.acc-bigtext body{font-size:14px}
 html.acc-reduce *{transition:none!important;animation:none!important}
 html.acc-focus button:focus-visible,html.acc-focus input:focus-visible,html.acc-focus select:focus-visible,html.acc-focus textarea:focus-visible{outline:2px solid var(--blue-2);outline-offset:2px}
+
+.objpicks { gap: 3px; flex-wrap: wrap; }
+.objpicks .segbtn { padding: 2px 6px; font-size: 10px; flex: none; }
+.objfoot {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #24262b;
+}
+.objfoot .selcount { grid-column: 1 / -1; font-size: 11px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.objfoot .btn { padding: 4px 4px; font-size: 11px; justify-content: center; gap: 3px; min-width: 0; }
+.objfoot .btn .ico-xs { width: 11px; height: 11px; }
+.renin {
+  height: 18px;
+  padding: 0 4px;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.inp.num { cursor: ew-resize; }
+.inp.num:focus { cursor: text; }
+body.numscrub, body.numscrub * { cursor: ew-resize !important; user-select: none !important; }
+#numtip {
+  position: fixed;
+  z-index: 9999;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #12141a;
+  color: #eef1f6;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #3a3d44;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .08s;
+}
+#numtip.on { opacity: 1; }
+.objrow.on + .objchildren .objrow.on { background: #eef1f8; }

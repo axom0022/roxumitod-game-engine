@@ -236,13 +236,35 @@ function sceneicon(type, sprite) {
 
 function objectshtml() {
   var sc = app.scene;
+  var picks = [{ id: "all", label: "All" }, { id: "shapes", label: "Shapes" }, { id: "scripts", label: "Scripts" }, { id: "lights", label: "Lights" }, { id: "models", label: "Models" }, { id: "ui", label: "UI" }];
+  var filt = app.objfilt || "all";
+  var picked = selectionnodes().length;
   return '<div class="panelbar"><button class="scenepick" data-act="scenemenu">' + ic("cube", "ico-sm") + "<span>" + esc(sc.name) + '</span><span class="caret">' + ic("chevd", "ico-xs") + "</span></button><button class=\"btn primary right\" data-act=\"addobject\">" + ic("plus", "ico-sm") + "Add</button></div>" +
-    '<div class="searchbox mb8">' + ic("search", "ico-sm") + '<input id="objsearch" placeholder="Search actors..." value="' + esc(app.objsearch) + '"></div>' +
-    '<div class="objlist" id="objlist">' + objectrowshtml(sc.objects, 0) + "</div>";
+    '<div class="searchbox mb8">' + ic("search", "ico-sm") + '<input id="objsearch" placeholder="Search actors, tags, types..." value="' + esc(app.objsearch) + '"><button class="iconbtn" data-act="objopenall" title="Expand all">' + ic("chevrd", "ico-xs") + '</button><button class="iconbtn" data-act="objcloseall" title="Collapse all">' + ic("chevru", "ico-xs") + "</button></div>" +
+    '<div class="segrow mb8 objpicks">' + picks.map(function (f) {
+      return '<button class="segbtn' + (filt === f.id ? " on" : "") + '" data-act="objfilter" data-filter="' + f.id + '">' + f.label + "</button>";
+    }).join("") + "</div>" +
+    '<div class="objlist" id="objlist">' + objectrowshtml(sc.objects, 0) + "</div>" +
+    '<div class="objfoot"><span class="selcount">' + (picked ? picked + (picked === 1 ? " actor selected" : " actors selected") : "Nothing selected") + "</span>" +
+    '<button class="btn sm" data-act="objgroup" title="Group the selection into a folder">' + ic("group", "ico-sm") + "Group</button>" +
+    '<button class="btn sm" data-act="objduplicate" title="Duplicate the selection">' + ic("duplicate", "ico-sm") + "Copy</button>" +
+    '<button class="btn sm" data-act="objdelete" title="Delete the selection">' + ic("trash", "ico-sm") + "Delete</button></div>";
+}
+
+function objpass(n, f) {
+  if (!f || f === "all") return true;
+  var t = n.type || "";
+  if (f === "shapes") return ["cube", "sphere", "plane", "capsule", "cylinder", "cone", "torus", "wedge", "terrain", "water", "curve", "text3d"].indexOf(t) >= 0;
+  if (f === "scripts") return t.indexOf("script") >= 0;
+  if (f === "lights") return t === "pointlight" || t === "spotlight" || t === "arealight" || t === "sun";
+  if (f === "models") return ["model", "mesh", "skinned", "procmesh", "sprite", "tilemap", "foliage", "spline", "landscape"].indexOf(t) >= 0;
+  if (f === "ui") return ["screengui", "frame", "label", "button", "slider", "bar", "joystick", "imagelabel", "textbutton", "textbox", "scrollframe", "canvas"].indexOf(t) >= 0;
+  return true;
 }
 
 function objectrowshtml(list, depth) {
   var q = (app.objsearch || "").toLowerCase();
+  var filt = app.objfilt || "all";
   var html = "";
   for (var i = 0; i < list.length; i++) {
     var n = list[i];
@@ -252,8 +274,9 @@ function objectrowshtml(list, depth) {
         if (c.name.toLowerCase().indexOf(q) >= 0) childmatch = true;
       });
     }
-    if (q && n.name.toLowerCase().indexOf(q) < 0 && !childmatch) continue;
-    var issel = app.selid === n.id;
+    if (q && n.name.toLowerCase().indexOf(q) < 0 && (n.type || "").toLowerCase().indexOf(q) < 0 && (n.tags || []).join(" ").toLowerCase().indexOf(q) < 0 && !childmatch) continue;
+    if ((q || filt !== "all") && !childmatch && !objpass(n, filt)) continue;
+    var issel = (app.selids && app.selids.indexOf(n.id) >= 0) || (!app.selids || !app.selids.length) && app.selid === n.id;
     var isopen = app.expanded[n.id] !== false;
     var haskids = n.children && n.children.length;
     html += '<div class="objrow' + (issel ? " on" : "") + (n.lock ? " lockrow" : "") + '" data-act="selectnode" data-id="' + n.id + '" data-ctx="obj" draggable="true">' +
@@ -266,7 +289,7 @@ function objectrowshtml(list, depth) {
       '<button class="eye' + (n.visible === false ? " off" : "") + '" data-act="togglevisible" data-id="' + n.id + '" title="Visible">' + ic(n.visible === false ? "eyeoff" : "eye", "ico-sm") + "</button>" +
       '<button class="kebab" data-act="objmenu" data-id="' + n.id + '" title="More">' + ic("dots", "ico-sm") + "</button>" +
       "</div>";
-    if (haskids && (isopen || q)) html += '<div class="objchildren">' + objectrowshtml(n.children, depth + 1) + "</div>";
+    if (haskids && (isopen || q || filt !== "all")) html += '<div class="objchildren">' + objectrowshtml(n.children, depth + 1) + "</div>";
   }
   return html;
 }
@@ -522,21 +545,21 @@ function onglobalinput(ev) {
     var path = el.getAttribute("data-cfield").split(".");
     n2.compdata = n2.compdata || {};
     n2.compdata[path[0]] = n2.compdata[path[0]] || {};
-    var v = el.type === "checkbox" ? el.checked : el.type === "number" || el.type === "range" ? parseFloat(el.value) : el.value;
+    var v = el.type === "checkbox" ? el.checked : el.type === "number" || el.type === "range" || el.hasAttribute("data-num") ? parseFloat(el.value) : el.value;
     n2.compdata[path[0]][path[1]] = v;
     touch();
   } else if (el.hasAttribute && el.hasAttribute("data-vfield")) {
     var n3 = findnode(app.scene.objects, el.getAttribute("data-node"));
     var idx = +el.getAttribute("data-vfield");
     if (n3 && n3.vars[idx]) {
-      n3.vars[idx][el.getAttribute("data-vkey") || "value"] = el.type === "number" ? parseFloat(el.value) : el.value;
+      n3.vars[idx][el.getAttribute("data-vkey") || "value"] = el.type === "number" || el.hasAttribute("data-num") ? parseFloat(el.value) : el.value;
       touch();
     }
   } else if (el.hasAttribute && el.hasAttribute("data-part")) {
     var pn = selected();
     if (!pn) return;
     var pk = el.getAttribute("data-part");
-    var pv = el.type === "number" || el.type === "range" ? parseFloat(el.value) : el.value;
+    var pv = el.type === "number" || el.type === "range" || el.hasAttribute("data-num") ? parseFloat(el.value) : el.value;
     if (pk === "target") return;
     pn[pk] = pv;
     if (pn.type === "emitter" && pk === "preset" && pn.compdata && pn.compdata.particles) pn.compdata.particles.preset = pv;
@@ -560,14 +583,14 @@ function onglobalinput(ev) {
     var gi = +el.getAttribute("data-gindex");
     if (app.project.globals[gi]) {
       var key = el.getAttribute("data-gfield");
-      app.project.globals[gi][key] = key === "value" ? (el.type === "number" ? parseFloat(el.value) : el.value) : el.value;
+      app.project.globals[gi][key] = key === "value" ? (el.type === "number" || el.hasAttribute("data-num") ? parseFloat(el.value) : el.value) : el.value;
       touch();
     }
   }
   if (el.type === "range") {
     var sib = el.parentElement.querySelector('input[type="number"]');
     if (sib) sib.value = el.value;
-  } else if (el.type === "number") {
+  } else if (el.type === "number" || el.hasAttribute("data-num")) {
     var sib2 = el.parentElement.querySelector('input[type="range"]');
     if (sib2) sib2.value = el.value;
   }
@@ -581,7 +604,7 @@ function setpath(obj, path, el) {
     cur = cur[parts[i]];
   }
   var last = parts[parts.length - 1];
-  var val = el.type === "checkbox" ? el.checked : el.type === "number" || el.type === "range" ? parseFloat(el.value) : el.value;
+  var val = el.type === "checkbox" ? el.checked : el.type === "number" || el.type === "range" || el.hasAttribute("data-num") ? parseFloat(el.value) : el.value;
   cur[last] = val;
   touch();
 }
@@ -599,7 +622,17 @@ function applynodefield(node, field, el, rerender) {
     renderdoctabs();
   } else if (/^(pos|rot|scl)\.\d$/.test(field)) {
     var p = field.split(".");
-    node[p[0]][+p[1]] = parseFloat(val) || 0;
+    var num = parseFloat(val) || 0;
+    node[p[0]][+p[1]] = num;
+    var many = selectionnodes();
+    if (many.length > 1) {
+      many.forEach(function (n) {
+        if (n !== node) n[p[0]][+p[1]] = num;
+      });
+      many.forEach(function (n) {
+        if (typeof numsync === "function") numsync(n);
+      });
+    }
   } else if (field === "color") {
     node.color = val;
     var sib = el.parentElement.querySelector(".swatch");
@@ -752,7 +785,7 @@ function openobjectmenu(id, x, y) {
       else if (name === "objduplicate") duplicatenode(n);
       else if (name === "objcopy") {
         app.clipboard = JSON.stringify(n);
-        toast("Coplayd " + n.name);
+        toast("Copied " + n.name, "ok");
       } else if (name === "objpaste") {
         if (!app.clipboard) return;
         var copy = clonenode(JSON.parse(app.clipboard));
@@ -896,8 +929,14 @@ function openmainmenu(which, btn) {
       { label: "Build lighting (preview)", icon: "sun", act: "studiopanel:rendering" }
     ],
     select: [
+      { label: "Select all", icon: "marquee", act: "objselectall", key: "Ctrl+A" },
+      { label: "Clear selection", icon: "x", act: "objclear" },
+      { sep: true },
       { label: "Focus selection", icon: "target", act: "objfocus", key: "F" },
       { label: "Select parent", icon: "up", act: "objparent" },
+      { sep: true },
+      { label: "Group selection into a folder", icon: "group", act: "objgroup", key: "Ctrl+G" },
+      { label: "Snap step and rotation step", icon: "magnet", act: "snapmenu" },
       { sep: true },
       { label: "Show colliders", icon: "collider", act: "togglecolliders" },
       { label: "Show navmesh", icon: "target", act: "togglenavoverlay" },

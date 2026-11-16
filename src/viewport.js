@@ -91,6 +91,8 @@ function markerspec(n) {
   if (t === "remote") return { shape: "sphere", size: [0.5, 0.5, 0.5], opacity: 0.5, unlit: true };
   if (t === "numbervalue" || t === "stringvalue") return { shape: "box", size: [0.4, 0.4, 0.08], offset: [0, 0.5, 0], unlit: true };
   if (t === "seat") return { shape: "box", size: [1.2, 0.3, 1.2] };
+  if (t === "highlight") return { shape: "box", size: [1.2, 1.2, 1.2], opacity: 0.16, unlit: true };
+  if (t === "team") return { shape: "sphere", size: [0.5, 0.5, 0.5], unlit: true };
   if (t === "script" || t === "modulescript" || t === "scenescript" || t === "clientscript" || t === "serverscript" || t === "toolscript") return { shape: "box", size: [0.6, 0.6, 0.06], offset: [0, 0.6, 0], unlit: true };
   return null;
 }
@@ -120,7 +122,7 @@ function collectitems() {
         items.push({ id: n.id, kind: "plane", matrix: m4mul(world, m4scale(gw, gh, 1)), color: "#ffffff", opacity: 1, unlit: true, texid: "guiphy" + n.id, texture: gtex, double: true });
         var gb = matrixbounds(m4mul(world, m4scale(gw, gh, 1)), [0.5, 0.5, 0.01]);
         picks.push({ id: n.id, node: n, min: gb.min, max: gb.max });
-      } else if (vis && n.type !== "canvas" && n.type !== "screengui" && n.type !== "frame" && n.type !== "image" && n.type !== "label" && n.type !== "empty" && n.type !== "sun" && n.type !== "button" && n.type !== "slider" && n.type !== "bar" && n.type !== "joystick") {
+      } else if (vis && n.type !== "canvas" && n.type !== "screengui" && n.type !== "frame" && n.type !== "image" && n.type !== "label" && n.type !== "empty" && n.type !== "sun" && n.type !== "folder" && n.type !== "sky" && n.type !== "button" && n.type !== "slider" && n.type !== "bar" && n.type !== "joystick") {
         if (n.type === "camera") {
           if (app.play) continue;
           var cdir = vnorm([-world[8], -world[9], -world[10]]);
@@ -199,6 +201,11 @@ function collectitems() {
             var half2 = (n.size || 30) / 2;
             picks.push({ id: n.id, node: n, min: [px - half2, py - 0.1, pz - half2], max: [px + half2, py + 6 + 0.1, pz + half2] });
           }
+        } else if (n.type === "decal") {
+          var dtex = itemtexture(n) || artmake("grid");
+          items.push({ id: n.id, kind: "plane", matrix: world, color: "#ffffff", opacity: n.opacity === undefined ? 0.95 : n.opacity, unlit: true, texid: "dec" + n.id + (n.sprite || ""), texture: dtex, double: true, faces: "" });
+          var db2 = matrixbounds(world, [0.5, 0.5, 0.05]);
+          picks.push({ id: n.id, node: n, min: db2.min, max: db2.max });
         } else if (markerspec(n)) {
           var ms2 = markerspec(n);
           items.push({
@@ -333,6 +340,7 @@ function mountscene(host) {
     { act: "toolrotate", icon: "rotate", label: "Rotate (E)", on: app.transformmode === "rotate" },
     { act: "toolscale", icon: "scale", label: "Scale (R)", on: app.transformmode === "scale" },
     { act: "toolmarquee", icon: "marquee", label: "Marquee select", on: app.transformmode === "marquee" },
+    { act: "snapmenu", icon: "magnet", label: "Snap and grid step", on: app.snapon !== false },
     { sep: true },
     { act: "addobject", icon: "squareplus", label: "Add object" },
     { act: "focussel", icon: "target", label: "Focus selection (F)" },
@@ -951,7 +959,7 @@ function bindstage() {
         var right2 = vnorm(vcross(forward2, [0, 1, 0]));
         var up2 = vcross(right2, forward2);
         var scale = Math.hypot(cs2.eye[0] - node.pos[0], cs2.eye[1] - node.pos[1], cs2.eye[2] - node.pos[2]) * 0.0016;
-        var snapstep = ev.altKey ? 0.05 : 0.25;
+        var snapstep = snapunit(ev);
         node.pos[0] = Math.round((dragstate.startpos[0] + (right2[0] * dx + up2[0] * -dy) * scale) / snapstep) * snapstep;
         node.pos[1] = Math.round((dragstate.startpos[1] + (right2[1] * dx + up2[1] * -dy) * scale) / snapstep) * snapstep;
         if (ev.shiftKey) node.pos[2] = Math.round((dragstate.startpos[2] + (forward2[2] * dy) * scale * 0.6) / snapstep) * snapstep;
@@ -962,9 +970,9 @@ function bindstage() {
           var ddz = node.pos[2] - dragstate.startpos[2];
           dragstate.group.forEach(function (g) {
             if (g.node === node) return;
-            g.node.pos[0] = Math.round((g.pos[0] + ddx) / 0.05) * 0.05;
-            g.node.pos[1] = Math.round((g.pos[1] + ddy) / 0.05) * 0.05;
-            g.node.pos[2] = Math.round((g.pos[2] + ddz) / 0.05) * 0.05;
+            g.node.pos[0] = Math.round((g.pos[0] + ddx) / snapstep) * snapstep;
+            g.node.pos[1] = Math.round((g.pos[1] + ddy) / snapstep) * snapstep;
+            g.node.pos[2] = Math.round((g.pos[2] + ddz) / snapstep) * snapstep;
           });
           dragstate.readout += "  ·  " + dragstate.group.length + " objects";
         }
@@ -991,13 +999,13 @@ function bindstage() {
             var delta = node.pos[dragstate.axis] - dragstate.startpos[dragstate.axis];
             dragstate.group.forEach(function (g) {
               if (g.node === node) return;
-              g.node.pos[dragstate.axis] = Math.round((g.pos[dragstate.axis] + delta) / 0.05) * 0.05;
+              g.node.pos[dragstate.axis] = Math.round((g.pos[dragstate.axis] + delta) / snapunit(ev)) * snapunit(ev);
             });
             dragstate.readout += "  ·  " + dragstate.group.length + " objects";
           }
         }
       } else if (dragstate.mode === "rotate") {
-        var rstep = ev.altKey ? 1 : 15;
+        var rstep = snaprot(ev);
         node.rot[dragstate.axis] = Math.round((dragstate.startrot[dragstate.axis] + dx * 0.7) / rstep) * rstep;
         dragstate.readout = ["X", "Y", "Z"][dragstate.axis] + " " + Math.round(node.rot[dragstate.axis]) + "°";
         dragstate.cx = p[0];
