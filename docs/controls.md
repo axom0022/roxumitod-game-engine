@@ -80,6 +80,19 @@ Transform rows carry a coloured axis badge per component: X red, Y green, Z blue
 
 Shift click uses the visible order of rows, so it follows the filters that are on screen.
 
+## Align and distribute
+
+`Select` carries the arrangement tools, and they work on any selection of two or more actors.
+
+| Action | Result |
+| --- | --- |
+| Align left, centre or right | Lines actors up on X |
+| Align bottom, middle or top | Lines actors up on Y |
+| Align back, centre or front | Lines actors up on Z |
+| Distribute across X or Y | Spaces three or more actors evenly between the two outermost |
+
+Alignment uses each actor's bounds, so a tall column and a flat platform still line their edges up.
+
 ## Snapping
 
 The magnet button in the viewport tool rail opens the snap menu, and `Select → Snap step and rotation step` opens the same menu.
