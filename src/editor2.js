@@ -22,6 +22,19 @@ function compvalue(node, comp, key, fallback) {
   return d && d[key] !== undefined ? d[key] : fallback;
 }
 
+function manybar() {
+  var pick = selectionnodes();
+  if (pick.length < 2) return "";
+  var types = {};
+  pick.forEach(function (n) {
+    types[n.type] = (types[n.type] || 0) + 1;
+  });
+  var list = Object.keys(types).map(function (k) {
+    return types[k] + " \u00d7 " + (nodemeta[k] ? nodemeta[k].label : k);
+  }).slice(0, 3).join(", ");
+  return '<div class="manybar"><span class="ico">' + ic("group", "ico-sm") + '</span><div><div class="t">' + pick.length + ' actors selected</div><div class="s">' + esc(list) + '</div></div><button class="btn sm" data-act="objgroup">' + ic("folder", "ico-sm") + "Group</button></div>";
+}
+
 function inspectorhtml() {
   var node = selected();
   if (!node) {
@@ -43,7 +56,7 @@ function inspectorhtml() {
       "</div></div>" +
       '<div class="emptystate">Select an actor in the viewport or the Outliner to inspect it.</div>';
   }
-  var html = '<div class="insphead"><button class="name" data-act="renamesel">' + ic(sceneicon(node.type, node.sprite), "ico-sm") + "<span>" + esc(node.name) + '</span><span class="dim">' + ic("chevd", "ico-xs") + '</span></button><button class="iconbtn star" data-act="markstart" title="Start scene">' + ic("star") + "</button>" + '<button class="btn sm projbtn" data-act="projectsettings">' + ic("gear", "ico-sm") + "Project</button></div>";
+  var html = manybar() + '<div class="insphead"><button class="name" data-act="renamesel">' + ic(sceneicon(node.type, node.sprite), "ico-sm") + "<span>" + esc(node.name) + '</span><span class="dim">' + ic("chevd", "ico-xs") + '</span></button><button class="iconbtn star" data-act="markstart" title="Start scene">' + ic("star") + "</button>" + '<button class="btn sm projbtn" data-act="projectsettings">' + ic("gear", "ico-sm") + "Project</button></div>";
   html += '<div class="checkrow">' + check("Visible", node.visible !== false, 'data-node="' + node.id + '" data-field="visible"') + check("Active", node.active !== false, 'data-node="' + node.id + '" data-field="active"') + check("Locked", !!node.lock, 'data-node="' + node.id + '" data-field="lock"') + "</div>";
   html += '<div class="tagrow">' + (node.tags || []).map(function (t) {
     return '<span class="tagchip">' + esc(t) + '<button class="x" data-act="removetag" data-id="' + node.id + '" data-tag="' + esc(t) + '">' + ic("x", "ico-xs") + "</button></span>";

@@ -1778,3 +1778,19 @@ body.numscrub, body.numscrub * { cursor: ew-resize !important; user-select: none
 }
 #numtip.on { opacity: 1; }
 .objrow.on + .objchildren .objrow.on { background: #eef1f8; }
+
+.manybar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 8px 9px;
+  border: 1px solid #2f3a52;
+  border-radius: 6px;
+  background: #1d2634;
+}
+.manybar .ico { color: #6ea2ff; flex: none; }
+.manybar .t { font-size: 12px; font-weight: 600; color: #e8edf7; }
+.manybar .s { font-size: 11px; color: #8e9ab1; margin-top: 1px; }
+.manybar > div { flex: 1; min-width: 0; overflow: hidden; }
+.manybar .btn { flex: none; }

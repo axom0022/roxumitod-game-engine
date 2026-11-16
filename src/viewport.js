@@ -498,6 +498,29 @@ function drawoverlay() {
     g.fillStyle = "#f2f4f8";
     g.fillText(label, top[0] - tw / 2, by + 13);
   });
+  if (app.hoverid && !app.play && (!selnodes.length || !selnodes.some(function (n) { return n.id === app.hoverid; }))) {
+    var hpick = null;
+    for (var hi = 0; hi < view.picks.length; hi++) if (view.picks[hi].id === app.hoverid) hpick = view.picks[hi];
+    if (hpick) {
+      var hc = boxcorners(hpick.min, hpick.max);
+      var hpts = hc.map(function (c) {
+        return projectpoint(m.vp, c, w, h);
+      });
+      if (hpts.every(function (p) { return !!p; })) {
+        var hedges = [[0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7], [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+        g.strokeStyle = "rgba(120,200,255,0.55)";
+        g.lineWidth = 1;
+        g.setLineDash([3, 3]);
+        hedges.forEach(function (ed) {
+          g.beginPath();
+          g.moveTo(hpts[ed[0]][0], hpts[ed[0]][1]);
+          g.lineTo(hpts[ed[1]][0], hpts[ed[1]][1]);
+          g.stroke();
+        });
+        g.setLineDash([]);
+      }
+    }
+  }
   if (node && !app.play) drawgizmo(g, node, m, w, h);
   if (dragstate && dragstate.mode === "marquee") {
     var x0 = Math.min(dragstate.sx, dragstate.cx);

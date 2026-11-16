@@ -198,13 +198,6 @@ function numfinish(ev) {
   if (typeof touch === "function") touch();
 }
 
-function nuberase(ev) {
-  var el = ev.target;
-  if (!el || !el.hasAttribute || !el.hasAttribute("data-num")) return;
-  if (ev.key !== "Backspace" && ev.key !== "Delete") return;
-  if (!el.selectionStart && el.selectionStart !== 0) return;
-}
-
 function nudgepick() {
   var pick = selectionnodes();
   if (pick.length) return pick;
@@ -278,6 +271,11 @@ function selpaint() {
     var n = selectionnodes().length;
     foot.textContent = n ? n + (n === 1 ? " actor selected" : " actors selected") : "Nothing selected";
   }
+}
+
+function rowhover(ev) {
+  var row = ev.target.closest ? ev.target.closest("#objlist .objrow") : null;
+  app.hoverid = row ? row.getAttribute("data-id") : null;
 }
 
 function renpick(id) {
@@ -420,6 +418,66 @@ function objctx(ev) {
   });
 }
 
+function selbounds(pick) {
+  var lo = [1e9, 1e9, 1e9];
+  var hi = [-1e9, -1e9, -1e9];
+  pick.forEach(function (n) {
+    var size = nodesize(n);
+    for (var i = 0; i < 3; i++) {
+      var half = (i === 2 ? (size[2] || size[0]) : size[i]) * 0.5;
+      lo[i] = Math.min(lo[i], n.pos[i] - half);
+      hi[i] = Math.max(hi[i], n.pos[i] + half);
+    }
+  });
+  return { lo: lo, hi: hi };
+}
+
+acts.align = function (arg) {
+  var pick = selectionnodes();
+  if (pick.length < 2) {
+    toast("Select two or more actors to align", "warn");
+    return;
+  }
+  var parts = String(arg || "x:center").split(":");
+  var axis = ["x", "y", "z"].indexOf(parts[0]);
+  if (axis < 0) axis = 0;
+  var mode = parts[1] || "center";
+  var box = selbounds(pick);
+  pick.forEach(function (n) {
+    var size = nodesize(n);
+    var half = (axis === 2 ? (size[2] || size[0]) : size[axis]) * 0.5;
+    if (mode === "min") n.pos[axis] = box.lo[axis] + half;
+    else if (mode === "max") n.pos[axis] = box.hi[axis] - half;
+    else n.pos[axis] = (box.lo[axis] + box.hi[axis]) / 2;
+    n.pos[axis] = Math.round(n.pos[axis] * 1000) / 1000;
+    numsync(n);
+  });
+  commit("align");
+  toast("Aligned " + pick.length + " actors", "ok");
+};
+
+acts.distribute = function (arg) {
+  var pick = selectionnodes();
+  if (pick.length < 3) {
+    toast("Select three or more actors to distribute", "warn");
+    return;
+  }
+  var axis = ["x", "y", "z"].indexOf(arg);
+  if (axis < 0) axis = 0;
+  pick.sort(function (a, b) {
+    return a.pos[axis] - b.pos[axis];
+  });
+  var first = pick[0].pos[axis];
+  var last = pick[pick.length - 1].pos[axis];
+  var gap = (last - first) / (pick.length - 1);
+  pick.forEach(function (n, i) {
+    n.pos[axis] = Math.round((first + gap * i) * 1000) / 1000;
+    numsync(n);
+  });
+  commit("distribute");
+  toast("Distributed " + pick.length + " actors evenly", "ok");
+};
+
 acts.objselectall = function () {
   app.selids = [];
   walk(app.scene.objects, function (n) {
@@ -519,6 +577,7 @@ if (typeof document !== "undefined") {
   document.addEventListener("blur", numfinish, true);
   document.addEventListener("dblclick", renrow);
   document.addEventListener("pointerdown", objclear);
+  document.addEventListener("pointerover", rowhover);
   document.addEventListener("contextmenu", objctx);
   document.addEventListener("keydown", dirkey);
   window.addEventListener("load", function () {
