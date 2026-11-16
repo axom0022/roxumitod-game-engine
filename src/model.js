@@ -572,13 +572,13 @@ function saveprojects() {
     }
     if (!found) list.unshift(app.project);
     app.projects = list;
-    localStorage.setItem("unixomut-projects-v1", JSON.stringify(list));
+    localStorage.setItem("roxumitod-projects-v1", JSON.stringify(list));
   } catch (e) {}
 }
 
 function loadprojects() {
   try {
-    var raw = localStorage.getItem("unixomut-projects-v1");
+    var raw = localStorage.getItem("roxumitod-projects-v1") || localStorage.getItem("unixomut-projects-v1");
     if (!raw) return [];
     var list = JSON.parse(raw);
     return Array.isArray(list) ? list : [];
@@ -591,13 +591,13 @@ function savesession() {
   try {
     if (!app || !app.project) return;
     saveprojects();
-    localStorage.setItem("unixomut-session-v1", JSON.stringify({ projectid: app.project.id, sceneid: app.sceneid, backend: app.backend }));
+    localStorage.setItem("roxumitod-session-v1", JSON.stringify({ projectid: app.project.id, sceneid: app.sceneid, backend: app.backend }));
   } catch (e) {}
 }
 
 function loadsession() {
   try {
-    var raw = localStorage.getItem("unixomut-session-v1");
+    var raw = localStorage.getItem("roxumitod-session-v1") || localStorage.getItem("unixomut-session-v1");
     return raw ? JSON.parse(raw) : null;
   } catch (e) {
     return null;

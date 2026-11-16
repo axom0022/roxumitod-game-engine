@@ -142,7 +142,7 @@ function cinefinish(was) {
   app.cinecam = null;
   run.rec.onstop = function () {
     var blob = new Blob(run.chunks, { type: "video/webm" });
-    var name = "unixomut-render-" + Date.now() + ".webm";
+    var name = "roxumitod-render-" + Date.now() + ".webm";
     downloadblob(name, blob);
     toast("Render complete · " + Math.round(blob.size / 1024) + " KB", "ok");
     cinerun = null;
@@ -174,7 +174,7 @@ function cinestill() {
   var dh = sh * sc;
   g.drawImage(canvas, (out.width - dw) / 2, (out.height - dh) / 2, dw, dh);
   out.toBlob(function (blob) {
-    downloadblob("unixomut-still-" + cfg.width + "x" + cfg.height + ".png", blob);
+    downloadblob("roxumitod-still-" + cfg.width + "x" + cfg.height + ".png", blob);
     toast("Still exported at " + cfg.width + "x" + cfg.height, "ok");
   }, "image/png");
 }

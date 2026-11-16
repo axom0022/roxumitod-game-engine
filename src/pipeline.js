@@ -1103,7 +1103,7 @@ function downloadgame() {
 }
 
 function projectbackup() {
-  return { format: "unixomut-project", version: 2, engine: "Roxumitod Game Engine", saved: new Date().toISOString(), project: app.project };
+  return { format: "roxumitod-project", version: 2, engine: "Roxumitod Game Engine", saved: new Date().toISOString(), project: app.project };
 }
 
 function itchreadme() {
@@ -1208,7 +1208,7 @@ acts.exportapk = function () {
   body += '<div class="frow"><div class="flabel">Icon</div><div class="fctrl"><button class="assetpick" data-apkicon>' + (app.project.icon && app.project.icon !== "none" ? ic("image", "ico-sm") + "<span>Project icon</span>" : ic("image", "ico-sm") + "<span>Default icon</span>") + '</button></div></div>';
   body += '<div class="pickgroup">Signing key</div>';
   body += '<div class="frow"><div class="flabel">Keystore</div><div class="fctrl"><input class="inp" data-apkfield="keystore" value="release.keystore"></div></div>';
-  body += '<div class="frow"><div class="flabel">Alias</div><div class="fctrl"><input class="inp" data-apkfield="alias" value="unixomut"></div></div>';
+  body += '<div class="frow"><div class="flabel">Alias</div><div class="fctrl"><input class="inp" data-apkfield="alias" value="roxumitod"></div></div>';
   body += '<div class="frow"><div class="flabel">Password</div><div class="fctrl"><input class="inp" type="password" data-apkfield="password" value=""></div></div>';
   body += '<div class="frow"><div class="flabel">Key password</div><div class="fctrl"><input class="inp" type="password" data-apkfield="keypassword" value=""></div></div>';
   body += "</div>";
@@ -1223,7 +1223,7 @@ acts.exportapk = function () {
         closemodal(s);
       },
       build: function (m, s) {
-        var pkg = { appid: "com.unixomut.game", label: app.project.name, version: "1.0.0", code: 1, orientation: "landscape", keystore: "", alias: "", password: "", keypassword: "" };
+        var pkg = { appid: "com.roxumitod.game", label: app.project.name, version: "1.0.0", code: 1, orientation: "landscape", keystore: "", alias: "", password: "", keypassword: "" };
         m.querySelectorAll("[data-apkfield]").forEach(function (el) {
           var f = el.getAttribute("data-apkfield");
           pkg[f] = el.type === "number" ? parseInt(el.value, 10) || 1 : el.value;
@@ -1247,7 +1247,7 @@ acts.exportapk = function () {
 };
 
 function githubapi(path, opts) {
-  var cfg = app.github || (app.github = { token: "", owner: "", repo: "", branch: "main", path: "unixomut-game.ugm" });
+  var cfg = app.github || (app.github = { token: "", owner: "", repo: "", branch: "main", path: "roxumitod-game.ugm" });
   var url = "https://api.github.com/repos/" + cfg.owner + "/" + cfg.repo + path;
   var headers = { Accept: "application/vnd.github+json" };
   if (cfg.token) headers.Authorization = "Bearer " + cfg.token;
@@ -1262,7 +1262,7 @@ function githubapi(path, opts) {
 }
 
 function githubform(mode) {
-  var cfg = app.github || (app.github = { token: "", owner: "", repo: "", branch: "main", path: "unixomut-game.ugm" });
+  var cfg = app.github || (app.github = { token: "", owner: "", repo: "", branch: "main", path: "roxumitod-game.ugm" });
   var body = '<div class="hintline">' + (mode === "import" ? "Load a .ugm project file from a GitHub repository." : "Commit the current project to a GitHub repository as a .ugm backup.") + "</div>";
   body += '<div class="evtform">';
   body += '<div class="frow"><div class="flabel">Owner</div><div class="fctrl"><input class="inp" data-ghfield="owner" value="' + esc(cfg.owner) + '" placeholder="username"></div></div>';

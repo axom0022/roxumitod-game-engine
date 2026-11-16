@@ -598,7 +598,7 @@ function plugpanelopen(id) {
 }
 
 function plugexport(rec) {
-  return JSON.stringify({ format: "unixomut-plugin", version: 1, engine: "Roxumitod Game Engine", plugin: { id: rec.id, name: rec.name, description: rec.description, author: rec.author, version: rec.version, icon: rec.icon, code: rec.code, enabled: rec.enabled } }, null, 2);
+  return JSON.stringify({ format: "roxumitod-plugin", version: 1, engine: "Roxumitod Game Engine", plugin: { id: rec.id, name: rec.name, description: rec.description, author: rec.author, version: rec.version, icon: rec.icon, code: rec.code, enabled: rec.enabled } }, null, 2);
 }
 
 function plugimport(text) {
