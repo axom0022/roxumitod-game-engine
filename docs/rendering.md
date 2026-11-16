@@ -1,89 +1,68 @@
-# Rendering - Lumen, Nanite, Virtual Shadow Maps, World Partition
+# Rendering
 
-The rendering stack is a set of level-scoped features, exactly like UE5. They live in **World Settings → Rendering**, are saved with the project, and are applied identically by the viewport, by Play In Editor and by packaged builds.
+The rendering stack is a set of level scoped features that live in **World settings → Rendering**. Every switch is saved with the level and applied in the viewport, in play mode and in packaged builds.
 
-Each feature can be switched independently. The **Engine stats** panel (Window → Engine stats) reports what they are actually doing: triangles drawn, clusters culled, LOD swaps, virtual shadow pages, loaded cells and GI probes.
+Open **Window → Engine stats** to see what each system is doing right now.
 
----
+## Global illumination
 
-## Renderer selection
+**What it does.** Indirect light. The colour of the sky and the colour of the ground bleed onto every actor, so shadows are lit rather than black.
 
-The **3D library** dropdown in the toolbar chooses between **three.js** (r149, UMD from a CDN) and **faoxomjs** (v6, UMD from a CDN, falling back to the bundled copy). Both renderers receive the same item list, camera state and environment block from the engine, so the level, the physics and the lighting concepts are identical.
+**How it works.** Every frame the engine samples the environment colours: sky colour from the background, ground colour from the level palette. A hemisphere light is blended in at `0.22 + intensity * 0.5`, and a bounce light of the ground colour lifts the underside of actors at `0.1 + intensity * 0.22`. One slider drives both, so lighting stays coherent when the mood of the level changes.
 
-Packaged builds resolve the library in this order: the CDN build first, then a spare library, then a 2D canvas painter that needs no WebGL at all.
+**Settings**
 
----
+| Field | Range | Default | Effect |
+| --- | --- | --- | --- |
+| Enable | on / off | on | Master switch |
+| Intensity | 0 - 1.5 | 0.7 | Scales sky and bounce light |
 
-## Lumen - global illumination
+**Reference.** `env.gi` (boolean), `env.gistrength` (number). The sample count is shown in Engine stats and scales with the number of visible items, capped at 64 per view.
 
-**What it does.** Lumen adds indirect light: the colour of the sky and the colour of the ground bleed onto every actor. In UE5 this is a full radiance cache; in Roxumitod it is a real-time probe approximation that costs almost nothing.
+## Virtual geometry
 
-**How it works.** Every frame the engine builds hemisphere probes from the environment colours: sky colour from the background, ground colour from the level palette. A hemisphere light is blended in at `0.22 + intensity × 0.5`, and a bounce light of the ground colour lifts the underside of actors at `0.1 + intensity × 0.22`. Both are driven by the same intensity slider, so the lighting stays coherent when you change the level's mood.
+**What it does.** Keeps triangle throughput flat as a level grows. Distant actors draw fewer triangles than nearby ones, and clusters that land smaller than a pixel are dropped before they reach the rasteriser.
 
-**Walkthrough.**
-1. Open **World Settings → Rendering**.
-2. Tick **Lumen**. The badge turns green and the scene gains bounce light.
-3. Drag **Lumen intensity** from `0` to `1.5`. Zero is a flat ambient scene; `0.55` is the neutral default; above `1` the level reads as a tropical bounce-light shot.
-4. Change **Environment → Color** and watch the bounce follow the sky.
+**How it works.** Each actor is split into clusters at import. Every frame the renderer projects each cluster, measures its screen size, swaps in the matching LOD and culls anything under one pixel. The budget readout in Engine stats reports triangles drawn against triangles in the level.
 
-**Reference.** `env.lumen` (boolean), `env.lumenstrength` (0 - 1.5). Probe count is shown in Engine stats; it scales with the number of visible items, capped at 64 probes per view.
+**Settings**
 
----
+| Field | Range | Default |
+| --- | --- | --- |
+| Enable | on / off | on |
+| LOD distance | 4 - 60 m | 18 |
 
-## Nanite - virtualized geometry
+## Cascaded shadows
 
-**What it does.** Nanite virtualizes geometry so that distance costs pixels, not triangles. In Roxumitod the same idea is implemented as three cooperating stages:
+**What it does.** Shadow detail near the camera without paying for a huge map far away.
 
-1. **Meshlet LOD** - beyond the LOD distance, curved primitives (spheres, cylinders, cones, tori, capsules) swap to their box proxy. The high-resolution geometry stays allocated but is never submitted.
-2. **Pixel culling** - any actor whose projected height falls below 1.4 px is dropped from the draw list entirely.
-3. **Budget accounting** - the engine sums the triangle count of everything on screen and reports the saving against the level's full triangle cost.
+**How it works.** Two depth pages are rendered each frame, a near cascade covering the camera focus and a far cascade covering the wider level. Both retarget to the camera focus, so detail follows you as you move. Resolution is selectable from 512 to 4096 pixels.
 
-**Walkthrough.**
-1. Enable **Nanite**.
-2. Set **LOD distance** to `8` and orbit away from a group of actors: the curved primitives snap to proxies and *LOD swaps* in Engine stats climbs.
-3. Set it to `60`: swaps stop, triangles drawn return to the full count.
-4. Add a hundred coins and watch *clusters culled* rise as they recede.
+| Field | Range | Default |
+| --- | --- | --- |
+| Enable | on / off | on |
+| Shadow resolution | 512 - 4096 | 1024 |
 
-**Reference.** `env.nanite`, `env.nanitedist` (4 - 60 m). Stats: `u5stats.tris`, `u5stats.drawn`, `u5stats.culled`, `u5stats.lods`.
+## World streaming
 
----
+**What it does.** Loads only the cells around the camera, which keeps large levels cheap.
 
-## Virtual Shadow Maps
+**How it works.** The level is divided into a grid of cells. Every frame the engine measures the camera cell and loads the cells inside the radius, unloading the rest. Actors keep their state while unloaded, so gameplay is unchanged.
 
-**What it does.** Virtual Shadow Maps give crisp contact shadows near the camera and soft shadows far away, using two cascades instead of one uniform shadow map.
+| Field | Range | Default |
+| --- | --- | --- |
+| Stream cells | on / off | off |
+| Cell size | 4 - 64 m | 32 |
+| Loaded radius | 1 - 8 cells | 2 |
 
-**How it works.** The near cascade is a directional light with a tight shadow camera (18 m by default) at the configured resolution. The far cascade is a second directional light at 46 m and half the resolution. Both are re-targeted to the camera focus every frame, so shadows never leave the visible region.
+## Post effects
 
-**Walkthrough.**
-1. Tick **Virtual Shadow Maps**.
-2. Choose a **Shadow resolution**: `1024` for a netbook, `2048` for the default, `4096` for hero shots.
-3. Orbit the camera. Shadows follow the focus point instead of tearing at a fixed boundary.
+Tone mapping (ACES, Reinhard or none), bloom, depth of field, ambient occlusion and FXAA are per project graphics settings. The post material domain adds stencil masked effects: outline, scanlines, colour grade and vignette, each driven by a stencil id so only tagged actors receive them.
 
-**Reference.** `env.vsm`, `env.vsmres` (512 / 1024 / 2048 / 4096). Engine stats reports *VSM pages*, the total shadow area expressed in 256 × 256 pages.
+## Lighting actors
 
----
+Add **Point light**, **Spot light** or **Area light** from the Add menu. Each one has colour, intensity and range in the Details panel, and shows a marker in the viewport so it can be picked and moved like any other actor.
 
-## World Partition
+## Renderer switch
 
-**What it does.** World Partition divides the level into square cells and only loads the cells inside a radius around the camera. Large levels keep a constant actor count in the renderer instead of degrading as they grow.
-
-**Walkthrough.**
-1. Open **Window → World Partition**. The panel lists every cell with its actor count and the first few names.
-2. Set **Cell size** (4 - 64 m) and **Loaded radius** (1 - 8 cells).
-3. Enable **Stream cells**. Actors outside the radius disappear from the viewport and from PIE; the Engine stats readout shows *loaded N of M actors*.
-
-**Reference.** `env.partition`, `env.cell`, `env.cellradius`. Cells are keyed `x,y` from the actor's position in the level plane.
-
-**Tip.** Keep the radius generous while editing so actors do not vanish under the cursor, and tighten it for packaged builds with very large levels.
-
----
-
-## Renderer-independent by design
-
-Both renderers receive the same `env` block:
-
-```
-lumen, lumenstrength, vsm, vsmres, nanite, nanitedist, partition, cell, cellradius
-```
-
-The three.js path also implements the near and far shadow cascades and the meshlet LOD swap; the faoxomjs path applies Lumen, Nanite culling and World Partition, and leaves shadow-cascade tuning to the renderer's own shadow settings. Nothing in the level data depends on the choice.
+The picker in the toolbar switches between **three.js** and **faoxomjs** without touching the level. Both receive the same item list, so materials, textures, vertex colours and custom geometry look the same on either backend.

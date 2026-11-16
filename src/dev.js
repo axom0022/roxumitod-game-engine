@@ -78,7 +78,7 @@ function pkginstall(name) {
 function pkgpanel() {
   pkgload();
   var keys = Object.keys(pkgreg);
-  var body = '<div class="pkgbody">' + u5sec("Modules and packages", "Semantic versions and dependency resolution",
+  var body = '<div class="pkgbody">' + sgsec("Modules and packages", "Semantic versions and dependency resolution",
     (keys.length ? '<div class="pkgrows">' + keys.map(function (k) {
       var p = pkgreg[k];
       var upd = pkgsemvercmp(p.version, p.latest) < 0;
@@ -87,8 +87,8 @@ function pkgpanel() {
         '<span class="ps">' + p.size + " kb</span>" +
         (upd ? '<button class="btn sm" data-pkgup="' + esc(k) + '">Update</button>' : "") +
         '<button class="btn sm ghost" data-pkgtog="' + esc(k) + '">' + (p.enabled ? "Disable" : "Enable") + "</button></div>";
-    }).join("") + "</div>" : u5note("No packages installed.")) +
-    '<div class="u5btns"><button class="btn" data-pkgact="resolve">Resolve dependency tree</button>' +
+    }).join("") + "</div>" : sgnote("No packages installed.")) +
+    '<div class="sgbtns"><button class="btn" data-pkgact="resolve">Resolve dependency tree</button>' +
     '<button class="btn ghost" data-pkgact="new">New package</button></div>' +
     '<div class="landout" id="pkgout">' + keys.length + " packages tracked.</div>");
   body += "</div>";
@@ -191,13 +191,13 @@ function verrestore(id) {
 
 function verpanel() {
   var list = verlist();
-  var body = '<div class="verbody">' + u5sec("Version history", "Snapshots with rollback",
-    '<div class="u5btns"><button class="btn" data-veract="snap">Take snapshot</button></div>' +
+  var body = '<div class="verbody">' + sgsec("Version history", "Snapshots with rollback",
+    '<div class="sgbtns"><button class="btn" data-veract="snap">Take snapshot</button></div>' +
     (list.length ? '<div class="verrows">' + list.slice().reverse().map(function (s) {
       return '<div class="verrow"><span class="vl">' + esc(s.label) + '</span><span class="vt">' + new Date(s.at).toLocaleString() + '</span><span class="va">' + s.actors + " actors</span>" +
         '<button class="btn sm" data-verrestore="' + esc(s.id) + '">Restore</button>' +
         '<button class="btn sm ghost" data-verdiff="' + esc(s.id) + '">Diff</button></div>';
-    }).join("") + "</div>" : u5note("No snapshots yet.")) +
+    }).join("") + "</div>" : sgnote("No snapshots yet.")) +
     '<div class="landout" id="verout">' + list.length + " snapshots stored for this level.</div>");
   body += "</div>";
   openmodal({
@@ -267,12 +267,12 @@ function scmcommit(msg) {
 }
 
 function scmpanel() {
-  var body = '<div class="scmbody">' + u5sec("Source control", "Local commits, branches and checkout",
-    '<div class="u5btns"><button class="btn" data-scmact="commit">Commit changes</button>' +
+  var body = '<div class="scmbody">' + sgsec("Source control", "Local commits, branches and checkout",
+    '<div class="sgbtns"><button class="btn" data-scmact="commit">Commit changes</button>' +
     '<button class="btn ghost" data-scmact="branch">New branch</button>' +
     '<button class="btn ghost" data-scmact="push">Push to remote</button></div>' +
-    u5row("Branch", '<span class="u5val">' + esc(scm.current) + "</span>") +
-    u5row("Branches", '<span class="u5val">' + Object.keys(scm.branches).join(", ") + "</span>") +
+    sgrow("Branch", '<span class="sgval">' + esc(scm.current) + "</span>") +
+    sgrow("Branches", '<span class="sgval">' + Object.keys(scm.branches).join(", ") + "</span>") +
     '<div class="scmlog">' + (scm.commits.length ? scm.commits.slice().reverse().map(function (c) {
       return '<div class="scmrow"><span class="sid">' + c.id + '</span><span class="smsg">' + esc(c.msg) + '</span><span class="sat">' + new Date(c.at).toLocaleTimeString() + "</span>" +
         '<button class="btn sm ghost" data-scmcheckout="' + c.id + '">Checkout</button></div>';
@@ -351,7 +351,7 @@ function marketinstall(pk) {
 }
 
 function marketpanel() {
-  var body = '<div class="marketbody">' + u5sec("Asset toolbox and marketplace", "Free packs ready to install into the level",
+  var body = '<div class="marketbody">' + sgsec("Asset toolbox and marketplace", "Free packs ready to install into the level",
     '<div class="searchbox mb8">' + ic("search", "ico-sm") + '<input placeholder="Search packs" id="mktsearch"></div>' +
     '<div class="packgrid" id="mktgrid">' + marketpacks.map(function (p) {
       return '<div class="packcard" data-pack="' + esc(p.id) + '"><div class="pkt">' + esc(p.name) + '</div><div class="pka">' + esc(p.author) + "</div>" +
@@ -393,13 +393,13 @@ var devicemodels = [
 ];
 
 function devicepanel() {
-  var body = '<div class="devicebody">' + u5sec("Device emulator", "Preview resolution, safe area and touch overlay",
+  var body = '<div class="devicebody">' + sgsec("Device emulator", "Preview resolution, safe area and touch overlay",
     '<div class="devgrid">' + devicemodels.map(function (d) {
       return '<button class="devcard" data-dev="' + d.id + '"><b>' + esc(d.name) + "</b><span>" + d.w + " x " + d.h + " at " + d.dpr + "x</span><span>" + (d.touch ? "touch" : "pointer") + "</span></button>";
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-devact="apply">Apply to play preview</button>' +
+    '<div class="sgbtns"><button class="btn" data-devact="apply">Apply to play preview</button>' +
     '<button class="btn ghost" data-devact="safe">Show safe area</button></div>' +
-    '<div class="devframe" id="devframe"><div class="devscreen">' + (app.play ? "Play in editor is running" : "Preview placeholder") + "</div></div>" +
+    '<div class="devframe" id="devframe"><div class="devscreen">' + (app.play ? "Play mode is running" : "Preview placeholder") + "</div></div>" +
     '<div class="landout" id="devout">Pick a model.</div>');
   body += "</div>";
   openmodal({
@@ -432,7 +432,7 @@ function devicepanel() {
           }
           if (b.getAttribute("data-devact") === "apply" && typeof setplayres === "function") {
             setplayres(picked.w, picked.h, picked.name, picked.h > picked.w ? "portrait" : "landscape");
-            toast(picked.name + " applied to play in editor", "ok");
+            toast(picked.name + " applied to play mode", "ok");
           } else {
             var out2 = qs("#devout");
             if (out2) out2.textContent = "Safe area inset 8 percent on all edges for notches and rounded corners.";
@@ -444,12 +444,12 @@ function devicepanel() {
 }
 
 function playtestpanel() {
-  var body = '<div class="ptbody">' + u5sec("Multi client play test", "Open several clients against the same session",
+  var body = '<div class="ptbody">' + sgsec("Multi client play test", "Open several clients against the same session",
     sliderrow("Clients", devstate.clients || 2, 1, 4, 1, 'data-pt="clients"') +
-    '<div class="u5btns"><button class="btn" data-ptact="launch">Launch clients</button>' +
+    '<div class="sgbtns"><button class="btn" data-ptact="launch">Launch clients</button>' +
     '<button class="btn ghost" data-ptact="close">Close all</button></div>' +
     '<div class="ptframes" id="ptframes"></div>' +
-    u5note("Each client runs the packaged build in its own frame and joins the session you host."));
+    sgnote("Each client runs the packaged build in its own frame and joins the session you host."));
   body += "</div>";
   openmodal({
     title: "Multi Client Play Test",
@@ -499,10 +499,10 @@ function devcommandlist() {
     { id: "panel:world", label: "Show solid modelling and sculpting", run: meshpanel },
     { id: "panel:land", label: "Show landscape layers", run: landpaintpanel },
     { id: "panel:foliage", label: "Show foliage instancing", run: foliagepanel },
-    { id: "panel:partition", label: "Show world partition", run: partitionpanel },
+    { id: "panel:partition", label: "Show world streaming", run: streampanel },
     { id: "panel:leveli", label: "Show level instances", run: levelinstpanel },
     { id: "panel:proc", label: "Show procedural mesh", run: procmeshpanel },
-    { id: "panel:rig", label: "Show control rig and ragdoll", run: rigpanel },
+    { id: "panel:rig", label: "Show rig solver and ragdoll", run: rigpanel },
     { id: "panel:facial", label: "Show facial and morph animation", run: facialpanel },
     { id: "panel:notify", label: "Show animation notifies", run: animnotifypanel },
     { id: "panel:vehicle", label: "Show vehicle", run: vehiclepanel },
@@ -607,7 +607,7 @@ var themes = {
   dark: {},
   midnight: { "--bg-0": "#0b0e13", "--bg-1": "#11151b", "--bg-2": "#161b22", "--bg-3": "#1c222b", "--bg-4": "#232b35", "--bg-5": "#2c3642", "--panel": "#131920", "--line": "#26303a" },
   graphite: { "--bg-0": "#121212", "--bg-1": "#181818", "--bg-2": "#1e1e1e", "--bg-3": "#262626", "--bg-4": "#303030", "--bg-5": "#3a3a3a", "--panel": "#1a1a1a", "--line": "#333333" },
-  blueprint: { "--bg-0": "#0d1522", "--bg-1": "#111b2b", "--bg-2": "#162235", "--bg-3": "#1c2c43", "--bg-4": "#25384f", "--panel": "#122033", "--line": "#26384f", "--blue": "#4d8df0" },
+  logic: { "--bg-0": "#0d1522", "--bg-1": "#111b2b", "--bg-2": "#162235", "--bg-3": "#1c2c43", "--bg-4": "#25384f", "--panel": "#122033", "--line": "#26384f", "--blue": "#4d8df0" },
   light: { "--bg-0": "#e8ebf0", "--bg-1": "#f0f2f6", "--bg-2": "#f6f8fb", "--bg-3": "#ffffff", "--bg-4": "#e2e6ec", "--bg-5": "#d6dae1", "--panel": "#ffffff", "--line": "#ccd2da", "--text": "#23262b", "--text-2": "#3d424a", "--muted": "#5f6672", "--dim": "#7b828e" }
 };
 
@@ -629,13 +629,13 @@ function themapply(name) {
 }
 
 function dockpanel() {
-  var body = '<div class="dockbody">' + u5sec("Dock layout", "Panel arrangement presets",
-    '<div class="u5btns"><button class="btn" data-dock="default">Default</button>' +
+  var body = '<div class="dockbody">' + sgsec("Dock layout", "Panel arrangement presets",
+    '<div class="sgbtns"><button class="btn" data-dock="default">Default</button>' +
     '<button class="btn ghost" data-dock="wide">Wide center</button>' +
     '<button class="btn ghost" data-dock="split">Split panels</button>' +
     '<button class="btn ghost" data-dock="zoom">Viewport only</button></div>' +
-    u5row("Current", '<span class="u5val">' + esc(devstate.layout) + "</span>"));
-  body += u5sec("Themes", "Colour palettes applied to the whole editor",
+    sgrow("Current", '<span class="sgval">' + esc(devstate.layout) + "</span>"));
+  body += sgsec("Themes", "Colour palettes applied to the whole editor",
     '<div class="themegrid">' + Object.keys(themes).map(function (k) {
       return '<button class="themecard' + (devstate.theme === k ? " on" : "") + '" data-theme="' + k + '"><b>' + esc(k) + "</b><span></span></button>";
     }).join("") + "</div>");
@@ -677,7 +677,7 @@ var keymaps = [
   { id: "rotate", label: "Rotate tool", key: "E" },
   { id: "scale", label: "Scale tool", key: "R" },
   { id: "focus", label: "Focus selection", key: "F" },
-  { id: "play", label: "Play in editor", key: "Space" },
+  { id: "play", label: "Play in viewport", key: "Space" },
   { id: "delete", label: "Delete actor", key: "Del" },
   { id: "duplicate", label: "Duplicate", key: "Ctrl+D" },
   { id: "save", label: "Save level", key: "Ctrl+S" },
@@ -685,11 +685,11 @@ var keymaps = [
 ];
 
 function keybindpanel() {
-  var body = '<div class="keybody">' + u5sec("Keybinds", "Remap editor shortcuts",
+  var body = '<div class="keybody">' + sgsec("Keybinds", "Remap editor shortcuts",
     '<div class="keyrows">' + keymaps.map(function (k) {
       return '<div class="keyrow"><span class="kl">' + esc(k.label) + '</span><input class="inp keycap" value="' + esc(devstate.keys[k.id] || k.key) + '" data-keybind="' + esc(k.id) + '"></div>';
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-keyact="reset">Reset defaults</button>' +
+    '<div class="sgbtns"><button class="btn" data-keyact="reset">Reset defaults</button>' +
     '<button class="btn ghost" data-keyact="capture">Capture next key</button></div>' +
     '<div class="landout" id="keyout">' + Object.keys(devstate.keys).length + " remapped shortcuts.</div>");
   body += "</div>";
@@ -759,13 +759,13 @@ function crashtest() {
 
 function crashpanel() {
   var rec = crashtest();
-  var body = '<div class="crashbody">' + u5sec("Crash recovery", "Autosaved drafts restored after an unclean exit",
-    u5row("Draft", '<span class="u5val">' + (rec ? new Date(rec.at).toLocaleString() : "none") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-crashact="save">Write a recovery draft now</button>' +
+  var body = '<div class="crashbody">' + sgsec("Crash recovery", "Autosaved drafts restored after an unclean exit",
+    sgrow("Draft", '<span class="sgval">' + (rec ? new Date(rec.at).toLocaleString() : "none") + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-crashact="save">Write a recovery draft now</button>' +
     '<button class="btn ghost" data-crashact="restore">Restore draft</button>' +
     '<button class="btn ghost" data-crashact="clear">Clear draft</button></div>' +
     '<div class="landout" id="crashout">' + (rec ? "A draft exists and can be restored." : "No draft on disk.") + "</div>" +
-    u5note("A draft is written on every commit and cleared on a clean close."));
+    sgnote("A draft is written on every commit and cleared on a clean close."));
   body += "</div>";
   openmodal({
     title: "Crash Recovery",
@@ -819,13 +819,13 @@ function accessapply() {
 
 function accesspanel() {
   var a = devstate.access;
-  var body = '<div class="accessbody">' + u5sec("Accessibility", "Editor wide reading and motor support",
-    u5row("High contrast", check("Stronger borders and text", a.contrast, 'data-acc="contrast"')) +
-    u5row("Larger text", check("Scale the interface up", a.bigtext, 'data-acc="bigtext"')) +
-    u5row("Reduced motion", check("Minimise transitions and parallax", a.reduce, 'data-acc="reduce"')) +
-    u5row("Visible focus", check("Draw a focus ring on every control", a.focus !== false, 'data-acc="focus"')) +
-    u5row("Screen reader hint", '<span class="u5val">Every icon button carries a title and aria label</span>') +
-    '<div class="u5btns"><button class="btn" data-accact="audit">Audit labels</button></div>' +
+  var body = '<div class="accessbody">' + sgsec("Accessibility", "Editor wide reading and motor support",
+    sgrow("High contrast", check("Stronger borders and text", a.contrast, 'data-acc="contrast"')) +
+    sgrow("Larger text", check("Scale the interface up", a.bigtext, 'data-acc="bigtext"')) +
+    sgrow("Reduced motion", check("Minimise transitions and parallax", a.reduce, 'data-acc="reduce"')) +
+    sgrow("Visible focus", check("Draw a focus ring on every control", a.focus !== false, 'data-acc="focus"')) +
+    sgrow("Screen reader hint", '<span class="sgval">Every icon button carries a title and aria label</span>') +
+    '<div class="sgbtns"><button class="btn" data-accact="audit">Audit labels</button></div>' +
     '<div class="landout" id="accout">Ready.</div>');
   body += "</div>";
   openmodal({

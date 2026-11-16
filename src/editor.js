@@ -75,7 +75,7 @@ function buildshell() {
     '<nav class="menus">' + ["File", "Edit", "Window", "Tools", "Build", "Select", "Help"].map(function (m, i) {
       return '<button class="menubtn" data-menu="' + m.toLowerCase() + '">' + m + "</button>";
     }).join("") + "</nav>" +
-    '<div class="bar-center"><button class="playbtn" id="playbtn" data-act="play" title="Play In Editor (PIE)"><span class="tri">' + ic("play", "ico-sm") + "</span>Play In Editor</button><button class=\"caretbtn\" data-act=\"playmenu\">" + ic("chevd", "ico-xs") + "</button></div>" +
+    '<div class="bar-center"><button class="playbtn" id="playbtn" data-act="play" title="Play in viewport"><span class="tri">' + ic("play", "ico-sm") + "</span>Play in viewport</button><button class=\"caretbtn\" data-act=\"playmenu\">" + ic("chevd", "ico-xs") + "</button></div>" +
     '<div class="bar-right"><span id="plugbar" class="hide"></span><span id="netbadge" class="netbadge" style="display:none"></span><div class="libpick"><span class="dot"></span><select id="libselect" title="3D library"><option value="three">three.js</option><option value="faoxomjs">faoxomjs</option></select>' + ic("chevd", "ico-xs") + "</div>" +
     '<button class="iconbtn" data-act="history" title="Version history">' + ic("share") + "</button>" +
     '<button class="settingsbtn" data-act="exportmenu" id="exportbtn">' + ic("export") + "Export</button>" +
@@ -143,7 +143,7 @@ function updatebar() {
   var sel = qs("#libselect");
   if (sel) sel.value = app.backend;
   var pb = qs("#playbtn");
-  if (pb && !app.play) pb.innerHTML = '<span class="tri">' + ic("play", "ico-sm") + "</span>Play In Editor";
+  if (pb && !app.play) pb.innerHTML = '<span class="tri">' + ic("play", "ico-sm") + "</span>Play in viewport";
 }
 
 function refreshall() {
@@ -171,7 +171,7 @@ function renderdock() {
   var defs = [
     { id: "objects", label: "Outliner", icon: "cube" },
     { id: "files", label: "Content", icon: "folder" },
-    { id: "logic", label: "Blueprint", icon: "events" }
+    { id: "logic", label: "Logic graph", icon: "events" }
   ];
   tabs.innerHTML = defs.map(function (d) {
     return '<button class="tab3' + (app.dock === d.id ? " on" : "") + '" data-act="docktab" data-tab="' + d.id + '">' + ic(d.icon, "ico-sm") + d.label + "</button>";
@@ -261,6 +261,7 @@ function objectrowshtml(list, depth) {
       '<span class="typeico">' + ic(sceneicon(n.type, n.sprite), "ico-sm") + "</span>" +
       '<span class="name">' + esc(n.name) + "</span>" +
       (issel && n.type === "sprite" ? '<span class="editlink" data-act="editsprite" data-id="' + n.id + '">Edit &gt;</span>' : "") +
+      (issel && (n.type === "script" || n.type === "modulescript" || n.type === "scenescript" || n.type === "clientscript" || n.type === "serverscript" || n.type === "toolscript") ? '<span class="editlink" data-act="editscript" data-id="' + n.id + '">Code &gt;</span>' : "") +
       '<button class="lockbtn' + (n.lock ? " on" : "") + '" data-act="togglelock" data-id="' + n.id + '" title="' + (n.lock ? "Unlock actor" : "Lock actor") + '">' + ic(n.lock ? "lock" : "unlock", "ico-sm") + "</button>" +
       '<button class="eye' + (n.visible === false ? " off" : "") + '" data-act="togglevisible" data-id="' + n.id + '" title="Visible">' + ic(n.visible === false ? "eyeoff" : "eye", "ico-sm") + "</button>" +
       '<button class="kebab" data-act="objmenu" data-id="' + n.id + '" title="More">' + ic("dots", "ico-sm") + "</button>" +
@@ -373,12 +374,12 @@ function logichtml() {
   var html = '<div class="helpbanner" data-act="logichelp">' + ic("help", "ico-sm") + '<span class="grow">How event sheets work -</span></div>';
   html += '<div class="fieldlabel">This scene runs</div>';
   html += '<button class="dropbtn" data-act="sheetmenu"><span id="thisname">' + esc(sel) + '</span><span class="caret">' + ic("chevd", "ico-xs") + "</span></button>";
-  html += sechead2("events", "Event sheets", "blueprintevents", '<button class="btn sm" data-act="newsheet">' + ic("plus", "ico-xs") + "New</button>");
-  if (!(app.closedsecs && app.closedsecs.blueprintevents)) sheets.forEach(function (sh) {
+  html += sechead2("events", "Event sheets", "logicevents", '<button class="btn sm" data-act="newsheet">' + ic("plus", "ico-xs") + "New</button>");
+  if (!(app.closedsecs && app.closedsecs.logicevents)) sheets.forEach(function (sh) {
     html += '<div class="sheetrow" data-act="openevent" data-id="' + sh.id + '">' + ic("events", "ico-sm") + '<span class="grow"><div class="t">' + esc(sh.name) + '</div><div class="s">' + plural(sh.count || 0, "event") + " · used by " + (sh.scene ? scenename(sh.scene) : "Loading") + '</div></span><span class="kebab" data-act="sheetkebab" data-id="' + sh.id + '">' + ic("dots", "ico-sm") + "</span></div>";
   });
-  html += sechead2("code", "Code scripts", "blueprintscripts", '<button class="btn sm" data-act="newscript">' + ic("plus", "ico-xs") + "New</button>");
-  if (!(app.closedsecs && app.closedsecs.blueprintscripts)) {
+  html += sechead2("code", "Code scripts", "logicscripts", '<button class="btn sm" data-act="newscript">' + ic("plus", "ico-xs") + "New</button>");
+  if (!(app.closedsecs && app.closedsecs.logicscripts)) {
     if (!app.project.scripts.length) html += '<div class="tiny dim">No code scripts yet.</div>';
     app.project.scripts.forEach(function (s) {
       html += '<div class="sheetrow" data-act="openscript" data-id="' + s.id + '">' + ic(s.kind === "Library" ? "layers" : s.kind === "Scene script" ? "script" : "code", "ico-sm") + '<span class="grow"><div class="t">' + esc(s.name) + '</div><div class="s">' + esc(s.kind) + '</div></span><span class="kebab" data-act="scriptkebab" data-id="' + s.id + '">' + ic("dots", "ico-sm") + "</span></div>";
@@ -470,6 +471,8 @@ function switchlibrary(name) {
     view.preview = makeview(view.previewcanvas);
     resizestage();
   }
+  var sel = qs("#libselect");
+  if (sel) sel.value = name;
   savesession();
   toast("Rendering with " + label, "ok");
 }
@@ -529,6 +532,26 @@ function onglobalinput(ev) {
       n3.vars[idx][el.getAttribute("data-vkey") || "value"] = el.type === "number" ? parseFloat(el.value) : el.value;
       touch();
     }
+  } else if (el.hasAttribute && el.hasAttribute("data-part")) {
+    var pn = selected();
+    if (!pn) return;
+    var pk = el.getAttribute("data-part");
+    var pv = el.type === "number" || el.type === "range" ? parseFloat(el.value) : el.value;
+    if (pk === "target") return;
+    pn[pk] = pv;
+    if (pn.type === "emitter" && pk === "preset" && pn.compdata && pn.compdata.particles) pn.compdata.particles.preset = pv;
+    if (pn.type === "emitter" && pv === 1 && pk === "color") pn.compdata = pn.compdata || {};
+    if (pn.type === "platform" && pn.behaviors && pn.behaviors[0]) {
+      if (pk === "axis") pn.behaviors[0].axis = pv;
+      if (pk === "dist") pn.behaviors[0].range = pv;
+      if (pk === "speed") pn.behaviors[0].speed = pv;
+    }
+    commit("part");
+  } else if (el.hasAttribute && el.hasAttribute("data-partcheck")) {
+    var cn2 = selected();
+    if (!cn2) return;
+    cn2[el.getAttribute("data-partcheck")] = el.checked;
+    commit("part");
   } else if (el.hasAttribute && el.hasAttribute("data-sfield")) {
     setpath(app.scene, el.getAttribute("data-sfield"), el);
   } else if (el.hasAttribute && el.hasAttribute("data-pfield")) {
@@ -729,7 +752,7 @@ function openobjectmenu(id, x, y) {
       else if (name === "objduplicate") duplicatenode(n);
       else if (name === "objcopy") {
         app.clipboard = JSON.stringify(n);
-        toast("Copied " + n.name);
+        toast("Coplayd " + n.name);
       } else if (name === "objpaste") {
         if (!app.clipboard) return;
         var copy = clonenode(JSON.parse(app.clipboard));
@@ -802,23 +825,23 @@ function openmainmenu(which, btn) {
       { label: "Project settings", icon: "gear", act: "projectsettings" }
     ],
     window: [
-      { label: "World Outliner", icon: "cube", act: "showoutliner" },
-      { label: "Content Browser", icon: "folder", act: "showcontent" },
-      { label: "Blueprint Editor", icon: "events", act: "showblueprint" },
+      { label: "Outliner", icon: "cube", act: "showoutliner" },
+      { label: "Content", icon: "folder", act: "showcontent" },
+      { label: "Logic editor", icon: "events", act: "showlogic" },
       { label: "Details", icon: "sliders", act: "showdetails" },
       { label: "World Settings", icon: "sun", act: "showsettings" },
       { sep: true },
       { head: "Tools" },
-      { label: "Rendering - Lumen, Nanite, VSM", icon: "settings", act: "ue5panel:rendering" },
-      { label: "World Partition", icon: "grid", act: "ue5panel:world" },
-      { label: "Sequencer", icon: "film", act: "ue5panel:sequencer" },
-      { label: "Niagara", icon: "sparkle", act: "ue5panel:niagara" },
-      { label: "MetaSounds", icon: "music", act: "ue5panel:sound" },
-      { label: "Chaos - Physics & Destruction", icon: "box", act: "ue5panel:chaos" },
-      { label: "Control Rig", icon: "target", act: "ue5panel:rig" },
-      { label: "Online Subsystem - Multiplayer", icon: "globe", act: "ue5panel:net" },
+      { label: "Rendering", icon: "settings", act: "studiopanel:rendering" },
+      { label: "World streaming", icon: "grid", act: "studiopanel:world" },
+      { label: "Cinematic timeline", icon: "film", act: "studiopanel:cine" },
+      { label: "Effect graph", icon: "sparkle", act: "studiopanel:fxgraph" },
+      { label: "Audio graph", icon: "music", act: "studiopanel:sound" },
+      { label: "Physics solver", icon: "box", act: "studiopanel:solver" },
+      { label: "Rig solver", icon: "target", act: "studiopanel:rig" },
+      { label: "Online and multiplayer", icon: "globe", act: "studiopanel:net" },
       { sep: true },
-      { label: "Engine stats", icon: "table", act: "ue5panel:stats" },
+      { label: "Engine stats", icon: "table", act: "studiopanel:stats" },
       { label: "Event debugger", icon: "events", act: "dbgtoggle", key: "Ctrl+Shift+D" },
       { label: "Audio mixer", icon: "sliders", act: "mixer" },
       { sep: true },
@@ -835,8 +858,9 @@ function openmainmenu(which, btn) {
       { label: "Navmesh…", icon: "target", act: "navmesh" },
       { sep: true },
       { label: "Fracture selected actor", icon: "layers", act: "fracture" },
-      { label: "Control Rig - IK", icon: "target", act: "ue5panel:rig" },
-      { label: "MetaSounds", icon: "music", act: "uesound" },
+      { label: "Rig solver", icon: "target", act: "studiopanel:rig" },
+      { label: "Effect graph", icon: "sparkle", act: "studiopanel:fxgraph" },
+      { label: "Audio graph", icon: "music", act: "studiosound" },
       { sep: true },
       { label: "Plugins…", icon: "layers", act: "plugins" },
       { label: "Plugin API reference", icon: "book", act: "plugdocs" },
@@ -860,8 +884,8 @@ function openmainmenu(which, btn) {
       { label: "Marquee select", icon: "marquee", act: "toolmarquee" }
     ],
     build: [
-      { label: app.play ? "Stop Play In Editor" : "Play In Editor (PIE)", icon: app.play ? "stop" : "play", act: "play", key: "Space" },
-      { label: "Restart PIE", icon: "redo", act: "restartplay" },
+      { label: app.play ? "Stop play" : "Play in viewport", icon: app.play ? "stop" : "play", act: "play", key: "Space" },
+      { label: "Restart play", icon: "redo", act: "restartplay" },
       { label: "Play in new window", icon: "maximize", act: "playwindow" },
       { label: "Play resolution…", icon: "monitor", act: "playresmenu" },
       { sep: true },
@@ -869,7 +893,7 @@ function openmainmenu(which, btn) {
       { label: "Package game (HTML)", icon: "export", act: "exporthtml" },
       { label: "Package for itch.io", icon: "globe", act: "exportitch" },
       { sep: true },
-      { label: "Build lighting (preview)", icon: "sun", act: "ue5panel:rendering" }
+      { label: "Build lighting (preview)", icon: "sun", act: "studiopanel:rendering" }
     ],
     select: [
       { label: "Focus selection", icon: "target", act: "objfocus", key: "F" },
@@ -887,9 +911,9 @@ function openmainmenu(which, btn) {
       { label: "Side", icon: "layers", act: "viewside" }
     ],
     help: [
-      { label: "Documentation", icon: "book", act: "ue5docs" },
+      { label: "Documentation", icon: "book", act: "studiodocs" },
       { label: "Keyboard shortcuts", icon: "key", act: "shortcuts" },
-      { label: "Engine stats", icon: "table", act: "ue5panel:stats" },
+      { label: "Engine stats", icon: "table", act: "studiopanel:stats" },
       { sep: true },
       { label: "About Roxumitod Game Engine", icon: "info", act: "about" }
     ]

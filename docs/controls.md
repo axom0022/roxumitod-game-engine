@@ -1,6 +1,6 @@
 # Controls & shortcuts
 
-The viewport uses the Unreal Engine 5 navigation scheme. Press `Tools → Controls & shortcuts` inside the editor for the same list.
+The viewport uses a right mouse navigation scheme built for level editing. Press `Tools → Controls & shortcuts` inside the editor for the same list.
 
 ## Navigation
 
@@ -47,7 +47,7 @@ The viewport uses the Unreal Engine 5 navigation scheme. Press `Tools → Contro
 
 | Input | Action |
 | --- | --- |
-| `Space` | Play in editor / stop |
+| `Space` | Play in viewport / stop |
 | `Delete` | Delete the selected actor |
 | `F2` | Rename |
 | `Ctrl` + `Z` / `Ctrl` + `Y` | Undo / redo |

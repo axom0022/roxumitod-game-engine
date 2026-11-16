@@ -180,16 +180,16 @@ function matpanel(node) {
     return matlib[k];
   });
   var body = '<div class="matbody">';
-  body += u5sec("Material Library", "Physical based materials, instances and shader authoring",
-    '<div class="u5btns"><button class="btn" data-matact="new">' + ic("plus", "ico-sm") + " New material</button>" +
+  body += sgsec("Material Library", "Physical based materials, instances and shader authoring",
+    '<div class="sgbtns"><button class="btn" data-matact="new">' + ic("plus", "ico-sm") + " New material</button>" +
     (node ? '<button class="btn ghost" data-matact="assign">' + ic("component", "ico-sm") + " Assign to selection</button>" : "") +
     '<button class="btn ghost" data-matact="clear">Clear on selection</button></div>' +
     '<div class="matgrid">' + list.map(function (m) {
       return '<button class="matcard' + (cur && m.id === cur.id ? " on" : "") + '" data-matpick="' + m.id + '"><span class="swatch" style="background:' + esc(m.base) + '"></span><span class="mn">' + esc(m.name) + '</span><span class="mm">R' + m.roughness.toFixed(2) + " M" + m.metalness.toFixed(2) + "</span></button>";
     }).join("") + "</div>");
   if (cur) {
-    body += u5sec("Material Instance", esc(cur.name),
-      u5row("Base color", '<input class="inp swatch" type="color" value="' + esc(cur.base) + '" data-matfield="base">') +
+    body += sgsec("Material Instance", esc(cur.name),
+      sgrow("Base color", '<input class="inp swatch" type="color" value="' + esc(cur.base) + '" data-matfield="base">') +
       sliderrow("Roughness", cur.roughness, 0, 1, 0.01, 'data-matfield="roughness"') +
       sliderrow("Metalness", cur.metalness, 0, 1, 0.01, 'data-matfield="metalness"') +
       sliderrow("Opacity", cur.opacity, 0, 1, 0.01, 'data-matfield="opacity"') +
@@ -198,20 +198,20 @@ function matpanel(node) {
       sliderrow("Normal strength", cur.normal || 0, 0, 2, 0.01, 'data-matfield="normal"') +
       sliderrow("Refraction", cur.refraction || 0, 0, 1, 0.01, 'data-matfield="refraction"') +
       sliderrow("Index of refraction", cur.ior || 1.45, 1, 2.5, 0.01, 'data-matfield="ior"') +
-      u5row("Emission color", '<input class="inp swatch" type="color" value="' + esc(cur.emission || "#000000") + '" data-matfield="emission">') +
+      sgrow("Emission color", '<input class="inp swatch" type="color" value="' + esc(cur.emission || "#000000") + '" data-matfield="emission">') +
       sliderrow("Emission strength", cur.emissive || 0, 0, 4, 0.05, 'data-matfield="emissive"') +
-      u5row("Blend mode", '<select class="inp" data-matfield="alpha"><option value="opaque"' + (cur.alpha === "opaque" ? " selected" : "") + '>Opaque</option><option value="masked"' + (cur.alpha === "masked" ? " selected" : "") + '>Masked</option><option value="blend"' + (cur.alpha === "blend" ? " selected" : "") + '>Translucent</option></select>') +
-      u5row("Two sided", check("Render back faces", cur.twosided, 'data-matfield="twosided"')) +
-      u5row("Post stencil", '<input class="inp num" type="number" min="0" max="255" value="' + (cur.stencil || 0) + '" data-matfield="stencil">') +
-      u5row("Decal", '<input class="inp" value="' + esc(cur.decal || "") + '" data-matfield="decal" placeholder="sprite name for projected decal">') +
+      sgrow("Blend mode", '<select class="inp" data-matfield="alpha"><option value="opaque"' + (cur.alpha === "opaque" ? " selected" : "") + '>Opaque</option><option value="masked"' + (cur.alpha === "masked" ? " selected" : "") + '>Masked</option><option value="blend"' + (cur.alpha === "blend" ? " selected" : "") + '>Translucent</option></select>') +
+      sgrow("Two sided", check("Render back faces", cur.twosided, 'data-matfield="twosided"')) +
+      sgrow("Post stencil", '<input class="inp num" type="number" min="0" max="255" value="' + (cur.stencil || 0) + '" data-matfield="stencil">') +
+      sgrow("Decal", '<input class="inp" value="' + esc(cur.decal || "") + '" data-matfield="decal" placeholder="sprite name for projected decal">') +
       sliderrow("Parallax depth", cur.parallax || 0, 0, 0.2, 0.005, 'data-matfield="parallax"'));
-    body += u5sec("Shader Authoring", "Write GLSL for this material and check it before it compiles",
+    body += sgsec("Shader Authoring", "Write GLSL for this material and check it before it compiles",
       '<textarea class="shaderedit" id="shadersrc" spellcheck="false">' + esc(cur.shader || shaderdefaultfrag()) + "</textarea>" +
-      '<div class="u5btns"><button class="btn" data-matact="compile">' + ic("play", "ico-sm") + " Compile and apply</button>" +
+      '<div class="sgbtns"><button class="btn" data-matact="compile">' + ic("play", "ico-sm") + " Compile and apply</button>" +
       '<button class="btn ghost" data-matact="reset">Reset to default</button>' +
       '<button class="btn ghost" data-matact="check">Check syntax</button></div>' +
       '<div class="shaderout" id="shaderout">Ready.</div>' +
-      '<div class="u5note">Uniforms available: time, tint, scale, amp, speed. Vertex varyings: vuv, vnorm. Fragment output: gl_FragColor.</div>');
+      '<div class="sgnote">Uniforms available: time, tint, scale, amp, speed. Vertex varyings: vuv, vnorm. Fragment output: gl_FragColor.</div>');
   }
   body += "</div>";
   openmodal({
@@ -321,7 +321,7 @@ function matlilbname(id) {
 }
 
 function matgrid() {
-  var body = '<div class="matbody">' + u5sec("Materials", "Pick a material to paint onto the selection",
+  var body = '<div class="matbody">' + sgsec("Materials", "Pick a material to paint onto the selection",
     '<div class="matgrid">' + Object.keys(matlib).map(function (k) {
       var m = matlib[k];
       return '<button class="matcard" data-matpick="' + m.id + '"><span class="swatch" style="background:' + esc(m.base) + '"></span><span class="mn">' + esc(m.name) + '</span><span class="mm">R' + m.roughness.toFixed(2) + " M" + m.metalness.toFixed(2) + "</span></button>";

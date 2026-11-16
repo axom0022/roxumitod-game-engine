@@ -763,6 +763,7 @@ function uniqueid(list, base) {
 }
 
 function addnode(node, parentnode) {
+  if (typeof partinit === "function") partinit(node);
   if (parentnode) parentnode.children = parentnode.children || [];
   var list = parentnode ? parentnode.children : app.scene.objects;
   node.name = uniqueid(app.scene.objects, node.name);

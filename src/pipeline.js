@@ -258,12 +258,12 @@ function builddata2() {
     uiref: { w: uiref.w, h: uiref.h },
     mixer: (app.project.mixer || { groups: [] }).groups,
     env: {
-      lumen: app.scene.env ? app.scene.env.lumen !== false : true,
-      lumenstrength: app.scene.env && app.scene.env.lumenstrength !== undefined ? app.scene.env.lumenstrength : 0.55,
-      vsm: app.scene.env ? !!app.scene.env.vsm : true,
-      vsmres: app.scene.env && app.scene.env.vsmres ? app.scene.env.vsmres : 2048,
-      nanite: app.scene.env ? app.scene.env.nanite !== false : true,
-      nanitedist: app.scene.env && app.scene.env.nanitedist ? app.scene.env.nanitedist : 14,
+      gi: app.scene.env ? app.scene.env.gi !== false : true,
+      gistrength: app.scene.env && app.scene.env.gistrength !== undefined ? app.scene.env.gistrength : 0.55,
+      csm: app.scene.env ? !!app.scene.env.csm : true,
+      csmres: app.scene.env && app.scene.env.csmres ? app.scene.env.csmres : 2048,
+      vgeo: app.scene.env ? app.scene.env.vgeo !== false : true,
+      vgeodist: app.scene.env && app.scene.env.vgeodist ? app.scene.env.vgeodist : 14,
       partition: app.scene.env ? !!app.scene.env.partition : true,
       cell: app.scene.env && app.scene.env.cell ? app.scene.env.cell : 24,
       cellradius: app.scene.env && app.scene.env.cellradius !== undefined ? app.scene.env.cellradius : 3
@@ -898,10 +898,10 @@ function glboot(){
     gscn.add(gsun);
     if (gthree) gscn.add(gsun.target);
     var envq = lvl.env || {};
-    if (envq.vsm) {
+    if (envq.csm) {
       if (grend.shadowMap) grend.shadowMap.enabled = true;
       gsun.castShadow = true;
-      var sres = Math.min(4096, Math.max(256, envq.vsmres || 1024));
+      var sres = Math.min(4096, Math.max(256, envq.csmres || 1024));
       if (gthree && gsun.shadow) {
         gsun.shadow.mapSize.width = sres;
         gsun.shadow.mapSize.height = sres;
@@ -914,9 +914,9 @@ function glboot(){
         }
       }
     }
-    if (envq.lumen) {
+    if (envq.gi) {
       try {
-        gscn.add(new lib.HemisphereLight(lvl.sky || '#c5e4ff', 0x9c8f6b, 0.2 + (envq.lumenstrength || 0.55) * 0.5));
+        gscn.add(new lib.HemisphereLight(lvl.sky || '#c5e4ff', 0x9c8f6b, 0.2 + (envq.gistrength || 0.55) * 0.5));
       } catch (e) {}
     }
     gboxgeo = new lib.BoxGeometry(1, 1, 1);
@@ -982,11 +982,11 @@ function glsync(){
       var cyp = Math.floor(o.p[1] / cellp);
       if (Math.abs(cxp - ccxp) > radp || Math.abs(cyp - ccyp) > radp) visp = false;
     }
-    if (visp && envp.nanite) {
+    if (visp && envp.vgeo) {
       var ddx = o.p[0] - ex;
       var ddy = o.p[1] - ey;
       var ddz = o.p[2] - ez;
-      if (Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz) > (envp.nanitedist || 14) * 2.6 && (o.w || 1) < 1.6) visp = false;
+      if (Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz) > (envp.vgeodist || 14) * 2.6 && (o.w || 1) < 1.6) visp = false;
     }
     m.visible = visp && !(o.k && g.got[o.k]);
     m.position.set(o.p[0], o.p[1] + (o.anbob || 0), o.p[2]);

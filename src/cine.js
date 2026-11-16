@@ -228,28 +228,28 @@ function cinepanel() {
   });
   var cur = cinecamera();
   var body = '<div class="modalcine">';
-  body += u5sec("Cine Camera Actor", "Filmback, focal length and depth of field",
-    u5row("Camera actor", '<span class="u5val">' + (cur ? esc(cur.name) : "none") + "</span>") +
-    u5row("Focal length", '<input class="inp num" type="range" min="12" max="200" step="1" value="' + (cur ? cur.focal || 35 : 35) + '" data-cine="focal">') +
-    u5row("Aperture f-stop", '<input class="inp num" type="range" min="1" max="22" step="0.1" value="' + (cur ? cur.aperture || 2.8 : 2.8) + '" data-cine="aperture">') +
-    u5row("Focus distance", '<input class="inp num" type="range" min="0.5" max="60" step="0.1" value="' + (cur ? cur.focusdist || 8 : 8) + '" data-cine="focusdist">') +
-    '<div class="u5btns"><button class="btn" data-cineact="add">' + ic("camera", "ico-sm") + " Add Cine Camera</button>" +
+  body += sgsec("Cine Camera Actor", "Filmback, focal length and depth of field",
+    sgrow("Camera actor", '<span class="sgval">' + (cur ? esc(cur.name) : "none") + "</span>") +
+    sgrow("Focal length", '<input class="inp num" type="range" min="12" max="200" step="1" value="' + (cur ? cur.focal || 35 : 35) + '" data-cine="focal">') +
+    sgrow("Aperture f-stop", '<input class="inp num" type="range" min="1" max="22" step="0.1" value="' + (cur ? cur.aperture || 2.8 : 2.8) + '" data-cine="aperture">') +
+    sgrow("Focus distance", '<input class="inp num" type="range" min="0.5" max="60" step="0.1" value="' + (cur ? cur.focusdist || 8 : 8) + '" data-cine="focusdist">') +
+    '<div class="sgbtns"><button class="btn" data-cineact="add">' + ic("camera", "ico-sm") + " Add Cine Camera</button>" +
     '<button class="btn ghost" data-cineact="use">Use this camera in game</button></div>');
-  body += u5sec("Take Recorder", "Bake camera motion into Sequencer keys",
-    u5row("Sequence length", '<input class="inp num" type="range" min="2" max="30" step="0.5" value="' + (seqdata().len || 6) + '" data-cine="len">') +
-    '<div class="u5btns"><button class="btn" data-cineact="take">Record take</button>' +
+  body += sgsec("Take Recorder", "Bake camera motion into Cinematic timeline keys",
+    sgrow("Sequence length", '<input class="inp num" type="range" min="2" max="30" step="0.5" value="' + (seqdata().len || 6) + '" data-cine="len">') +
+    '<div class="sgbtns"><button class="btn" data-cineact="take">Record take</button>' +
     '<button class="btn ghost" data-cineact="batch">Record camera pass</button>' +
-    '<button class="btn ghost" data-cineact="seq">Open Sequencer</button></div>');
-  body += u5sec("Movie Render Queue", "Offscreen capture to WebM and PNG",
-    u5row("Resolution", selectrow("", [{ value: "1280", label: "1280 x 720" }, { value: "1920", label: "1920 x 1080" }, { value: "960", label: "960 x 540" }, { value: "720", label: "720 x 720" }], String(cfg.width), 'data-cine="res"')) +
-    u5row("Frame rate", selectrow("", [{ value: "24", label: "24 fps" }, { value: "30", label: "30 fps" }, { value: "60", label: "60 fps" }], String(cfg.fps), 'data-cine="fps"')) +
-    u5row("Duration", '<input class="inp num" type="range" min="2" max="30" step="1" value="' + cfg.seconds + '" data-cine="seconds">') +
-    u5row("Bitrate", '<input class="inp num" type="range" min="1000000" max="20000000" step="500000" value="' + cfg.bitrate + '" data-cine="bitrate">') +
+    '<button class="btn ghost" data-cineact="seq">Open Cinematic timeline</button></div>');
+  body += sgsec("Movie Render Queue", "Offscreen capture to WebM and PNG",
+    sgrow("Resolution", selectrow("", [{ value: "1280", label: "1280 x 720" }, { value: "1920", label: "1920 x 1080" }, { value: "960", label: "960 x 540" }, { value: "720", label: "720 x 720" }], String(cfg.width), 'data-cine="res"')) +
+    sgrow("Frame rate", selectrow("", [{ value: "24", label: "24 fps" }, { value: "30", label: "30 fps" }, { value: "60", label: "60 fps" }], String(cfg.fps), 'data-cine="fps"')) +
+    sgrow("Duration", '<input class="inp num" type="range" min="2" max="30" step="1" value="' + cfg.seconds + '" data-cine="seconds">') +
+    sgrow("Bitrate", '<input class="inp num" type="range" min="1000000" max="20000000" step="500000" value="' + cfg.bitrate + '" data-cine="bitrate">') +
     '<div class="renderbar"><div id="cinerenderbar"></div></div>' +
-    '<div class="u5btns"><button class="btn" data-cineact="render">' + ic("film", "ico-sm") + " Render movie</button>" +
+    '<div class="sgbtns"><button class="btn" data-cineact="render">' + ic("film", "ico-sm") + " Render movie</button>" +
     '<button class="btn ghost" data-cineact="still">Export still</button>' +
     '<button class="btn ghost" data-cineact="stop">Cancel</button></div>' +
-    '<div class="u5note">Renders the live viewport through MediaRecorder and downloads a .webm file. Stills export at the chosen resolution.</div>');
+    '<div class="sgnote">Renders the live viewport through MediaRecorder and downloads a .webm file. Stills export at the chosen resolution.</div>');
   body += "</div>";
   openmodal({
     title: "Cinematics - Cine Camera, Takes & Movie Render Queue",
@@ -297,7 +297,7 @@ function cinepanel() {
           else if (a === "seq") {
             closemodal();
             setTimeout(function () {
-              ue5panel("sequencer");
+              studiopanel("cine");
             }, 120);
           } else if (a === "render") cinerender();
           else if (a === "still") cinestill();

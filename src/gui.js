@@ -379,7 +379,7 @@ function guirig() {
 function guiservicepanel() {
   var list = guilist();
   var body = '<div class="guiserv">';
-  body += '<div class="u5note">ScreenGui draws on the screen, exactly like Roblox Studio. Every element inside it stays on screen in the editor and in play. Tick Physical to place the same element in the 3D world instead (SurfaceGui style).</div>';
+  body += '<div class="sgnote">ScreenGui draws in screen space. Every element inside it stays on screen in the editor and in play. Tick Physical to place the same element in the 3D world instead.</div>';
   list.forEach(function (sc, si) {
     var kids = guichildren(sc);
     body += '<div class="subsec"><div class="sechead"><span class="ico">' + ic("layers", "ico-sm") + '</span><span>' + esc(sc.name) + '</span><span class="tools"><span class="pill">' + plural(kids.length, "element") + (sc.physical ? " · physical" : " · screen") + "</span></span></div>";
@@ -407,7 +407,7 @@ function guiservicepanel() {
     body += '<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm ghost" data-guisel="' + sc.id + '">Select ScreenGui</button><button class="btn sm ghost" data-guiphys="' + sc.id + '">' + (sc.physical ? "Make screen" : "Make physical") + '</button><button class="btn sm ghost" data-guidel="' + sc.id + '">Delete ScreenGui</button></div>';
     body += "</div></div>";
   });
-  body += '<div class="u5btns"><button class="btn" data-guiadd="screengui">' + ic("plus", "ico-sm") + " New ScreenGui</button>" +
+  body += '<div class="sgbtns"><button class="btn" data-guiadd="screengui">' + ic("plus", "ico-sm") + " New ScreenGui</button>" +
     '<button class="btn ghost" data-guirig="1">Arrange test layout</button></div>';
   body += "</div>";
   openmodal({

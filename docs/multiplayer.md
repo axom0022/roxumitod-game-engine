@@ -1,8 +1,8 @@
-# Multiplayer - Online Subsystem
+# Multiplayer
 
 Roxumitod Game Engine ships a peer-to-peer multiplayer stack built on **PeerJS**, the WebRTC data-channel library. There is no game server to run: one player hosts, everyone else connects directly to the host over an encrypted WebRTC channel.
 
-The same code path runs in **Play In Editor** and in **packaged HTML builds**, so you can test a session in the editor and ship the identical behaviour.
+The same code path runs in **Play in viewport** and in **packaged HTML builds**, so you can test a session in the editor and ship the identical behaviour.
 
 ---
 
@@ -24,10 +24,10 @@ The same code path runs in **Play In Editor** and in **packaged HTML builds**, s
 
 ## Hosting from the editor
 
-1. Open **Window → Online Subsystem - Multiplayer**, or **Build → Host multiplayer session…**.
+1. Open **Window → Online and multiplayer**, or **Build → Host multiplayer session…**.
 2. Type your player name and a room code (or keep the generated one).
 3. Press **Host session**. The status line turns green and the toolbar shows a `Host <room>` badge.
-4. Press **Play In Editor**. Your avatar now exists on the network.
+4. Press **Play in viewport**. Your avatar now exists on the network.
 5. Send the room code to the other players and have them press **Join session**.
 
 While the session runs, the panel lists every connected player, their round-trip latency and the message log. **Send test RPC** proves the event channel end to end.
@@ -73,7 +73,7 @@ The snapshot is a compact array of `[id, x, y, z, facing]` tuples, which keeps t
 
 Remote actors are ordinary actors in the render pass, so they respect the same camera, lighting and materials as everything else. In the editor they are injected into the PIE item list; in packaged builds they are injected as meshes in the GL path and as sprites in the 2D painter fallback.
 
-To replicate gameplay state, call an RPC from a Blueprint event:
+To replicate gameplay state, call an RPC from a logic graph event:
 
 ```
 on trigger -> rpc "door" {"open": true}
@@ -107,7 +107,7 @@ Packaged builds expose `window.__netdebug()` for diagnostics; it returns the ses
 
 **Join hangs on "Connecting…"** - the host closed the tab, or the room code is wrong. Room codes are lowercase letters and digits only.
 
-**Connected but no remote avatars** - one side is paused. Replication only ticks while Play In Editor is running; press **Play In Editor** on both machines.
+**Connected but no remote avatars** - one side is paused. Replication only ticks while play mode is running; press **Play in viewport** on both machines.
 
 **High latency** - WebRTC picks a direct route when it can. If both players sit behind symmetric NATs the connection falls back to a relay; latency of 150-300 ms is normal on a relay.
 

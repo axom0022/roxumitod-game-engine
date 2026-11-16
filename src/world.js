@@ -7,9 +7,50 @@ function nmesh(name) {
 
 function addgroups() {
   return [
+    { head: "Lighting", items: ["pointlight", "spotlight", "arealight"] },
+    { head: "Sound", items: ["soundemitter", "musiczone"] },
+    { head: "Effects", items: ["emitter", "trail", "beam"] },
+    { head: "Gameplay", items: ["spawn", "checkpoint", "portal", "door", "hazard", "pickup", "zone", "platform", "seat"] },
+    { head: "Data", items: ["attachment", "billboard", "remote", "numbervalue", "stringvalue"] },
+    { head: "Scripting", items: ["script", "modulescript", "scenescript", "clientscript", "serverscript", "toolscript"] },
+    { head: "Screen UI", items: ["screengui", "frame", "imagelabel", "textbutton", "textbox", "scrollframe"] },
     { head: "Advanced", items: ["mesh", "skinned", "procmesh", "landscape", "spline", "foliage", "clustercell", "levelinstance"] }
   ];
 }
+
+nodemeta.wedge = { label: "Wedge", icon: "cone", group: "shapes" };
+nodemeta.pointlight = { label: "Point light", icon: "light", group: "objects" };
+nodemeta.spotlight = { label: "Spot light", icon: "light", group: "objects" };
+nodemeta.arealight = { label: "Area light", icon: "light", group: "objects" };
+nodemeta.soundemitter = { label: "Sound emitter", icon: "sound", group: "objects" };
+nodemeta.musiczone = { label: "Music zone", icon: "music", group: "objects" };
+nodemeta.emitter = { label: "Particle emitter", icon: "particles", group: "objects" };
+nodemeta.trail = { label: "Trail", icon: "curve", group: "objects" };
+nodemeta.beam = { label: "Beam", icon: "line", group: "objects" };
+nodemeta.spawn = { label: "Spawn point", icon: "flag", group: "objects" };
+nodemeta.checkpoint = { label: "Checkpoint", icon: "target", group: "objects" };
+nodemeta.portal = { label: "Portal", icon: "globe", group: "objects" };
+nodemeta.door = { label: "Door", icon: "door", group: "objects" };
+nodemeta.hazard = { label: "Hazard block", icon: "warning", group: "objects" };
+nodemeta.pickup = { label: "Pickup", icon: "star", group: "objects" };
+nodemeta.zone = { label: "Trigger zone", icon: "square", group: "objects" };
+nodemeta.platform = { label: "Moving platform", icon: "square", group: "objects" };
+nodemeta.script = { label: "Script", icon: "script", group: "objects" };
+nodemeta.modulescript = { label: "Module script", icon: "brackets", group: "objects" };
+nodemeta.scenescript = { label: "Scene script", icon: "scene", group: "objects" };
+nodemeta.clientscript = { label: "Client script", icon: "monitor", group: "objects" };
+nodemeta.serverscript = { label: "Server script", icon: "network", group: "objects" };
+nodemeta.toolscript = { label: "Tool script", icon: "pen", group: "objects" };
+nodemeta.imagelabel = { label: "Image label", icon: "image", group: "gui" };
+nodemeta.textbutton = { label: "Text button", icon: "squareplus", group: "gui" };
+nodemeta.textbox = { label: "Text box", icon: "pen", group: "gui" };
+nodemeta.scrollframe = { label: "Scrolling frame", icon: "list", group: "gui" };
+nodemeta.attachment = { label: "Attachment", icon: "target", group: "objects" };
+nodemeta.billboard = { label: "Billboard text", icon: "text", group: "objects" };
+nodemeta.remote = { label: "Remote event", icon: "network", group: "objects" };
+nodemeta.numbervalue = { label: "Number value", icon: "variable", group: "objects" };
+nodemeta.stringvalue = { label: "Text value", icon: "variable", group: "objects" };
+nodemeta.seat = { label: "Seat", icon: "door", group: "objects" };
 
 nodemeta.mesh = nmesh("Static mesh");
 nodemeta.skinned = { label: "Skeletal mesh", icon: "human", group: "objects" };
@@ -17,8 +58,122 @@ nodemeta.procmesh = { label: "Procedural mesh", icon: "sparkle", group: "objects
 nodemeta.landscape = { label: "Landscape", icon: "hills", group: "objects" };
 nodemeta.spline = { label: "Spline", icon: "curve", group: "objects" };
 nodemeta.foliage = { label: "Foliage", icon: "tree", group: "objects" };
-nodemeta.clustercell = { label: "World partition cell", icon: "grid", group: "objects" };
+nodemeta.clustercell = { label: "World cell", icon: "grid", group: "objects" };
 nodemeta.levelinstance = { label: "Level instance", icon: "layers", group: "objects" };
+
+var partdefaults = {
+  pointlight: { color: "#ffe6b0", range: 8, intensity: 1.1, scl: [1, 1, 1] },
+  spotlight: { color: "#ffffff", range: 10, intensity: 1.4, spread: 0.62, scl: [1, 1, 1] },
+  arealight: { color: "#cfe4ff", range: 6, intensity: 0.9, width: 3, height: 2, scl: [1, 1, 1] },
+  soundemitter: { color: "#7fb0ff", asset: "coin", group: "SFX", loop: false, volume: 0.8, scl: [0.5, 0.5, 0.5] },
+  musiczone: { color: "#b48cff", asset: "theme", group: "Music", loop: true, volume: 0.6, scl: [4, 2, 4] },
+  emitter: { color: "#ffb347", preset: "sparkles", rate: 24, scl: [0.6, 0.6, 0.6] },
+  trail: { color: "#7ff0d0", length: 1.4, scl: [0.4, 0.4, 0.4] },
+  beam: { color: "#ff8fd0", length: 6, scl: [0.4, 0.4, 0.4] },
+  spawn: { color: "#5fd0a0", scl: [1, 1, 1] },
+  checkpoint: { color: "#ffd166", radius: 2, scl: [0.8, 0.8, 0.8] },
+  portal: { color: "#8f6bff", target: [6, 0, 0], radius: 1.4, scl: [1.2, 1.8, 0.3] },
+  door: { color: "#c08b52", open: false, scl: [1.4, 2.2, 0.3] },
+  hazard: { color: "#e8503a", damage: 1, scl: [1, 1, 1] },
+  pickup: { color: "#ffd166", value: 1, kind: "coin", scl: [0.7, 0.7, 0.7] },
+  zone: { color: "#4fa3ff", event: "zone", once: false, scl: [3, 2, 3] },
+  platform: { color: "#9aa7b4", axis: "x", dist: 3, speed: 1.2, scl: [2, 0.4, 1] },
+  script: { color: "#7fd6ff", scl: [0.6, 0.6, 0.6] },
+  modulescript: { color: "#8fb0ff", scl: [0.6, 0.6, 0.6] },
+  scenescript: { color: "#9affd0", scl: [0.6, 0.6, 0.6] },
+  clientscript: { color: "#ffd27f", scl: [0.6, 0.6, 0.6] },
+  serverscript: { color: "#ff9f7f", scl: [0.6, 0.6, 0.6] },
+  toolscript: { color: "#d0a6ff", scl: [0.6, 0.6, 0.6] },
+  imagelabel: { color: "#ffffff", sprite: "", scl: [1, 1, 1] },
+  textbutton: { color: "#4fa3ff", text: "Play", scl: [1, 1, 1] },
+  textbox: { color: "#20242c", text: "", scl: [1, 1, 1] },
+  scrollframe: { color: "#20242c", scl: [1, 1, 1] },
+  attachment: { color: "#ffd166", scl: [0.3, 0.3, 0.3] },
+  billboard: { color: "#ffffff", text: "Label", scl: [1, 1, 1] },
+  remote: { color: "#8fb0ff", event: "remote", scl: [0.5, 0.5, 0.5] },
+  numbervalue: { color: "#7fd6ff", value: 0, scl: [0.4, 0.4, 0.4] },
+  stringvalue: { color: "#9affd0", text: "", scl: [0.4, 0.4, 0.4] },
+  seat: { color: "#c08b52", scl: [1.2, 0.3, 1.2] }
+};
+
+function partscript(name) {
+  return "let tag = \"" + name + "\";\n\nfunction start(entity) {\n  \n}\n\nfunction update(dt, entity) {\n  \n}\n";
+}
+
+function partinit(n) {
+  if (!n || n.partready) return n;
+  var d = partdefaults[n.type];
+  if (!d) return n;
+  n.partready = true;
+  for (var k in d) {
+    if (k === "scl") {
+      n.scl = d.scl.slice();
+      continue;
+    }
+    if (n[k] === undefined) n[k] = d[k];
+  }
+  if (n.color === "#ffffff") n.color = d.color || "#ffffff";
+  n.comps = n.comps || [];
+  if (n.type === "emitter" && n.comps.indexOf("particles") < 0) {
+    n.comps.push("particles");
+    n.compdata = n.compdata || {};
+    n.compdata.particles = n.compdata.particles || { preset: n.preset || "sparkles", rate: n.rate || 24 };
+  }
+  if (n.type === "soundemitter" || n.type === "musiczone") {
+    if (n.comps.indexOf("sound") < 0) n.comps.push("sound");
+    n.compdata = n.compdata || {};
+    n.compdata.sound = n.compdata.sound || { asset: n.asset || "coin", group: n.group || "SFX", loop: !!n.loop, volume: n.volume === undefined ? 0.8 : n.volume };
+  }
+  if (n.type === "hazard") n.tags = (n.tags || []).concat(["hazard"]);
+  if (n.type === "pickup") {
+    n.tags = (n.tags || []).concat(["pickup"]);
+    n.comps.push("collider");
+  }
+  if (n.type === "zone" || n.type === "portal" || n.type === "checkpoint" || n.type === "door" || n.type === "spawn") n.comps.push("collider");
+  if (n.type === "seat") n.comps.push("collider");
+  if (n.type === "billboard" || n.type === "stringvalue") n.comps.push("text");
+  if (n.type === "platform") {
+    n.comps.push("collider");
+    n.behaviors = n.behaviors && n.behaviors.length ? n.behaviors : [{ type: "move", name: "Move " + (n.axis || "x"), axis: n.axis || "x", speed: n.speed || 1.2, range: n.dist || 3 }];
+  }
+  if (n.type === "script" || n.type === "modulescript" || n.type === "scenescript" || n.type === "clientscript" || n.type === "serverscript" || n.type === "toolscript") {
+    if (!n.code) n.code = partscript(n.type);
+  }
+  if (n.type === "textbutton" || n.type === "textbox") {
+    n.comps.push("ui", "text");
+    n.compdata = n.compdata || {};
+    n.compdata.text = n.compdata.text || { size: 18, color: "#ffffff", bold: false };
+  }
+  if (n.type === "imagelabel" || n.type === "scrollframe" || n.type === "frame") n.comps.push("ui");
+  n.comps = n.comps.filter(function (c, i, a) {
+    return a.indexOf(c) === i;
+  });
+  return n;
+}
+
+function lightspecs() {
+  var out = [];
+  var lights = { pointlight: "point", spotlight: "spot", arealight: "area" };
+  walk(app.scene.objects || [], function (n) {
+    var kind = lights[n.type];
+    if (!kind || n.visible === false) return;
+    var w = worldpos(n);
+    out.push({
+      id: n.id + "light",
+      kind: "empty",
+      light: kind,
+      color: n.color || "#ffffff",
+      range: n.range || 8,
+      intensity: n.intensity === undefined ? 1 : n.intensity,
+      spread: n.spread || 0.6,
+      width: (n.width || 3) * (n.scl ? n.scl[0] : 1),
+      height: (n.height || 2) * (n.scl ? n.scl[1] : 1),
+      matrix: m4compose(w, n.rot || [0, 0, 0], [0.001, 0.001, 0.001]),
+      visible: true
+    });
+  });
+  return out;
+}
 
 function geobox(w, h, d, ox, oy, oz) {
   var x0 = (ox || 0) - w / 2;
@@ -405,24 +560,24 @@ function meshpanel() {
   var n = selected();
   var s = sculptmode;
   var body = '<div class="meshbody">';
-  body += u5sec("Solid modelling", "Booleans on the current selection, voxel resolved",
-    '<div class="u5btns"><button class="btn" data-meshact="union">Union</button>' +
+  body += sgsec("Solid modelling", "Booleans on the current selection, voxel resolved",
+    '<div class="sgbtns"><button class="btn" data-meshact="union">Union</button>' +
     '<button class="btn ghost" data-meshact="subtract">Subtract</button>' +
     '<button class="btn ghost" data-meshact="intersect">Intersect</button>' +
     '<button class="btn ghost" data-meshact="xor">Exclusive or</button></div>' +
-    '<div class="u5btns"><button class="btn" data-meshact="mkbox">New box mesh</button>' +
+    '<div class="sgbtns"><button class="btn" data-meshact="mkbox">New box mesh</button>' +
     '<button class="btn ghost" data-meshact="mksphere">New sphere mesh</button>' +
     '<button class="btn ghost" data-meshact="mkcyl">New cylinder mesh</button></div>');
-  body += u5sec("Mesh editing", n ? esc(n.name) : "No mesh selected",
-    '<div class="u5btns"><button class="btn" data-meshact="subdivide">Subdivide</button>' +
+  body += sgsec("Mesh editing", n ? esc(n.name) : "No mesh selected",
+    '<div class="sgbtns"><button class="btn" data-meshact="subdivide">Subdivide</button>' +
     '<button class="btn ghost" data-meshact="bevel">Bevel</button>' +
     '<button class="btn ghost" data-meshact="weld">Weld vertices</button>' +
     '<button class="btn ghost" data-meshact="flip">Flip normals</button>' +
     '<button class="btn ghost" data-meshact="cube">Reset to cube</button></div>' +
-    u5row("Vertices", n && n.geo ? String(n.geo.pos.length / 3) : "0") +
-    u5row("Triangles", n && n.geo ? String(n.geo.idx.length / 3) : "0"));
-  body += u5sec("Sculpting", "Drag in the viewport while sculpt is on",
-    u5row("Sculpt mode", check("Enable brush", s.on, 'data-sculpt="on"')) +
+    sgrow("Vertices", n && n.geo ? String(n.geo.pos.length / 3) : "0") +
+    sgrow("Triangles", n && n.geo ? String(n.geo.idx.length / 3) : "0"));
+  body += sgsec("Sculpting", "Drag in the viewport while sculpt is on",
+    sgrow("Sculpt mode", check("Enable brush", s.on, 'data-sculpt="on"')) +
     selectrow("Brush", ["raise", "flatten", "smooth", "grab"], s.brush, 'data-sculpt="brush"') +
     sliderrow("Radius", s.radius, 0.15, 4, 0.05, 'data-sculpt="radius"') +
     sliderrow("Strength", s.strength, 0.02, 1, 0.01, 'data-sculpt="strength"'));
@@ -595,13 +750,13 @@ function landpaintpanel() {
     return;
   }
   var body = '<div class="landbody">';
-  body += u5sec("Landscape material layers", esc(n.name),
+  body += sgsec("Landscape material layers", esc(n.name),
     (n.layers || []).map(function (l, i) {
       return '<div class="layerrow"><span class="swatch" style="background:' + esc(l.color) + '"></span><span class="ln">' + esc(l.name) + "</span>" +
         '<button class="btn" data-paint="' + i + '">Paint</button>' +
         '<input class="inp swatch" type="color" value="' + esc(l.color) + '" data-layercolor="' + i + '"></div>';
     }).join("") +
-    '<div class="u5btns"><button class="btn ghost" data-landact="addlayer">Add layer</button>' +
+    '<div class="sgbtns"><button class="btn ghost" data-landact="addlayer">Add layer</button>' +
     '<button class="btn ghost" data-landact="smooth">Smooth heights</button>' +
     '<button class="btn ghost" data-landact="bake">Bake collision</button></div>' +
     '<div class="landout" id="landout">Click a layer then click the landscape in the viewport.</div>');
@@ -751,13 +906,13 @@ function splinepanel() {
     n = splinenew();
     commit("spline");
   }
-  var body = '<div class="splbody">' + u5sec("Landscape spline", esc(n.name),
+  var body = '<div class="splbody">' + sgsec("Landscape spline", esc(n.name),
     sliderrow("Road width", n.width || 1.2, 0.2, 8, 0.1, 'data-spl="width"') +
-    u5row("Profile", '<select class="inp" data-spl="profile">' + ["road", "path", "river", "wall"].map(function (k) {
+    sgrow("Profile", '<select class="inp" data-spl="profile">' + ["road", "path", "river", "wall"].map(function (k) {
       return '<option value="' + k + '"' + ((n.profile || "road") === k ? " selected" : "") + ">" + k + "</option>";
     }).join("") + "</select>") +
     check("Snap points to terrain", !!n.snap, 'data-spl="snap"') +
-    '<div class="u5btns"><button class="btn ghost" data-splact="add">Add point</button>' +
+    '<div class="sgbtns"><button class="btn ghost" data-splact="add">Add point</button>' +
     '<button class="btn ghost" data-splact="drop">Remove point</button>' +
     '<button class="btn" data-splact="bake">Bake ribbon</button></div>' +
     '<div class="landout" id="splout">' + ((n.points || []).length) + " control points, " + (splinegeo(n).pos.length / 3) + " ribbon vertices.</div>") + "</div>";
@@ -816,13 +971,13 @@ function terrainfidpanel() {
     land = landnew();
     commit("land");
   }
-  var body = '<div class="fidbody">' + u5sec("Terrain collision fidelity", esc(land.name),
-    u5row("Grid segments", String(land.seg)) +
-    u5row("World size", String(land.size) + " m") +
-    u5row("Sampling", "Bilinear height query") +
-    '<div class="u5btns"><button class="btn" data-fid="run">Run probe</button>' +
+  var body = '<div class="fidbody">' + sgsec("Terrain collision fidelity", esc(land.name),
+    sgrow("Grid segments", String(land.seg)) +
+    sgrow("World size", String(land.size) + " m") +
+    sgrow("Sampling", "Bilinear height query") +
+    '<div class="sgbtns"><button class="btn" data-fid="run">Run sample test</button>' +
     '<button class="btn ghost" data-fid="bake">Bake collision mesh</button></div>' +
-    '<div class="landout" id="fidout">Probe walks 40 random points and compares the bilinear height with the nearest cell.</div>') + "</div>";
+    '<div class="landout" id="fidout">Samples 40 random points and compares the bilinear height with the nearest cell.</div>') + "</div>";
   openmodal({
     title: "Terrain Collision Fidelity",
     icon: "hills",
@@ -911,15 +1066,15 @@ function foliagepanel() {
     n = foliagenew();
     commit("foliage");
   }
-  var body = '<div class="folbody">' + u5sec("Instanced foliage", esc(n.name),
-    u5row("Sprite", '<select class="inp" data-fol="sprite">' + ["tree", "rock", "mushroom", "crate", "column"].map(function (s) {
+  var body = '<div class="folbody">' + sgsec("Instanced foliage", esc(n.name),
+    sgrow("Sprite", '<select class="inp" data-fol="sprite">' + ["tree", "rock", "mushroom", "crate", "column"].map(function (s) {
       return '<option value="' + s + '"' + (n.sprite === s ? " selected" : "") + ">" + s + "</option>";
     }).join("") + "</select>") +
     sliderrow("Radius", n.radius, 2, 40, 0.5, 'data-fol="radius"') +
     sliderrow("Count", n.count, 1, 400, 1, 'data-fol="count"') +
     sliderrow("Density", n.density, 0.05, 1, 0.01, 'data-fol="density"') +
     sliderrow("Seed", n.seed, 1, 99999, 1, 'data-fol="seed"') +
-    '<div class="u5btns"><button class="btn" data-landact="regen">Regenerate</button>' +
+    '<div class="sgbtns"><button class="btn" data-landact="regen">Regenerate</button>' +
     '<button class="btn ghost" data-landact="paintinst">Paint instances at camera</button></div>' +
     '<div class="landout">' + (n.instances || []).length + " instances placed.</div>") + "</div>";
   openmodal({
@@ -957,7 +1112,7 @@ function foliagepanel() {
   });
 }
 
-function partitionbuild() {
+function streambuild() {
   var cells = {};
   walk(app.scene.objects, function (n) {
     if (n.type === "sun" || n.type === "camera") return;
@@ -974,7 +1129,7 @@ function partitionbuild() {
   });
   worldcells = app.scene.env.cells;
   commit("partition");
-  toast("World partitioned into " + keys.length + " cells", "ok");
+  toast("Streamed into " + keys.length + " cells", "ok");
   var out = qs("#wprtout");
   if (out) out.textContent = keys.length + " cells, " + keys.reduce(function (a, k) {
     return a + worldcells[k].actors;
@@ -982,7 +1137,7 @@ function partitionbuild() {
   return keys.length;
 }
 
-function partitiontick(eye) {
+function streamtick(eye) {
   var env = app.scene.env;
   if (!env || !env.cells) return;
   var radius = env.streamradius === undefined ? 96 : env.streamradius;
@@ -993,20 +1148,20 @@ function partitiontick(eye) {
   });
 }
 
-function partitionpanel() {
+function streampanel() {
   var env = app.scene.env || {};
   var cells = Object.keys(env.cells || {});
-  var body = '<div class="wpbody">' + u5sec("World partition", "Automatic grid streaming",
-    '<div class="u5btns"><button class="btn" data-wpact="build">Build partition grid</button>' +
+  var body = '<div class="wpbody">' + sgsec("World streaming", "Automatic grid streaming",
+    '<div class="sgbtns"><button class="btn" data-wpact="build">Build partition grid</button>' +
     '<button class="btn ghost" data-wpact="load">Load all cells</button>' +
     '<button class="btn ghost" data-wpact="unload">Unload all cells</button></div>' +
     sliderrow("Stream radius", env.streamradius === undefined ? 96 : env.streamradius, 16, 256, 8, 'data-wp="streamradius"') +
     '<div class="landout" id="wprtout">' + cells.length + " cells known.</div>" +
     (cells.length ? '<div class="cellgrid">' + cells.map(function (k) {
       return '<div class="cellchip' + (env.cells[k].loaded ? " on" : "") + '"><b>' + k + "</b><span>" + env.cells[k].actors + "</span></div>";
-    }).join("") + "</div>" : u5note("No cells yet, build the partition grid."))) + "</div>";
+    }).join("") + "</div>" : sgnote("No cells yet, build the partition grid."))) + "</div>";
   openmodal({
-    title: "World Partition",
+    title: "World streaming",
     icon: "grid",
     width: "wide",
     body: body,
@@ -1021,9 +1176,9 @@ function partitionpanel() {
         b.addEventListener("click", function () {
           var a = b.getAttribute("data-wpact");
           if (a === "build") {
-            partitionbuild();
+            streambuild();
             closemodal();
-            setTimeout(partitionpanel, 150);
+            setTimeout(streampanel, 150);
           } else {
             var c = app.scene.env.cells || {};
             Object.keys(c).forEach(function (k) {
@@ -1058,11 +1213,11 @@ function levelinstancenew() {
 
 function levelinstpanel() {
   var projects = app.projects || [];
-  var body = '<div class="libody">' + u5sec("Level instances", "Nest another level inside this one",
+  var body = '<div class="libody">' + sgsec("Level instances", "Nest another level inside this one",
     (projects.length > 1 ? '<div class="picklist">' + projects.map(function (p) {
       if (p.id === app.project.id) return "";
       return '<button class="pickitem" data-inst="' + esc(p.id) + '"><span class="ico">' + ic("layers", "ico-sm") + '</span><span class="t">' + esc(p.name) + "</span><span class=\\\"dim\\\">" + (p.scene ? p.scene.objects.length : 0) + " actors</span></button>";
-    }).join("") + "</div>" : u5note("Only one level exists. Create another level first."))) + "</div>";
+    }).join("") + "</div>" : sgnote("Only one level exists. Create another level first."))) + "</div>";
   openmodal({
     title: "Level Instances",
     icon: "layers",
@@ -1146,12 +1301,12 @@ function procmeshpanel() {
     n = procmeshnew();
     commit("procmesh");
   }
-  var body = '<div class="pmbody">' + u5sec("Procedural mesh from script", esc(n.name),
+  var body = '<div class="pmbody">' + sgsec("Procedural mesh from script", esc(n.name),
     '<textarea class="shaderedit" id="procscript" spellcheck="false">' + esc(n.script || "") + "</textarea>" +
-    '<div class="u5btns"><button class="btn" data-pmact="run">Run and rebuild</button>' +
+    '<div class="sgbtns"><button class="btn" data-pmact="run">Run and rebuild</button>' +
     '<button class="btn ghost" data-pmact="reset">Reset template</button></div>' +
     '<div class="landout" id="pmout">' + (n.geo ? n.geo.pos.length / 3 + " vertices, " + n.geo.idx.length / 3 + " triangles" : "Not built") + "</div>" +
-    u5note("The script runs with the variable geo in scope and returns an object with pos and idx arrays. Use Math for noise.")) + "</div>";
+    sgnote("The script runs with the variable geo in scope and returns an object with pos and idx arrays. Use Math for noise.")) + "</div>";
   openmodal({
     title: "Procedural Mesh",
     icon: "sparkle",
@@ -1225,5 +1380,5 @@ function worldsetup() {
 }
 
 function worldtick(eye) {
-  partitiontick(eye);
+  streamtick(eye);
 }

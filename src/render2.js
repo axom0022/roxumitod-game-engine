@@ -49,52 +49,52 @@ function decaladd(sprite, pos, size, rot) {
 function r2panel() {
   var e = r2conf();
   var body = '<div class="r2body">';
-  body += u5sec("Decals", "Projected decals placed on any surface",
-    '<div class="u5btns"><button class="btn" data-r2act="decaladd">' + ic("plus", "ico-sm") + " Place decal at camera</button>" +
+  body += sgsec("Decals", "Projected decals placed on any surface",
+    '<div class="sgbtns"><button class="btn" data-r2act="decaladd">' + ic("plus", "ico-sm") + " Place decal at camera</button>" +
     '<button class="btn ghost" data-r2act="decalclear">Clear all</button></div>' +
     (e.decals.length ? '<div class="decallist">' + e.decals.map(function (d, i) {
       return '<div class="decalrow"><span>' + esc(d.sprite) + '</span><span class="dmeta">' + d.size.toFixed(1) + " m</span>" +
         '<button class="iconbtn" data-decaldel="' + i + '">' + ic("trash", "ico-xs") + "</button></div>";
-    }).join("") + "</div>" : '<div class="u5note">No decals yet.</div>'));
-  body += u5sec("Screen Space Reflections", "Ray marched reflections from the colour buffer",
+    }).join("") + "</div>" : '<div class="sgnote">No decals yet.</div>'));
+  body += sgsec("Screen Space Reflections", "Ray marched reflections from the colour buffer",
     sliderrow("Strength", e.ssr, 0, 1, 0.01, 'data-r2field="ssr"') +
-    u5note2("Reflections are traced against the depth silhouette of the previous frame and blended by the material roughness."));
-  body += u5sec("Ray Tracing", "Software path tracer for stills, ray traced shadows in the viewport",
+    sgnote2("Reflections are traced against the depth silhouette of the previous frame and blended by the material roughness."));
+  body += sgsec("Ray Tracing", "Software path tracer for stills, ray traced shadows in the viewport",
     sliderrow("Ray traced shadows", e.rt, 0, 1, 0.01, 'data-r2field="rt"') +
-    '<div class="u5btns"><button class="btn" data-r2act="rtstill">Render path traced still</button>' +
+    '<div class="sgbtns"><button class="btn" data-r2act="rtstill">Render path traced still</button>' +
     '<button class="btn ghost" data-r2act="rtview">Ray trace viewport</button></div>' +
     '<div class="r2out" id="rtout">Idle.</div>');
-  body += u5sec("Temporal and Upscaling", "TAA, TSR, DLSS, FSR and XeSS presets",
-    u5row("Temporal AA", check("Accumulate jittered frames", e.taa, 'data-r2field="taa"')) +
+  body += sgsec("Temporal and Upscaling", "TAA, TSR, DLSS, FSR and XeSS presets",
+    sgrow("Temporal AA", check("Accumulate jittered frames", e.taa, 'data-r2field="taa"')) +
     selectrow("Upscaler", ["off", "tsr", "dlss", "fsr", "xess"], e.upscale || "off", 'data-r2field="upscale"') +
     selectrow("Render scale", [{ value: "1", label: "100%" }, { value: "0.75", label: "75%" }, { value: "0.67", label: "67%" }, { value: "0.5", label: "50%" }], String(e.upscaleamt || 1), 'data-r2field="upscaleamt"'));
-  body += u5sec("Lightmaps and Virtual Textures", "Baked irradiance and streamed texture mips",
-    u5row("Lightmap bake", check("Sample per face irradiance", e.lightmap, 'data-r2field="lightmap"')) +
-    u5row("Virtual textures", check("Stream mips by texel density", e.vtex, 'data-r2field="vtex"')) +
-    '<div class="u5btns"><button class="btn" data-r2act="lm">Bake lightmap atlas</button>' +
+  body += sgsec("Lightmaps and Virtual Textures", "Baked irradiance and streamed texture mips",
+    sgrow("Lightmap bake", check("Sample per face irradiance", e.lightmap, 'data-r2field="lightmap"')) +
+    sgrow("Virtual textures", check("Stream mips by texel density", e.vtex, 'data-r2field="vtex"')) +
+    '<div class="sgbtns"><button class="btn" data-r2act="lm">Bake lightmap atlas</button>' +
     '<button class="btn ghost" data-r2act="vt">Analyse texel density</button></div>' +
     '<div class="r2out" id="lmout">Idle.</div>');
-  body += u5sec("Level of Detail and HLOD", "Auto LOD chains and hierarchical clusters",
-    u5row("Auto LOD", check("Build LOD chains on demand", e.lod !== false, 'data-r2field="lod"')) +
-    u5row("HLOD", check("Merge distant actors into clusters", e.hlod, 'data-r2field="hlod"')) +
-    '<div class="u5btns"><button class="btn" data-r2act="lod">Generate LOD chains</button>' +
+  body += sgsec("Level of Detail and HLOD", "Auto LOD chains and hierarchical clusters",
+    sgrow("Auto LOD", check("Build LOD chains on demand", e.lod !== false, 'data-r2field="lod"')) +
+    sgrow("HLOD", check("Merge distant actors into clusters", e.hlod, 'data-r2field="hlod"')) +
+    '<div class="sgbtns"><button class="btn" data-r2act="lod">Generate LOD chains</button>' +
     '<button class="btn ghost" data-r2act="hlod">Build HLOD</button></div>' +
     '<div class="r2out" id="hlout">Idle.</div>');
-  body += u5sec("Post Material Domain and Stencil", "Stencil masked post materials",
+  body += sgsec("Post Material Domain and Stencil", "Stencil masked post materials",
     selectrow("Stencil mask", ["off", "1", "2", "3", "4"], String(e.postmask || "off"), 'data-r2field="postmask"') +
     selectrow("Post material", ["none", "outline", "toon", "scanline", "heat"], e.post || "none", 'data-r2field="post"') +
     sliderrow("Post strength", e.postamt === undefined ? 0.6 : e.postamt, 0, 1, 0.01, 'data-r2field="postamt"'));
-  body += u5sec("Lens and Camera Effects", "Flares, dirt, distortion and bokeh",
+  body += sgsec("Lens and Camera Effects", "Flares, dirt, distortion and bokeh",
     sliderrow("Lens flare", e.lens.flare, 0, 1, 0.01, 'data-lens="flare"') +
     sliderrow("Lens dirt", e.lens.dirt, 0, 1, 0.01, 'data-lens="dirt"') +
     sliderrow("Lens distortion", e.lens.distort, 0, 1, 0.01, 'data-lens="distort"') +
     sliderrow("Aperture blades", e.lens.blades, 3, 12, 1, 'data-lens="blades"') +
     sliderrow("Depth of field", e.lens.dof, 0, 1, 0.01, 'data-lens="dof"') +
     sliderrow("Bokeh amount", e.lens.bokeh, 0, 1, 0.01, 'data-lens="bokeh"'));
-  body += u5sec("Volumetric Lighting", "Ray marched light shafts and inscattering",
+  body += sgsec("Volumetric Lighting", "Ray marched light shafts and inscattering",
     sliderrow("Volume density", e.vol, 0, 1, 0.01, 'data-r2field="vol"') +
     sliderrow("March steps", e.volsteps, 8, 64, 1, 'data-r2field="volsteps"'));
-  body += u5sec("Translucency and Refraction", "Distortion through refractive surfaces",
+  body += sgsec("Translucency and Refraction", "Distortion through refractive surfaces",
     sliderrow("Refraction strength", e.refract, 0, 1, 0.01, 'data-r2field="refract"'));
   body += "</div>";
   openmodal({
@@ -157,8 +157,8 @@ function r2panel() {
   });
 }
 
-function u5note2(t) {
-  return '<div class="u5note">' + esc(t) + "</div>";
+function sgnote2(t) {
+  return '<div class="sgnote">' + esc(t) + "</div>";
 }
 
 function pickdecalsprite() {

@@ -50,7 +50,7 @@ function netruntime() {
     var wrap = netel("div", css);
     var btn = netel("button", "border:0;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13px;background:rgba(16,20,26,.72);color:#dfe8f5;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 6px 22px rgba(0,0,0,.35)", "Co-op");
     var panel = netel("div", "display:none;margin-top:8px;width:250px;background:rgba(14,18,24,.94);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px;font-size:12.5px;box-shadow:0 18px 48px rgba(0,0,0,.5)");
-    var title = netel("div", "font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:#8fb7e8;margin-bottom:8px", "Online Subsystem");
+    var title = netel("div", "font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:#8fb7e8;margin-bottom:8px", "Online");
     var nameinput = netel("input", "width:100%;box-sizing:border-box;margin-bottom:6px;padding:7px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0d1116;color:#eaf0f7;font-size:12.5px");
     nameinput.placeholder = "Player name";
     nameinput.value = net.name;

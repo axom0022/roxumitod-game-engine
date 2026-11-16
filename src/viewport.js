@@ -32,12 +32,12 @@ function sceneenv() {
     gridy: env.gridy === undefined ? -0.001 : env.gridy,
     sunintensity: 0.95,
     shadows: !!g.shadows,
-    lumen: env.lumen !== false,
-    lumenstrength: env.lumenstrength === undefined ? 0.55 : env.lumenstrength,
-    vsm: !!env.vsm,
-    vsmres: env.vsmres || 2048,
-    nanite: env.nanite !== false,
-    nanitedist: env.nanitedist || 14,
+    gi: env.gi !== false,
+    gistrength: env.gistrength === undefined ? 0.55 : env.gistrength,
+    csm: !!env.csm,
+    csmres: env.csmres || 2048,
+    vgeo: env.vgeo !== false,
+    vgeodist: env.vgeodist || 14,
     partition: !!env.partition,
     cell: env.cell || 24,
     cellradius: env.cellradius === undefined ? 3 : env.cellradius
@@ -66,6 +66,32 @@ function previewcamera() {
 function itemtexture(node) {
   if (node.sprite) return texturecanvas(node.sprite, app.project);
   if (node.type === "text3d") return textcanvas(node.text || "Text", node.color || "#ffffff", 56);
+  return null;
+}
+
+function markerspec(n) {
+  var t = n.type;
+  if (t === "pointlight") return { shape: "sphere", size: [0.34, 0.34, 0.34], offset: [0, 0, 0], unlit: true };
+  if (t === "spotlight") return { shape: "cone", size: [0.5, 0.8, 0.5], offset: [0, -0.3, 0], unlit: true };
+  if (t === "arealight") return { shape: "plane", size: [1.2, 0.8, 0.02], offset: [0, 0.4, 0.4], rot: [90, 0, 0], unlit: true };
+  if (t === "soundemitter") return { shape: "sphere", size: [0.7, 0.7, 0.7], opacity: 0.25, unlit: true };
+  if (t === "musiczone") return { shape: "sphere", size: [1.4, 1.4, 1.4], opacity: 0.16, unlit: true };
+  if (t === "trail") return { shape: "box", size: [0.2, 0.2, 1.4], opacity: 0.5, unlit: true };
+  if (t === "beam") return { shape: "cylinder", size: [0.5, 6, 0.5], opacity: 0.35, unlit: true };
+  if (t === "spawn") return { shape: "cylinder", size: [1.1, 0.08, 1.1], offset: [0, 0.04, 0], unlit: true };
+  if (t === "checkpoint") return { shape: "torus", size: [1, 1, 1], unlit: true };
+  if (t === "portal") return { shape: "torus", size: [1.4, 1.4, 1.4], unlit: true };
+  if (t === "door") return { shape: "box", size: [1.4, 2.2, 0.3] };
+  if (t === "hazard") return { shape: "box", size: [1, 1, 1] };
+  if (t === "pickup") return { shape: "torus", size: [0.7, 0.7, 0.7], unlit: true };
+  if (t === "zone") return { shape: "box", size: [3, 2, 3], opacity: 0.18, unlit: true };
+  if (t === "platform") return { shape: "box", size: [2, 0.4, 1] };
+  if (t === "attachment") return { shape: "sphere", size: [0.3, 0.3, 0.3], unlit: true };
+  if (t === "billboard") return { shape: "plane", size: [1.2, 0.4, 0.02], offset: [0, 1.4, 0], unlit: true };
+  if (t === "remote") return { shape: "sphere", size: [0.5, 0.5, 0.5], opacity: 0.5, unlit: true };
+  if (t === "numbervalue" || t === "stringvalue") return { shape: "box", size: [0.4, 0.4, 0.08], offset: [0, 0.5, 0], unlit: true };
+  if (t === "seat") return { shape: "box", size: [1.2, 0.3, 1.2] };
+  if (t === "script" || t === "modulescript" || t === "scenescript" || t === "clientscript" || t === "serverscript" || t === "toolscript") return { shape: "box", size: [0.6, 0.6, 0.06], offset: [0, 0.6, 0], unlit: true };
   return null;
 }
 
@@ -173,6 +199,21 @@ function collectitems() {
             var half2 = (n.size || 30) / 2;
             picks.push({ id: n.id, node: n, min: [px - half2, py - 0.1, pz - half2], max: [px + half2, py + 6 + 0.1, pz + half2] });
           }
+        } else if (markerspec(n)) {
+          var ms2 = markerspec(n);
+          items.push({
+            id: n.id,
+            kind: ms2.shape || "box",
+            matrix: m4mul(world, m4compose(ms2.offset || [0, 0.5, 0], ms2.rot || [0, 0, 0], ms2.size || [1, 1, 1])),
+            color: n.color || ms2.color || "#9aa7b4",
+            opacity: ms2.opacity === undefined ? 0.85 : ms2.opacity,
+            unlit: !!ms2.unlit,
+            texid: "",
+            texture: null,
+            double: true
+          });
+          var mb2 = matrixbounds(world, ms2.size || [1, 1, 1]);
+          picks.push({ id: n.id, node: n, min: mb2.min, max: mb2.max });
         } else if (n.type === "spline") {
           if (typeof splinegeo === "function") {
             var sgeo = splinegeo(n);
@@ -236,6 +277,10 @@ function collectitems() {
     }
   }
   visit(app.scene.objects || [], m4(), true);
+  if (typeof lightspecs === "function") {
+    var ls = lightspecs();
+    for (var li = 0; li < ls.length; li++) items.push(ls[li]);
+  }
   if (app.scene.env && app.scene.env.bgtype === "sky" && app.scene.env.sky) {
     var st2 = app.camstate || camerastate();
     var tex = artmake(app.scene.env.sky === "sky" ? "sky" : "sky");

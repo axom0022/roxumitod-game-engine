@@ -74,7 +74,16 @@ function vfxgraphbuild() {
   var cl = vfxnodeadd("collide", 330, 150);
   var r = vfxnodeadd("render", 480, 150);
   vfxgraph.links = [[s.id, sh.id], [sh.id, v.id], [v.id, f.id], [f.id, c.id], [c.id, z.id], [z.id, cl.id], [cl.id, r.id]];
-  vfxgraph.running = true;
+  vfxgraph.running = false;
+  vfxgraph.preview = false;
+  fxcleargraph();
+}
+
+function fxcleargraph() {
+  if (!fx.list) return;
+  for (var i = fx.list.length - 1; i >= 0; i--) {
+    if (fx.list[i].graphtrue) fx.list.splice(i, 1);
+  }
 }
 
 function vfxspec() {
@@ -109,6 +118,7 @@ function vfxspec() {
 
 function vfxgraphrun(dt) {
   if (!vfxgraph.running || !vfxgraph.nodes.length) return;
+  if (!app.play && !vfxgraph.preview) return;
   var spec = vfxspec();
   vfxgraph.acc += dt * spec.rate;
   var n = Math.floor(vfxgraph.acc);
@@ -179,11 +189,11 @@ function vfxgraphtick(dt) {
 function vfxgraphpanel() {
   if (!vfxgraph.nodes.length) vfxgraphbuild();
   var spec = vfxspec();
-  var body = '<div class="vfxbody">' + u5sec("Visual effect graph", "Emitter, forces, colour ramp and collision",
+  var body = '<div class="vfxbody">' + sgsec("Visual effect graph", "Emitter, forces, colour ramp and collision",
     '<div class="graphedit" id="vfxg">' + vfxgraph.nodes.map(function (n) {
       return '<div class="gnode" data-gnid="' + n.id + '" style="left:' + n.x + "px;top:" + n.y + 'px"><b>' + esc(n.type) + "</b><span>" + graphsummary(n) + "</span></div>";
     }).join("") + svglinks() + "</div>" +
-    '<div class="u5btns"><button class="btn" data-vfxact="play">' + (vfxgraph.running ? "Pause" : "Play graph") + "</button>" +
+    '<div class="sgbtns"><button class="btn" data-vfxact="play">' + (vfxgraph.running ? "Pause" : "Play graph") + "</button>" +
     '<button class="btn ghost" data-vfxact="reset">Rebuild graph</button>' +
     '<button class="btn ghost" data-vfxact="burst">Burst</button></div>' +
     '<div class="gprops">' +
@@ -194,11 +204,11 @@ function vfxgraphpanel() {
     sliderrow("Drag", spec.drag, 0, 4, 0.05, 'data-vfxp="drag"') +
     sliderrow("Size start", spec.start, 0.02, 1, 0.01, 'data-vfxp="start"') +
     sliderrow("Size end", spec.end, 0.01, 1, 0.01, 'data-vfxp="end"') +
-    u5row("Colour A", '<input class="inp swatch" type="color" value="' + esc(spec.a) + '" data-vfxp="a">') +
-    u5row("Colour B", '<input class="inp swatch" type="color" value="' + esc(spec.b) + '" data-vfxp="b">') +
+    sgrow("Colour A", '<input class="inp swatch" type="color" value="' + esc(spec.a) + '" data-vfxp="a">') +
+    sgrow("Colour B", '<input class="inp swatch" type="color" value="' + esc(spec.b) + '" data-vfxp="b">') +
     "</div>") + "</div>";
   openmodal({
-    title: "Niagara Style Effect Graph",
+    title: "Effect Graph",
     icon: "sparkle",
     width: "wide",
     body: body,
@@ -216,7 +226,11 @@ function vfxgraphpanel() {
       m.querySelectorAll("[data-vfxact]").forEach(function (b) {
         b.addEventListener("click", function () {
           var a = b.getAttribute("data-vfxact");
-          if (a === "play") vfxgraph.running = !vfxgraph.running;
+          if (a === "play") {
+            vfxgraph.running = !vfxgraph.running;
+            vfxgraph.preview = vfxgraph.running;
+            if (!vfxgraph.running) fxcleargraph();
+          }
           else if (a === "reset") vfxgraphbuild();
           else if (a === "burst") {
             var spec2 = vfxspec();
@@ -333,11 +347,11 @@ function gpusimdraw(g, cs, w, h) {
 
 function gpusimpanal() {
   gpusiminits();
-  var body = '<div class="gpubody">' + u5sec("GPU simulation", "Typed array compute, single batched draw",
-    u5row("Active", check("Simulate", gpusim.on, 'data-gpu="on"')) +
+  var body = '<div class="gpubody">' + sgsec("GPU simulation", "Typed array compute, single batched draw",
+    sgrow("Active", check("Simulate", gpusim.on, 'data-gpu="on"')) +
     sliderrow("Particle count", gpusim.count, 500, gpusim.cap, 500, 'data-gpu="count"') +
     '<div class="landout" id="gpuout">' + gpusim.count + " particles in three typed arrays.</div>" +
-    u5note("The simulation runs as one tight typed array loop and every particle is batched into a single overlay pass, matching how a compute shader dispatch behaves.")) + "</div>";
+    sgnote("The simulation runs as one tight typed array loop and every particle is batched into a single overlay pass, matching how a compute shader dispatch behaves.")) + "</div>";
   openmodal({
     title: "GPU Particle Simulation",
     icon: "sparkle",
@@ -470,23 +484,23 @@ function audiographstop() {
 
 function audiopanel() {
   if (!audiograph.nodes.length) audiographbuild();
-  var body = '<div class="audbody">' + u5sec("Audio node graph", "Oscillator, filter, gain, spatialiser and convolution reverb",
+  var body = '<div class="audbody">' + sgsec("Audio node graph", "Oscillator, filter, gain, spatialiser and convolution reverb",
     '<div class="graphedit small">' + audiograph.nodes.map(function (n, i) {
       return '<div class="gnode audio" style="left:' + (20 + (i % 3) * 190) + "px;top:" + (20 + Math.floor(i / 3) * 70) + 'px"><b>' + esc(n.type) + "</b><span>" + esc(JSON.stringify(n.p).slice(0, 26)) + "</span></div>";
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-auact="start">' + (audiograph.running ? "Restart graph" : "Start graph") + "</button>" +
+    '<div class="sgbtns"><button class="btn" data-auact="start">' + (audiograph.running ? "Restart graph" : "Start graph") + "</button>" +
     '<button class="btn ghost" data-auact="stop">Stop</button>' +
     '<button class="btn ghost" data-auact="spatial">Move source</button></div>' +
     '<div class="landout" id="auout">' + (audiograph.running ? "Graph running." : "Graph stopped.") + "</div>");
-  body += u5sec("Spatialisation", "Distance model, rolloff and listener pose",
+  body += sgsec("Spatialisation", "Distance model, rolloff and listener pose",
     selectrow("Distance model", ["inverse", "linear", "exponential"], audiograph.nodes[3] ? audiograph.nodes[3].p.model : "inverse", 'data-aup="model"') +
     sliderrow("Reference distance", audiograph.nodes[3] ? audiograph.nodes[3].p.ref : 2, 0.2, 30, 0.1, 'data-aup="ref"') +
     sliderrow("Rolloff", audiograph.nodes[3] ? audiograph.nodes[3].p.roll : 1, 0, 8, 0.1, 'data-aup="roll"') +
-    u5row("Listener", '<span class="u5val">position 0, 1.6, 0 following the editor camera</span>') +
-    u5note("Attenuation follows the inverse distance model with a 2 m reference. Occlusion and reverb send follow the material of the nearest occluder."));
+    sgrow("Listener", '<span class="sgval">position 0, 1.6, 0 following the editor camera</span>') +
+    sgnote("Attenuation follows the inverse distance model with a 2 m reference. Occlusion and reverb send follow the material of the nearest occluder."));
   body += "</div>";
   openmodal({
-    title: "MetaSounds Style Audio Graph",
+    title: "Audio Graph",
     icon: "music",
     width: "wide",
     body: body,
@@ -545,15 +559,15 @@ function audiopanel() {
 var voice = { on: false, muted: false, level: 0, stream: null, ctx: null, rec: null, sent: 0, heard: 0, chunks: 0 };
 
 function voicepanel() {
-  var body = '<div class="voicebody">' + u5sec("Voice chat", "Microphone capture over the multiplayer transport",
-    u5row("State", '<span class="u5badge ' + (voice.on ? "u5on" : "u5off") + '">' + (voice.on ? "live" : "offline") + "</span>") +
-    u5row("Microphone", check("Enable capture", !voice.muted, 'data-voice="mute"')) +
-    u5row("Level", '<div class="levelbar"><span id="voicelevel" style="width:' + Math.round(voice.level * 100) + '%"></span></div>') +
-    '<div class="u5btns"><button class="btn" data-voiceact="start">Start capture</button>' +
+  var body = '<div class="voicebody">' + sgsec("Voice chat", "Microphone capture over the multiplayer transport",
+    sgrow("State", '<span class="sgbadge ' + (voice.on ? "sgon" : "sgoff") + '">' + (voice.on ? "live" : "offline") + "</span>") +
+    sgrow("Microphone", check("Enable capture", !voice.muted, 'data-voice="mute"')) +
+    sgrow("Level", '<div class="levelbar"><span id="voicelevel" style="width:' + Math.round(voice.level * 100) + '%"></span></div>') +
+    '<div class="sgbtns"><button class="btn" data-voiceact="start">Start capture</button>' +
     '<button class="btn ghost" data-voiceact="stop">Stop</button>' +
     '<button class="btn ghost" data-voiceact="test">Loopback test</button></div>' +
     '<div class="landout" id="voiceout">' + (voice.on ? "Capturing at " + voice.chunks + " chunks sent." : "Idle.") + "</div>" +
-    u5note("Chunks travel as voice messages inside the existing peer session. Listeners play each chunk through WebAudio as it arrives."));
+    sgnote("Chunks travel as voice messages inside the existing peer session. Listeners play each chunk through WebAudio as it arrives."));
   body += "</div>";
   openmodal({
     title: "Voice Chat",
@@ -696,7 +710,7 @@ if (netrecvbase) {
 
 function musicpanel() {
   var t = musicseq.tracks;
-  var body = '<div class="musbody">' + u5sec("Music system", "Tempo locked step sequencer across three layers",
+  var body = '<div class="musbody">' + sgsec("Music system", "Tempo locked step cine across three layers",
     sliderrow("Tempo", musicseq.bpm, 40, 220, 1, 'data-mus="bpm"') +
     '<div class="seqgrid">' + t.map(function (tr, ti) {
       var cells = "";
@@ -709,7 +723,7 @@ function musicpanel() {
           return '<option value="' + w + '"' + (tr.wave === w ? " selected" : "") + ">" + w + "</option>";
         }).join("") + "</select></div>";
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-musact="play">' + (musicseq.playing ? "Stop" : "Play") + "</button>" +
+    '<div class="sgbtns"><button class="btn" data-musact="play">' + (musicseq.playing ? "Stop" : "Play") + "</button>" +
     '<button class="btn ghost" data-musact="seed">Write a riff</button>' +
     '<button class="btn ghost" data-musact="stinger">Play stinger</button></div>' +
     '<div class="landout">Positional layers: each track is routed to the Music bus with its own gain envelope.</div>');

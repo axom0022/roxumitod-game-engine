@@ -34,7 +34,7 @@ function pxsetlayer(node, layer) {
 
 function collisionpanel() {
   var m = pxlayers();
-  var body = '<div class="colbody">' + u5sec("Collision channels", "Which layers collide with which",
+  var body = '<div class="colbody">' + sgsec("Collision channels", "Which layers collide with which",
     '<div class="matrixtable"><div class="mtrow mthead"><span></span>' + px.layers.map(function (l) {
       return "<span>" + esc(l.slice(0, 4)) + "</span>";
     }).join("") + "</div>" +
@@ -65,11 +65,11 @@ function collisionpanel() {
 }
 
 function ccdpanel() {
-  var body = '<div class="ccdbody">' + u5sec("Continuous collision", "Swept volume tests for fast actors",
-    u5row("Continuous detection", check("Enable swept tests", px.ccd, 'data-ccd="on"')) +
+  var body = '<div class="ccdbody">' + sgsec("Continuous collision", "Swept volume tests for fast actors",
+    sgrow("Continuous detection", check("Enable swept tests", px.ccd, 'data-ccd="on"')) +
     sliderrow("Speed threshold", px.ccdspeed === undefined ? 6 : px.ccdspeed, 0.5, 40, 0.5, 'data-ccd="speed"') +
-    u5row("Substeps", '<input class="inp num" type="number" min="1" max="16" value="' + (px.ccdsteps || 4) + '" data-ccd="steps">') +
-    u5note("Actors faster than the threshold are swept along their motion vector and the earliest contact is resolved before the move commits.")) + "</div>";
+    sgrow("Substeps", '<input class="inp num" type="number" min="1" max="16" value="' + (px.ccdsteps || 4) + '" data-ccd="steps">') +
+    sgnote("Actors faster than the threshold are swept along their motion vector and the earliest contact is resolved before the move commits.")) + "</div>";
   openmodal({
     title: "Continuous Collision",
     icon: "move",
@@ -160,21 +160,21 @@ function fieldpanel() {
   walk(app.scene.objects, function (n) {
     if (n.field && !f) f = n;
   });
-  var body = '<div class="fieldbody">' + u5sec("Fields and forces", "Radial, vortex, wind, drag and noise",
-    '<div class="u5btns"><button class="btn" data-fieldadd="radial">Radial</button>' +
+  var body = '<div class="fieldbody">' + sgsec("Fields and forces", "Radial, vortex, wind, drag and noise",
+    '<div class="sgbtns"><button class="btn" data-fieldadd="radial">Radial</button>' +
     '<button class="btn ghost" data-fieldadd="gravity">Gravity</button>' +
     '<button class="btn ghost" data-fieldadd="vortex">Vortex</button>' +
     '<button class="btn ghost" data-fieldadd="wind">Wind</button>' +
     '<button class="btn ghost" data-fieldadd="drag">Drag</button>' +
     '<button class="btn ghost" data-fieldadd="noise">Noise</button></div>' +
-    (f ? u5row("Selected field", '<span class="u5val">' + esc(f.name) + "</span>") +
+    (f ? sgrow("Selected field", '<span class="sgval">' + esc(f.name) + "</span>") +
       sliderrow("Radius", f.field.radius, 0.5, 40, 0.5, 'data-fdf="radius"') +
       sliderrow("Strength", f.field.strength, -30, 30, 0.5, 'data-fdf="strength"') +
       selectrow("Falloff", ["linear", "inverse"], f.field.falloff, 'data-fdf="falloff"') +
-      u5row("Axis", '<input class="inp" value="' + f.field.axis.join(",") + '" data-fdf="axis">') +
-      '<div class="u5btns"><button class="btn ghost" data-fieldadd="remove">Remove field</button></div>'
-      : u5note("No field actors yet.")) +
-    u5note("Fields push every dynamic physics body inside their radius. Pair with a particles system for smoke."));
+      sgrow("Axis", '<input class="inp" value="' + f.field.axis.join(",") + '" data-fdf="axis">') +
+      '<div class="sgbtns"><button class="btn ghost" data-fieldadd="remove">Remove field</button></div>'
+      : sgnote("No field actors yet.")) +
+    sgnote("Fields push every dynamic physics body inside their radius. Pair with a particles system for smoke."));
   body += "</div>";
   openmodal({
     title: "Fields and Forces",
@@ -251,18 +251,18 @@ function vehiclepanel() {
   walk(app.scene.objects, function (x) {
     if (x.vehicle && !n) n = x;
   });
-  var body = '<div class="vehbody">' + u5sec("Vehicle physics", "Suspension, engine and steering",
-    (n ? u5row("Vehicle", '<span class="u5val">' + esc(n.name) + "</span>") +
+  var body = '<div class="vehbody">' + sgsec("Vehicle physics", "Suspension, engine and steering",
+    (n ? sgrow("Vehicle", '<span class="sgval">' + esc(n.name) + "</span>") +
       sliderrow("Engine power", n.vehicle.engine, 40, 900, 5, 'data-veh="engine"') +
       sliderrow("Brake force", n.vehicle.brake, 5, 90, 1, 'data-veh="brake"') +
       sliderrow("Steer angle", n.vehicle.steer, 5, 60, 1, 'data-veh="steer"') +
       sliderrow("Suspension", n.vehicle.susp, 0.05, 1, 0.01, 'data-veh="susp"') +
       sliderrow("Grip", n.vehicle.grip, 0.1, 3, 0.01, 'data-veh="grip"') +
-      u5row("Wheels", '<input class="inp num" type="number" min="3" max="8" value="' + n.vehicle.wheels + '" data-veh="wheels">') +
-      u5row("Live", '<span class="u5val" id="vehlive">speed 0, gear 1</span>')
-      : u5note("No vehicle yet, add one below.")) +
-    '<div class="u5btns"><button class="btn" data-vehact="add">Add vehicle</button>' +
-    '<button class="btn ghost" data-vehact="drive">Test drive in PIE</button></div>');
+      sgrow("Wheels", '<input class="inp num" type="number" min="3" max="8" value="' + n.vehicle.wheels + '" data-veh="wheels">') +
+      sgrow("Live", '<span class="sgval" id="vehlive">speed 0, gear 1</span>')
+      : sgnote("No vehicle yet, add one below.")) +
+    '<div class="sgbtns"><button class="btn" data-vehact="add">Add vehicle</button>' +
+    '<button class="btn ghost" data-vehact="drive">Test drive in play mode</button></div>');
   body += "</div>";
   openmodal({
     title: "Vehicle",
@@ -344,8 +344,8 @@ function charpanel() {
   walk(app.scene.objects, function (x) {
     if (x.charsys && !n) n = x;
   });
-  var body = '<div class="charbody">' + u5sec("Character controller", "Capsule with step height and slope limit",
-    (n ? u5row("Character", '<span class="u5val">' + esc(n.name) + "</span>") +
+  var body = '<div class="charbody">' + sgsec("Character controller", "Capsule with step height and slope limit",
+    (n ? sgrow("Character", '<span class="sgval">' + esc(n.name) + "</span>") +
       sliderrow("Radius", n.charsys.radius, 0.1, 1.5, 0.01, 'data-char="radius"') +
       sliderrow("Height", n.charsys.height, 0.4, 3, 0.05, 'data-char="height"') +
       sliderrow("Step height", n.charsys.step, 0.05, 1, 0.01, 'data-char="step"') +
@@ -353,9 +353,9 @@ function charpanel() {
       sliderrow("Ground snap", n.charsys.snap, 0, 1, 0.01, 'data-char="snap"') +
       sliderrow("Move speed", n.charsys.speed, 0.5, 20, 0.1, 'data-char="speed"') +
       sliderrow("Jump velocity", n.charsys.jump, 1, 20, 0.1, 'data-char="jump"')
-      : u5note("No character yet.")) +
-    '<div class="u5btns"><button class="btn" data-charact="add">Add character</button></div>' +
-    u5note("Run in PIE with arrow keys. Grounded, slope rejection and step up are evaluated every frame."));
+      : sgnote("No character yet.")) +
+    '<div class="sgbtns"><button class="btn" data-charact="add">Add character</button></div>' +
+    sgnote("Run in play mode with arrow keys. Grounded, slope rejection and step up are evaluated every frame."));
   body += "</div>";
   openmodal({
     title: "Character Controller",
@@ -443,8 +443,8 @@ function jointtick(dt) {
 function jointpanel() {
   var env = app.scene.env || {};
   var list = env.constraints || [];
-  var body = '<div class="jointpanel">' + u5sec("Joints and constraints", "Hinge, ball, spring, distance and fixed",
-    '<div class="u5btns"><button class="btn" data-jadd="hinge">Hinge</button>' +
+  var body = '<div class="jointpanel">' + sgsec("Joints and constraints", "Hinge, ball, spring, distance and fixed",
+    '<div class="sgbtns"><button class="btn" data-jadd="hinge">Hinge</button>' +
     '<button class="btn ghost" data-jadd="ball">Ball socket</button>' +
     '<button class="btn ghost" data-jadd="spring">Spring</button>' +
     '<button class="btn ghost" data-jadd="distance">Distance</button>' +
@@ -455,7 +455,7 @@ function jointpanel() {
       return '<div class="jointrowp"><span class="jk">' + esc(j.kind) + '</span><span class="jn">' + esc((a && a.name) || "?") + " to " + esc((b && b.name) || "?") + "</span>" +
         '<input class="inp num" type="number" value="' + j.rest + '" data-jrest="' + i + '" title="rest length">' +
         '<button class="iconbtn" data-jdel="' + i + '">' + ic("trash", "ico-xs") + "</button></div>";
-    }).join("") + "</div>" : u5note("Select two actors then create a joint."))) + "</div>";
+    }).join("") + "</div>" : sgnote("Select two actors then create a joint."))) + "</div>";
   openmodal({
     title: "Physics Constraints",
     icon: "network",
@@ -524,23 +524,23 @@ function fracturerun(node, depth, maxdepth) {
 
 function destructionpanel() {
   var n = selected();
-  var body = '<div class="destbody">' + u5sec("Destruction", "Recursive fracture with depth control",
-    u5row("Target", '<span class="u5val">' + (n ? esc(n.name) : "none") + "</span>") +
+  var body = '<div class="destbody">' + sgsec("Destruction", "Recursive fracture with depth control",
+    sgrow("Target", '<span class="sgval">' + (n ? esc(n.name) : "none") + "</span>") +
     sliderrow("Fracture depth", px.depth || 3, 1, 5, 1, 'data-dest="depth"') +
     sliderrow("Chunk impulse", px.impulse || 4, 0, 20, 0.5, 'data-dest="impulse"') +
     sliderrow("Debris life", px.life || 6, 1, 30, 0.5, 'data-dest="life"') +
-    '<div class="u5btns"><button class="btn" data-destact="fracture">Fracture selection</button>' +
+    '<div class="sgbtns"><button class="btn" data-destact="fracture">Fracture selection</button>' +
     '<button class="btn ghost" data-destact="clear">Clear debris</button>' +
     '<button class="btn ghost" data-destact="demo">Explode chunks</button></div>' +
     '<div class="landout" id="destout">' + (px.chunks.length ? px.chunks.length + " chunks tracked." : "Ready.") + "</div>");
-  body += u5sec("Soft body", "Mass spring lattice over mesh vertices",
+  body += sgsec("Soft body", "Mass spring lattice over mesh vertices",
     sliderrow("Stiffness", px.soft || 0.35, 0.02, 1, 0.01, 'data-dest="soft"') +
-    '<div class="u5btns"><button class="btn" data-destact="soft">Make selection soft</button>' +
+    '<div class="sgbtns"><button class="btn" data-destact="soft">Make selection soft</button>' +
     '<button class="btn ghost" data-destact="jelly">Jelly step</button></div>');
-  body += u5sec("Fluid and buoyancy", "Volume buoyancy and particle fluid",
+  body += sgsec("Fluid and buoyancy", "Volume buoyancy and particle fluid",
     sliderrow("Buoyancy", px.buoy || 1.2, 0, 4, 0.05, 'data-dest="buoy"') +
     sliderrow("Water drag", px.wdrag || 1.4, 0, 6, 0.05, 'data-dest="wdrag"') +
-    '<div class="u5btns"><button class="btn" data-destact="fluid">Spawn fluid particles</button>' +
+    '<div class="sgbtns"><button class="btn" data-destact="fluid">Spawn fluid particles</button>' +
     '<button class="btn ghost" data-destact="float">Test buoyancy</button></div>');
   body += "</div>";
   openmodal({

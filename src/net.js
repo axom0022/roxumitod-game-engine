@@ -442,7 +442,7 @@ function netchat(text) {
   if (typeof netrefresh === "function") netrefresh();
 }
 
-var ue5panelcss = ".u5row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}.u5row .k{width:190px;color:#c8ccd4;font-size:12.5px}.u5row .v{flex:1;display:flex;gap:8px;align-items:center}.u5stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:10px 0}.u5card{background:#171a1f;border:1px solid #2a2f37;border-radius:8px;padding:10px}.u5card .n{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:#8b93a1}.u5card .v{font-size:20px;font-weight:700;color:#f0f2f5;margin-top:2px}.u5badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(79,163,255,.14);color:#8ec5ff;border:1px solid rgba(79,163,255,.3)}.u5on{background:rgba(57,217,138,.16);color:#6fe3a5;border-color:rgba(57,217,138,.34)}.u5off{background:rgba(255,255,255,.05);color:#98a1ad;border-color:rgba(255,255,255,.09)}.u5log{font-family:ui-monospace,monospace;font-size:11px;background:#101318;border:1px solid #242a33;border-radius:8px;padding:8px;max-height:190px;overflow:auto;color:#9aa6b5}.u5log b{color:#e6ecf5;font-weight:600}.u5track{display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid #232830}.u5track .h{font-size:12px;padding:8px;color:#c8ccd4;border-right:1px solid #232830}.u5lane{position:relative;height:34px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}.u5key{position:absolute;top:9px;width:10px;height:16px;border-radius:3px;background:#ffb02e;box-shadow:0 0 0 1px rgba(0,0,0,.3)}.u5ruler{display:grid;grid-template-columns:150px 1fr;font-size:10px;color:#7c8492}.u5ruler .r{display:flex;justify-content:space-between;padding:4px 2px}.u5mod{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;background:#14181d;border:1px solid #242a33;margin-bottom:6px;font-size:12px}.u5mod .dots{color:#5d6674;font-size:15px;letter-spacing:-2px}.u5mod b{font-weight:600;color:#dfe6ef;font-size:12px}.u5chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.u5node{background:#1b2a3d;border:1px solid #2f4a6b;border-radius:8px;padding:7px 10px;font-size:12px;color:#bcd7f5}.u5node.hot{background:#24384f;border-color:#4d7fb5;color:#e3f0ff}.u5wire{height:2px;width:18px;background:#3c4a5c}";
+var studiopanelcss = ".sgrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}.sgrow .k{width:190px;color:#c8ccd4;font-size:12.5px}.sgrow .v{flex:1;display:flex;gap:8px;align-items:center}.sgstat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:10px 0}.sgcard{background:#171a1f;border:1px solid #2a2f37;border-radius:8px;padding:10px}.sgcard .n{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:#8b93a1}.sgcard .v{font-size:20px;font-weight:700;color:#f0f2f5;margin-top:2px}.sgbadge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(79,163,255,.14);color:#8ec5ff;border:1px solid rgba(79,163,255,.3)}.sgon{background:rgba(57,217,138,.16);color:#6fe3a5;border-color:rgba(57,217,138,.34)}.sgoff{background:rgba(255,255,255,.05);color:#98a1ad;border-color:rgba(255,255,255,.09)}.sglog{font-family:ui-monospace,monospace;font-size:11px;background:#101318;border:1px solid #242a33;border-radius:8px;padding:8px;max-height:190px;overflow:auto;color:#9aa6b5}.sglog b{color:#e6ecf5;font-weight:600}.sgtrack{display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid #232830}.sgtrack .h{font-size:12px;padding:8px;color:#c8ccd4;border-right:1px solid #232830}.sglane{position:relative;height:34px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}.sgkey{position:absolute;top:9px;width:10px;height:16px;border-radius:3px;background:#ffb02e;box-shadow:0 0 0 1px rgba(0,0,0,.3)}.sgruler{display:grid;grid-template-columns:150px 1fr;font-size:10px;color:#7c8492}.sgruler .r{display:flex;justify-content:space-between;padding:4px 2px}.sgmod{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;background:#14181d;border:1px solid #242a33;margin-bottom:6px;font-size:12px}.sgmod .dots{color:#5d6674;font-size:15px;letter-spacing:-2px}.sgmod b{font-weight:600;color:#dfe6ef;font-size:12px}.sgchain{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sgnode{background:#1b2a3d;border:1px solid #2f4a6b;border-radius:8px;padding:7px 10px;font-size:12px;color:#bcd7f5}.sgnode.hot{background:#24384f;border-color:#4d7fb5;color:#e3f0ff}.sgwire{height:2px;width:18px;background:#3c4a5c}";
 
 
 function netrpchook(d) {
@@ -498,7 +498,7 @@ function netplayers() {
 function netpanel() {
   var on = netsys.on;
   var players = on ? netplayers() : [];
-  var body = '<div class="row" style="gap:8px;align-items:center;margin-bottom:10px"><span class="u5badge ' + (on ? "u5on" : "u5off") + '">' + (on ? (netsys.role === "host" ? "Hosting" : "Connected") : "Offline") + "</span>" +
+  var body = '<div class="row" style="gap:8px;align-items:center;margin-bottom:10px"><span class="sgbadge ' + (on ? "sgon" : "sgoff") + '">' + (on ? (netsys.role === "host" ? "Hosting" : "Connected") : "Offline") + "</span>" +
     (on ? '<span class="tiny muted">' + esc(netstate()) + "</span>" : '<span class="tiny muted">WebRTC through PeerJS · peer to peer</span>') +
     "</div>" +
     '<div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
@@ -508,24 +508,24 @@ function netpanel() {
     '<button class="btn" data-mact="join" ' + (on ? "disabled" : "") + ">" + ic("play", "ico-xs") + " Join session</button>" +
     (on ? '<button class="btn" data-mact="leave">Leave</button>' : "") +
     "</div>" +
-    (netsys.error ? '<div class="u5warn">' + esc(netsys.error) + "</div>" : "") +
-    '<div class="u5divider"></div>' +
+    (netsys.error ? '<div class="sgwarn">' + esc(netsys.error) + "</div>" : "") +
+    '<div class="sgdivider"></div>' +
     '<div class="tiny muted" style="margin:8px 0">Players</div>' +
     (players.length ? players.map(function (p) {
-      return '<div class="u5player"><span class="dot" style="background:' + p.color + '"></span><b>' + esc(p.name) + "</b>" + (p.you ? '<span class="tiny muted">you</span>' : '<span class="tiny muted">' + (p.ping || 0) + " ms</span>") + "</div>";
+      return '<div class="sgplayer"><span class="dot" style="background:' + p.color + '"></span><b>' + esc(p.name) + "</b>" + (p.you ? '<span class="tiny muted">you</span>' : '<span class="tiny muted">' + (p.ping || 0) + " ms</span>") + "</div>";
     }).join("") : '<div class="emptyhint">No players. Host a session and share the room code, or join a session.</div>') +
-    '<div class="u5divider"></div>' +
+    '<div class="sgdivider"></div>' +
     '<div class="row" style="gap:6px;margin:8px 0"><input class="inp" id="netchat" placeholder="Send a message to the session" style="flex:1"><button class="btn" data-mact="chat">Send</button></div>' +
-    '<div class="u5chat">' + (netsys.chat.length ? netsys.chat.map(function (c) {
+    '<div class="sgchat">' + (netsys.chat.length ? netsys.chat.map(function (c) {
       return "<div><b>" + esc(c.n) + ":</b> " + esc(c.m) + "</div>";
     }).join("") : '<div class="emptyhint">No messages yet.</div>') + "</div>" +
-    '<div class="u5divider"></div>' +
+    '<div class="sgdivider"></div>' +
     '<div class="row" style="gap:6px;margin:8px 0"><button class="btn" data-mact="rpc" ' + (on ? "" : "disabled") + ">Send test RPC</button><span class=\"tiny muted\">RPCs reach every peer in the session.</span></div>" +
-    '<div class="u5log">' + netsys.log.map(function (l) {
+    '<div class="sglog">' + netsys.log.map(function (l) {
       return "<div><span class=\"dim\">" + l.t + "</span> " + esc(l.m) + "</div>";
     }).join("") + "</div>";
   openmodal({
-    title: "Online Subsystem - PeerJS Sessions",
+    title: "Online - Peer Sessions",
     icon: "globe",
     width: "wide",
     body: body,
@@ -552,7 +552,7 @@ function netpanel() {
         netchatsend(m);
       },
       rpc: function () {
-        netrpc("msg", ["Online Subsystem", "RPC delivered to all peers"]);
+        netrpc("msg", ["Online", "RPC delivered to all peers"]);
         toast("RPC sent to " + (netconns().length || 0) + " peer(s)", "ok");
       }
     }
@@ -566,7 +566,7 @@ function netchatsend(modal) {
   if (!text) return;
   netchat(text);
   box.value = "";
-  var chatel = modal.querySelector(".u5chat");
+  var chatel = modal.querySelector(".sgchat");
   if (chatel) {
     chatel.innerHTML = netsys.chat.map(function (c) {
       return "<div><b>" + esc(c.n) + ":</b> " + esc(c.m) + "</div>";
@@ -608,6 +608,6 @@ function netaddcss() {
   if (qs("#netcss")) return;
   var st = document.createElement("style");
   st.id = "netcss";
-  st.textContent = ".netbadge{display:none;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#8ec5ff;background:rgba(79,163,255,.14);border:1px solid rgba(79,163,255,.3);border-radius:999px;padding:3px 9px;margin-right:6px}.u5warn{background:rgba(255,93,143,.12);border:1px solid rgba(255,93,143,.3);color:#ff9dba;padding:7px 9px;border-radius:7px;font-size:12px;margin:6px 0}.u5divider{height:1px;background:#232830;margin:10px 0}.u5player{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12.5px}.u5player .dot{width:9px;height:9px;border-radius:50%}.u5player .grow{flex:1}.u5chat{background:#101318;border:1px solid #232830;border-radius:8px;padding:8px;height:110px;overflow:auto;font-size:12px;color:#b9c4d2}.u5chat b{color:#e6ecf5}.u5grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.u5block{background:#151a20;border:1px solid #242a33;border-radius:9px;padding:10px}.u5blockhead{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#e6ecf5;margin-bottom:6px}.u5blockhead .grow{flex:1}";
+  st.textContent = ".netbadge{display:none;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#8ec5ff;background:rgba(79,163,255,.14);border:1px solid rgba(79,163,255,.3);border-radius:999px;padding:3px 9px;margin-right:6px}.sgwarn{background:rgba(255,93,143,.12);border:1px solid rgba(255,93,143,.3);color:#ff9dba;padding:7px 9px;border-radius:7px;font-size:12px;margin:6px 0}.sgdivider{height:1px;background:#232830;margin:10px 0}.sgplayer{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12.5px}.sgplayer .dot{width:9px;height:9px;border-radius:50%}.sgplayer .grow{flex:1}.sgchat{background:#101318;border:1px solid #232830;border-radius:8px;padding:8px;height:110px;overflow:auto;font-size:12px;color:#b9c4d2}.sgchat b{color:#e6ecf5}.sggrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sgblock{background:#151a20;border:1px solid #242a33;border-radius:9px;padding:10px}.sgblockhead{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#e6ecf5;margin-bottom:6px}.sgblockhead .grow{flex:1}";
   document.head.appendChild(st);
 }

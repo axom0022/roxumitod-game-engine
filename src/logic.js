@@ -134,16 +134,66 @@ function scriptscompile() {
   return runtime.errors.length;
 }
 
+function actorscripts() {
+  var out = [];
+  var kinds = ["script", "modulescript", "scenescript", "clientscript", "serverscript", "toolscript"];
+  walk((app.scene && app.scene.objects) || [], function (n) {
+    if (kinds.indexOf(n.type) < 0) return;
+    if (n.active === false) return;
+    out.push({ id: n.id, name: n.name, kind: "Actor script", code: n.code || "", node: n, type: n.type });
+  });
+  return out;
+}
+
+function fireevent(name, node) {
+  var fired = 0;
+  Object.keys(runtime.instances || {}).forEach(function (id) {
+    var inst = runtime.instances[id];
+    if (!inst || !inst.mod || !inst.mod.onevent) return;
+    try {
+      inst.mod.onevent.call(inst.state, name, node || null);
+      fired++;
+    } catch (e) {
+      inst.errors++;
+      rtlog("err", inst.name + " onevent: " + (e && e.message));
+    }
+  });
+  if (typeof plugfire === "function") plugfire("event", { name: name, node: node || null });
+  rtlog("ok", "event " + name + (node ? " on " + node.name : ""));
+  return fired;
+}
+
+function scriptruncode(code, entity) {
+  var r = scriptbuild({ code: code });
+  if (!r.ok) return { ok: false, error: r.error };
+  var inst = { id: entity ? entity.id : "inline", name: entity ? entity.name : "inline", mod: r.mod, state: { entity: entity, game: game || null }, errors: 0 };
+  try {
+    if (inst.mod.start) inst.mod.start.call(inst.state, entity);
+    return { ok: true, inst: inst };
+  } catch (e) {
+    return { ok: false, error: e && e.message ? e.message : String(e) };
+  }
+}
+
 function scriptrunall() {
   var errs = scriptscompile();
   runtime.instances = {};
-  scriptlist().forEach(function (sc) {
+  var list = scriptlist().concat(actorscripts());
+  list.forEach(function (sc) {
     var mod = runtime.hooks[sc.name] || runtime.mods[sc.name];
+    if (sc.node) {
+      var built = scriptbuild({ code: sc.code });
+      if (built.ok) mod = built.mod;
+      else {
+        runtime.errors.push({ script: sc.name, error: built.error });
+        return;
+      }
+    }
     if (!mod) return;
-    var inst = { id: sc.id, name: sc.name, mod: mod, state: {}, errors: 0 };
+    var inst = { id: sc.id, name: sc.name, mod: mod, state: { entity: sc.node || null, game: game || null }, errors: 0 };
     runtime.instances[sc.id] = inst;
     try {
-      if (mod.start) mod.start.call(inst.state);
+      if (mod.start) mod.start.call(inst.state, sc.node || null);
       rtlog("ok", sc.name + " started");
     } catch (e) {
       inst.errors++;
@@ -151,7 +201,7 @@ function scriptrunall() {
     }
   });
   runtime.running = true;
-  if (errs) toast(errs + " script errors, see the output panel", "warn");
+  if (runtime.errors.length) toast(runtime.errors.length + " script errors, see the output panel", "warn");
   else toast("Running " + Object.keys(runtime.instances).length + " scripts", "ok");
   return errs;
 }
@@ -170,7 +220,7 @@ function scriptupdate(dt) {
     if (!inst.mod.update) return;
     var s0 = performance.now();
     try {
-      inst.mod.update.call(inst.state, dt);
+      inst.mod.update.call(inst.state, dt, inst.state.entity);
       runtime.calls++;
     } catch (e) {
       inst.errors++;
@@ -290,24 +340,84 @@ function typecheck(code) {
   return { types: types, issues: issues };
 }
 
+function scriptactorpanel(node) {
+  if (!node) return;
+  node.code = node.code || partscript(node.type);
+  var body = '<div class="logicbody">' + sgsec("Actor script", esc(node.name) + " · " + esc(node.type),
+    sgrow("Enabled", check("Runs with play mode", node.active !== false, 'data-actfield="active"')) +
+    '<textarea class="shaderedit" id="actcode" spellcheck="false" style="min-height:260px">' + esc(node.code) + "</textarea>" +
+    '<div class="sgbtns"><button class="btn" data-actdo="check">Check</button>' +
+    '<button class="btn ghost" data-actdo="save">Save</button>' +
+    '<button class="btn ghost" data-actdo="run">Run once</button></div>' +
+    '<div class="landout" id="actout">Hooks receive the actor as entity.</div>') + "</div>";
+  openmodal({
+    title: "Script - " + node.name,
+    icon: "script",
+    width: "wide",
+    body: body,
+    onmount: function (m) {
+      var area = m.querySelector("#actcode");
+      m.querySelectorAll("[data-actfield]").forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          node.active = inp.checked;
+          commit("script");
+        });
+      });
+      m.querySelectorAll("[data-actdo]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var a = b.getAttribute("data-actdo");
+          var out = m.querySelector("#actout");
+          node.code = area.value;
+          if (a === "check") {
+            var problems = lintscript(node.code).filter(function (p) {
+              return p.level === "error";
+            });
+            var built = scriptbuild({ code: node.code });
+            if (out) out.textContent = built.ok ? (problems.length ? problems.length + " lint problems, code compiles." : "Clean, compiles without errors.") : "Error: " + built.error;
+          } else if (a === "save") {
+            commit("script");
+            if (out) out.textContent = "Saved. Play mode picks it up on the next run.";
+            toast("Script saved", "ok");
+          } else {
+            var res = scriptruncode(node.code, node);
+            if (out) out.textContent = res.ok ? "Ran start(entity) once." : "Error: " + res.error;
+          }
+        });
+      });
+    }
+  });
+}
+
+acts.editscript = function (el) {
+  var node = findnode(app.scene.objects, el.getAttribute("data-id"));
+  if (node) scriptactorpanel(node);
+};
+
 function scriptpanel() {
   var list = scriptlist();
   var body = '<div class="logicbody">';
-  body += u5sec("Script runtime", "Module imports, lifecycle hooks and hot reload",
-    '<div class="u5btns"><button class="btn" data-logicact="run">' + (runtime.running ? "Restart all scripts" : "Run all scripts") + "</button>" +
+  body += sgsec("Script runtime", "Module imports, lifecycle hooks and hot reload",
+    '<div class="sgbtns"><button class="btn" data-logicact="run">' + (runtime.running ? "Restart all scripts" : "Run all scripts") + "</button>" +
     '<button class="btn ghost" data-logicact="stop">Stop</button>' +
     '<button class="btn ghost" data-logicact="compile">Compile only</button></div>' +
-    u5row("Hot reload", check("Reload scripts when code is saved", runtime.hot, 'data-logic="hot"')) +
-    u5row("State", '<span class="u5badge ' + (runtime.running ? "u5on" : "u5off") + '">' + (runtime.running ? "running" : "stopped") + "</span>") +
-    u5row("Modules", '<span class="u5val">' + Object.keys(runtime.mods).join(", ") + "</span>") +
+    sgrow("Hot reload", check("Reload scripts when code is saved", runtime.hot, 'data-logic="hot"')) +
+    sgrow("State", '<span class="sgbadge ' + (runtime.running ? "sgon" : "sgoff") + '">' + (runtime.running ? "running" : "stopped") + "</span>") +
+    sgrow("Modules", '<span class="sgval">' + Object.keys(runtime.mods).join(", ") + "</span>") +
     '<div class="landout">' + (runtime.errors.length ? runtime.errors.map(function (e) {
       return e.script + ": " + e.error;
     }).join("<br>") : "No compile errors.") + "</div>");
-  body += u5sec("Language depth", "What the runtime supports",
-    u5note("Full JavaScript: arrow functions, classes, destructuring, spread, generators, async and await, optional chaining, template literals, closures and cross script imports.") +
-    u5row("Hooks", '<span class="u5val">start, update, oncollision, oncollect, onevent</span>') +
-    u5row("Stop on error", check("Pause the whole scene on an uncaught script error", runtime.stoponerr, 'data-logic="stoponerr"')));
-  body += u5sec("Scripts", "Lint and type check each module",
+  body += sgsec("Language depth", "What the runtime supports",
+    sgnote("Full JavaScript: arrow functions, classes, destructuring, spread, generators, async and await, optional chaining, template literals, closures and cross script imports.") +
+    sgrow("Hooks", '<span class="sgval">start, update, oncollision, oncollect, onevent</span>') +
+    sgrow("Stop on error", check("Pause the whole scene on an uncaught script error", runtime.stoponerr, 'data-logic="stoponerr"')));
+  var act = actorscripts();
+  body += sgsec("Actor scripts", "Scripts attached to actors in this level",
+    (act.length ? '<div class="scriptrows">' + act.map(function (sc) {
+      return '<div class="scriptrow"><span class="sn">' + esc(sc.name) + '</span><span class="pill">' + esc(sc.type) + '</span>' +
+        '<button class="btn sm" data-actedit="' + esc(sc.id) + '">Open</button></div>';
+    }).join("") + "</div>" : sgnote("Add a Script actor from the Add menu to attach code to an object.")) +
+    sgnote("Actor scripts get entity in every hook: start(entity), update(dt, entity), onevent(name, node), oncollision(entity, other). They start with play mode and stop when play ends."));
+  body += sgsec("Scripts", "Lint and type check each module",
     (list.length ? '<div class="scriptrows">' + list.map(function (sc) {
       var l = lintscript(sc.code || "");
       var t = typecheck(sc.code || "");
@@ -320,7 +430,7 @@ function scriptpanel() {
       return '<div class="scriptrow"><span class="sn">' + esc(sc.name) + '</span><span class="pill ' + (errs ? "bad" : warns ? "warn" : "ok") + '">' + errs + " errors, " + warns + " warnings</span>" +
         '<button class="btn sm" data-lint="' + esc(sc.id) + '">Lint</button>' +
         '<button class="btn sm ghost" data-type="' + esc(sc.id) + '">Types</button></div>';
-    }).join("") + "</div>" : u5note("No scripts in this level yet.")) +
+    }).join("") + "</div>" : sgnote("No scripts in this level yet.")) +
     '<div class="landout" id="lintout">Run a lint to see results.</div>');
   body += "</div>";
   openmodal({
@@ -349,6 +459,16 @@ function scriptpanel() {
           runtime[f] = inp.checked;
         });
       });
+      m.querySelectorAll("[data-actedit]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-actedit");
+          var node = findnode(app.scene.objects, id);
+          closemodal();
+          setTimeout(function () {
+            scriptactorpanel(node);
+          }, 130);
+        });
+      });
       m.querySelectorAll("[data-lint]").forEach(function (b) {
         b.addEventListener("click", function () {
           var sc = scriptbyid(b.getAttribute("data-lint"));
@@ -367,7 +487,7 @@ function scriptpanel() {
           var out = qs("#lintout");
           if (out) out.innerHTML = (res.issues.length ? res.issues.map(function (p) {
             return '<div class="lintline ' + p.level + '">line ' + p.line + ": " + esc(p.msg) + "</div>";
-          }).join("") : "No type issues.") + '<div class="u5note">Inferred: ' + Object.keys(res.types).map(function (k) {
+          }).join("") : "No type issues.") + '<div class="sgnote">Inferred: ' + Object.keys(res.types).map(function (k) {
             return k + " : " + res.types[k].type;
           }).join(", ") + "</div>";
         });
@@ -440,15 +560,15 @@ function vistatement(n, downstream, depth) {
 
 function vispanel() {
   if (!visgraph.nodes.length) visbuild();
-  var body = '<div class="visbody">' + u5sec("Visual scripting", "Event, branch and action nodes that compile to script",
+  var body = '<div class="visbody">' + sgsec("Visual scripting", "Event, branch and action nodes that compile to script",
     '<div class="graphedit" id="visg">' + visgraph.nodes.map(function (n) {
       return '<div class="gnode vis" style="left:' + n.x + "px;top:" + n.y + 'px"><b>' + esc(n.type) + "</b><span>" + esc(n.p.name || n.p.target || n.p.fn || n.p.text || n.p.test || "") + "</span></div>";
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-visact="gen">Compile to script</button>' +
+    '<div class="sgbtns"><button class="btn" data-visact="gen">Compile to script</button>' +
     '<button class="btn ghost" data-visact="add">Add node</button>' +
     '<button class="btn ghost" data-visact="run">Compile and run</button></div>' +
     '<div class="landout" id="visout">Six nodes, three links.</div>');
-  body += u5sec("Generated script", "Read only preview",
+  body += sgsec("Generated script", "Read only preview",
     '<pre class="codeview" id="viscode">' + esc(viscodegen()) + "</pre>");
   body += "</div>";
   openmodal({
@@ -491,16 +611,16 @@ function vispanel() {
 
 function dbgpanel() {
   var lines = runtime.out.slice().reverse();
-  var body = '<div class="dbgbody">' + u5sec("Debugger", "Breakpoints and step control",
-    u5row("Paused", check("Pause the runtime", runtime.paused, 'data-dbg="paused"')) +
-    u5row("Last line", '<span class="u5val">' + (runtime.stepline || "none") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-dbgact="step">Step one frame</button>' +
+  var body = '<div class="dbgbody">' + sgsec("Debugger", "Breakpoints and step control",
+    sgrow("Paused", check("Pause the runtime", runtime.paused, 'data-dbg="paused"')) +
+    sgrow("Last line", '<span class="sgval">' + (runtime.stepline || "none") + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-dbgact="step">Step one frame</button>' +
     '<button class="btn ghost" data-dbgact="resume">Resume</button>' +
     '<button class="btn ghost" data-dbgact="clear">Clear log</button></div>' +
-    u5row("Breakpoints", '<input class="inp" id="bpinput" placeholder="line numbers, for example 3, 12">') +
-    '<div class="u5btns"><button class="btn ghost" data-dbgact="setbp">Apply breakpoints</button></div>');
-  body += u5sec("Output", "Script log and errors",
-    '<div class="u5log tall">' + (lines.length ? lines.map(function (l) {
+    sgrow("Breakpoints", '<input class="inp" id="bpinput" placeholder="line numbers, for example 3, 12">') +
+    '<div class="sgbtns"><button class="btn ghost" data-dbgact="setbp">Apply breakpoints</button></div>');
+  body += sgsec("Output", "Script log and errors",
+    '<div class="sglog tall">' + (lines.length ? lines.map(function (l) {
       return "<div><b>" + esc(l.kind) + "</b> " + esc(l.msg) + "</div>";
     }).join("") : "No output yet.") + "</div>");
   body += "</div>";
@@ -550,19 +670,19 @@ function profpanel() {
   var total = rows.reduce(function (a, b) {
     return a + b.ms;
   }, 0);
-  var body = '<div class="profbody">' + u5sec("Profiler", "Per script cost with a rolling average",
-    u5row("Frame script time", '<span class="u5val">' + (runtime.frame || 0).toFixed(2) + " ms</span>") +
-    u5row("Calls", '<span class="u5val">' + runtime.calls + "</span>") +
+  var body = '<div class="profbody">' + sgsec("Profiler", "Per script cost with a rolling average",
+    sgrow("Frame script time", '<span class="sgval">' + (runtime.frame || 0).toFixed(2) + " ms</span>") +
+    sgrow("Calls", '<span class="sgval">' + runtime.calls + "</span>") +
     '<div class="profbars">' + (rows.length ? rows.map(function (r) {
       var pct = total > 0 ? Math.round(r.ms / total * 100) : 0;
       return '<div class="profrow"><span class="pn">' + esc(r.name) + '</span><div class="pbar"><span style="width:' + pct + '%"></span></div><span class="pv">' + r.ms.toFixed(2) + " ms</span></div>";
-    }).join("") : '<div class="u5note">Run scripts to collect samples.</div>') + "</div>");
-  body += u5sec("Engine budget", "Where the frame goes",
-    u5row("Render", '<span class="u5val">' + (gfx.lastms ? gfx.lastms.toFixed(2) : "0.00") + " ms</span>") +
-    u5row("Physics", '<span class="u5val">' + ((phys.bodies || []).length) + " bodies</span>") +
-    u5row("Particles", '<span class="u5val">' + (fx.list ? fx.list.length : 0) + " live</span>") +
-    u5row("Objects", '<span class="u5val">' + countnodes() + "</span>") +
-    '<div class="u5btns"><button class="btn" data-prof="reset">Reset samples</button></div>');
+    }).join("") : '<div class="sgnote">Run scripts to collect samples.</div>') + "</div>");
+  body += sgsec("Engine budget", "Where the frame goes",
+    sgrow("Render", '<span class="sgval">' + (gfx.lastms ? gfx.lastms.toFixed(2) : "0.00") + " ms</span>") +
+    sgrow("Physics", '<span class="sgval">' + ((phys.bodies || []).length) + " bodies</span>") +
+    sgrow("Particles", '<span class="sgval">' + (fx.list ? fx.list.length : 0) + " live</span>") +
+    sgrow("Objects", '<span class="sgval">' + countnodes() + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-prof="reset">Reset samples</button></div>');
   body += "</div>";
   openmodal({
     title: "Profiler",

@@ -39,15 +39,15 @@ function antistep(b, dt) {
 
 function anticheatpanel() {
   var a = livesys.anti;
-  var body = '<div class="antibody">' + u5sec("Anti cheat", "Server side validation of speed and position",
-    u5row("Enabled", check("Validate every replicated body", a.on, 'data-anti="on"')) +
+  var body = '<div class="antibody">' + sgsec("Anti cheat", "Server side validation of speed and position",
+    sgrow("Enabled", check("Validate every replicated body", a.on, 'data-anti="on"')) +
     sliderrow("Max speed", a.speedmax, 2, 120, 1, 'data-anti="speedmax"') +
     sliderrow("Max teleport delta", a.teleportjump, 1, 40, 0.5, 'data-anti="teleportjump"') +
     '<div class="flaglist">' + (a.flagged.length ? a.flagged.slice().reverse().slice(0, 12).map(function (f) {
       return '<div class="flagrow"><span class="fk">' + esc(f.kind) + '</span><span class="fw">' + esc(f.who) + '</span><span class="fd">' + esc(f.detail) + "</span></div>";
-    }).join("") : '<div class="u5note">No flags recorded.</div>') + "</div>");
-  body += u5sec("Teleport", "Move the local player or an actor instantly",
-    '<div class="u5btns"><button class="btn" data-anti="tpactor">Teleport selection to camera</button>' +
+    }).join("") : '<div class="sgnote">No flags recorded.</div>') + "</div>");
+  body += sgsec("Teleport", "Move the local player or an actor instantly",
+    '<div class="sgbtns"><button class="btn" data-anti="tpactor">Teleport selection to camera</button>' +
     '<button class="btn ghost" data-anti="tpplayer">Teleport player to camera</button>' +
     '<button class="btn ghost" data-anti="tporigin">Teleport player to origin</button></div>' +
     '<div class="landout" id="tpout">Ready.</div>');
@@ -84,7 +84,7 @@ function anticheatpanel() {
               if (out2) out2.textContent = "Player teleported during play.";
             } else {
               var out3 = qs("#tpout");
-              if (out3) out3.textContent = "Start play in editor to teleport the player.";
+              if (out3) out3.textContent = "Start play mode to teleport the player.";
             }
           } else if (f === "tporigin") {
             if (game && game.player) {
@@ -141,19 +141,19 @@ function boardsubmit(board, name, score) {
 function boardpanel() {
   boardload();
   var names = Object.keys(livesys.boards);
-  var body = '<div class="boardbody">' + u5sec("Leaderboards", "Persistent per level",
+  var body = '<div class="boardbody">' + sgsec("Leaderboards", "Persistent per level",
     '<div class="boardgrid">' + names.map(function (n) {
       return '<div class="boardcard"><div class="bh">' + esc(n) + "</div>" + livesys.boards[n].slice(0, 6).map(function (e, i) {
         return '<div class="brow"><span class="br">' + (i + 1) + '</span><span class="bn">' + esc(e.name) + '</span><span class="bs">' + e.score + "</span></div>";
       }).join("") + '<button class="btn sm ghost" data-boardadd="' + esc(n) + '">Submit score</button></div>';
     }).join("") + "</div>");
-  body += u5sec("Player stats", "Aggregate counters",
-    u5row("Plays", '<span class="u5val">' + livesys.stats.plays + "</span>") +
-    u5row("Wins", '<span class="u5val">' + livesys.stats.wins + "</span>") +
-    u5row("Deaths", '<span class="u5val">' + livesys.stats.deaths + "</span>") +
-    u5row("Best combo", '<span class="u5val">' + livesys.stats.bestcombo + "</span>") +
-    u5row("Time played", '<span class="u5val">' + Math.round(livesys.stats.time) + " s</span>") +
-    '<div class="u5btns"><button class="btn" data-boardact="sim">Simulate a session</button>' +
+  body += sgsec("Player stats", "Aggregate counters",
+    sgrow("Plays", '<span class="sgval">' + livesys.stats.plays + "</span>") +
+    sgrow("Wins", '<span class="sgval">' + livesys.stats.wins + "</span>") +
+    sgrow("Deaths", '<span class="sgval">' + livesys.stats.deaths + "</span>") +
+    sgrow("Best combo", '<span class="sgval">' + livesys.stats.bestcombo + "</span>") +
+    sgrow("Time played", '<span class="sgval">' + Math.round(livesys.stats.time) + " s</span>") +
+    '<div class="sgbtns"><button class="btn" data-boardact="sim">Simulate a session</button>' +
     '<button class="btn ghost" data-boardact="reset">Reset stats</button></div>');
   body += "</div>";
   openmodal({
@@ -200,8 +200,8 @@ function boardpanel() {
 function labpanel() {
   var e = livesys.exp;
   var flags = ["newmovement", "newnetcode", "newui", "fastload", "hdroutput"];
-  var body = '<div class="labbody">' + u5sec("Experiments", "Bucketed rollout flags",
-    u5row("Experiment layer", check("Enable bucketing", e.on, 'data-lab="on"')) +
+  var body = '<div class="labbody">' + sgsec("Experiments", "Bucketed rollout flags",
+    sgrow("Experiment layer", check("Enable bucketing", e.on, 'data-lab="on"')) +
     selectrow("Bucket", ["stable", "beta", "canary"], e.bucket, 'data-lab="bucket"') +
     '<div class="flaglist">' + flags.map(function (f) {
       var on = !!e.flags[f];
@@ -210,9 +210,9 @@ function labpanel() {
     '<div class="landout" id="labout">Bucket ' + esc(e.bucket) + ", " + Object.keys(e.flags).filter(function (k) {
       return e.flags[k];
     }).length + " flags on.</div>");
-  body += u5sec("Live operations", "Remote config and staged rollout",
-    u5row("Remote config", '<textarea class="shaderedit small" id="remoteconf">' + esc(JSON.stringify({ motd: "Welcome to Roxumitod", event: "none", multiplier: 1 }, null, 2)) + "</textarea>") +
-    '<div class="u5btns"><button class="btn" data-labact="push">Push config</button></div>');
+  body += sgsec("Live operations", "Remote config and staged rollout",
+    sgrow("Remote config", '<textarea class="shaderedit small" id="remoteconf">' + esc(JSON.stringify({ motd: "Welcome to Roxumitod", event: "none", multiplier: 1 }, null, 2)) + "</textarea>") +
+    '<div class="sgbtns"><button class="btn" data-labact="push">Push config</button></div>');
   body += "</div>";
   openmodal({
     title: "Experiments and Live Ops",
@@ -256,15 +256,15 @@ function labpanel() {
 
 function lagpanel() {
   var l = livesys.lag;
-  var body = '<div class="lagbody">' + u5sec("Lag compensation and prediction", "Client prediction with a server rewind buffer",
+  var body = '<div class="lagbody">' + sgsec("Lag compensation and prediction", "Client prediction with a server rewind buffer",
     sliderrow("Rewind window", l.comp * 1000, 0, 400, 5, 'data-lag="comp"') +
-    u5row("Prediction", check("Predict local movement", l.predict, 'data-lag="predict"')) +
-    u5row("Buffer size", '<span class="u5val">' + l.buffer + " snapshots</span>") +
-    u5row("Measured ping", '<span class="u5val">' + (netsys ? netsys.ping || 0 : 0) + " ms</span>") +
-    '<div class="u5btns"><button class="btn" data-lagact="sample">Record a latency sample</button>' +
+    sgrow("Prediction", check("Predict local movement", l.predict, 'data-lag="predict"')) +
+    sgrow("Buffer size", '<span class="sgval">' + l.buffer + " snapshots</span>") +
+    sgrow("Measured ping", '<span class="sgval">' + (netsys ? netsys.ping || 0 : 0) + " ms</span>") +
+    '<div class="sgbtns"><button class="btn" data-lagact="sample">Record a latency sample</button>' +
     '<button class="btn ghost" data-lagact="flush">Flush buffer</button></div>' +
     '<div class="laghist" id="laghist"></div>' +
-    u5note("Every authoritative state is stored for the rewind window. Hits are evaluated against the rewound pose, so shots land where the shooter saw them."));
+    sgnote("Every authoritative state is stored for the rewind window. Hits are evaluated against the rewound pose, so shots land where the shooter saw them."));
   body += "</div>";
   openmodal({
     title: "Lag Compensation",
@@ -362,19 +362,19 @@ function padpoll() {
 }
 
 function inputpanel() {
-  var body = '<div class="inputbody">' + u5sec("Touch controls", "On screen sticks and buttons",
-    u5row("Touch layer", check("Show touch overlay", livesys.touch.on, 'data-in="touch"')) +
-    '<div class="u5btns"><button class="btn" data-inact="touchdemo">Test touch input</button></div>');
-  body += u5sec("Gamepad", "Standard mapping polling",
-    u5row("Enabled", check("Poll gamepads", livesys.pad.on, 'data-in="pad"')) +
-    u5row("Device", '<span class="u5val" id="padname">' + (livesys.pad.id || "none detected, press a button") + "</span>") +
-    u5row("Axes", '<span class="u5val" id="padaxes">' + livesys.pad.axes.map(function (a) {
+  var body = '<div class="inputbody">' + sgsec("Touch controls", "On screen sticks and buttons",
+    sgrow("Touch layer", check("Show touch overlay", livesys.touch.on, 'data-in="touch"')) +
+    '<div class="sgbtns"><button class="btn" data-inact="touchdemo">Test touch input</button></div>');
+  body += sgsec("Gamepad", "Standard mapping polling",
+    sgrow("Enabled", check("Poll gamepads", livesys.pad.on, 'data-in="pad"')) +
+    sgrow("Device", '<span class="sgval" id="padname">' + (livesys.pad.id || "none detected, press a button") + "</span>") +
+    sgrow("Axes", '<span class="sgval" id="padaxes">' + livesys.pad.axes.map(function (a) {
       return a.toFixed(2);
     }).join(", ") + "</span>") +
-    '<div class="u5btns"><button class="btn ghost" data-inact="padpoll">Poll now</button></div>');
-  body += u5sec("VR", "Headset presentation and controllers",
-    u5row("Support", '<span class="u5badge ' + (navigator.xr ? "u5on" : "u5off") + '">' + (navigator.xr ? "WebXR available" : "WebXR not present") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-inact="vr">Enter immersive session</button></div>' +
+    '<div class="sgbtns"><button class="btn ghost" data-inact="padpoll">Poll now</button></div>');
+  body += sgsec("VR", "Headset presentation and controllers",
+    sgrow("Support", '<span class="sgbadge ' + (navigator.xr ? "sgon" : "sgoff") + '">' + (navigator.xr ? "WebXR available" : "WebXR not present") + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-inact="vr">Enter immersive session</button></div>' +
     '<div class="landout" id="vrout">Idle.</div>');
   body += "</div>";
   openmodal({
@@ -463,13 +463,13 @@ function locbuild() {
 
 function locpanel() {
   var langs = Object.keys(locpacks);
-  var body = '<div class="locbody">' + u5sec("Localisation pipeline", "String tables and locale switching",
+  var body = '<div class="locbody">' + sgsec("Localisation pipeline", "String tables and locale switching",
     selectrow("Language", langs, livesys.loc.lang, 'data-loc="lang"') +
     '<div class="locgrid">' + Object.keys(locpacks.en).map(function (k) {
       return '<div class="locrow"><span class="lk">' + esc(k) + '</span><span class="le">' + esc(locpacks.en[k]) + '</span><span class="lt">' + esc(loctranslate(k)) + "</span>" +
         '<input class="inp" value="' + esc((locpacks[livesys.loc.lang] || {})[k] || "") + '" data-locstr="' + esc(k) + '"></div>';
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-locact="apply">Apply locale</button>' +
+    '<div class="sgbtns"><button class="btn" data-locact="apply">Apply locale</button>' +
     '<button class="btn ghost" data-locact="export">Export string table</button></div>' +
     '<div class="landout" id="locout">' + livesys.loc.built + " strings built.</div>");
   body += "</div>";

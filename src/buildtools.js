@@ -164,23 +164,23 @@ function terpanel() {
   var n = selected();
   var ister = n && n.type === "terrain";
   var body = '<div class="modalter">';
-  body += u5sec("Landscape", "Heightmap terrain, sculpted in the viewport",
-    u5row("Size", '<input class="inp num" type="range" min="10" max="120" step="2" value="' + (ister ? n.size : 40) + '" data-ter="size">') +
-    u5row("Resolution", '<input class="inp num" type="range" min="8" max="96" step="4" value="' + (ister ? n.seg : 40) + '" data-ter="seg">') +
-    u5row("Material color", '<input class="inp swatch" type="color" value="' + (ister ? n.color : "#7fb35a") + '" data-ter="color">') +
-    '<div class="u5btns"><button class="btn" data-teract="new">' + ic("hills", "ico-sm") + " New landscape</button>" +
+  body += sgsec("Landscape", "Heightmap terrain, sculpted in the viewport",
+    sgrow("Size", '<input class="inp num" type="range" min="10" max="120" step="2" value="' + (ister ? n.size : 40) + '" data-ter="size">') +
+    sgrow("Resolution", '<input class="inp num" type="range" min="8" max="96" step="4" value="' + (ister ? n.seg : 40) + '" data-ter="seg">') +
+    sgrow("Material color", '<input class="inp swatch" type="color" value="' + (ister ? n.color : "#7fb35a") + '" data-ter="color">') +
+    '<div class="sgbtns"><button class="btn" data-teract="new">' + ic("hills", "ico-sm") + " New landscape</button>" +
     '<button class="btn ghost" data-teract="noise">Regenerate</button></div>');
-  body += u5sec("Sculpt", "Brush strength and radius",
-    u5row("Brush radius", '<input class="inp num" type="range" min="0.5" max="16" step="0.25" value="' + (app.sculptrad || 4) + '" data-ter="rad">') +
-    u5row("Brush strength", '<input class="inp num" type="range" min="0.1" max="3" step="0.05" value="' + (app.sculptstr || 1) + '" data-ter="str">') +
+  body += sgsec("Sculpt", "Brush strength and radius",
+    sgrow("Brush radius", '<input class="inp num" type="range" min="0.5" max="16" step="0.25" value="' + (app.sculptrad || 4) + '" data-ter="rad">') +
+    sgrow("Brush strength", '<input class="inp num" type="range" min="0.1" max="3" step="0.05" value="' + (app.sculptstr || 1) + '" data-ter="str">') +
     selectrow("Tool", ["raise", "lower", "smooth", "flatten"], app.sculptmode || "raise", 'data-ter="mode"') +
-    '<div class="u5btns"><button class="btn' + (app.sculpt && app.sculpt.on ? " on" : "") + '" data-teract="sculpt">' + (app.sculpt && app.sculpt.on ? "Stop sculpting" : "Start sculpting") + "</button></div>" +
-    '<div class="u5note">Drag on the landscape to raise. Hold Shift to lower. Sculpting writes real heightmap data.</div>');
-  body += u5sec("Foliage Mode", "Paint instances of any asset on the surface",
+    '<div class="sgbtns"><button class="btn' + (app.sculpt && app.sculpt.on ? " on" : "") + '" data-teract="sculpt">' + (app.sculpt && app.sculpt.on ? "Stop sculpting" : "Start sculpting") + "</button></div>" +
+    '<div class="sgnote">Drag on the landscape to raise. Hold Shift to lower. Sculpting writes real heightmap data.</div>');
+  body += sgsec("Foliage Mode", "Paint instances of any asset on the surface",
     selectrow("Foliage asset", ["grass", "flowerred", "flowerpurple", "bush", "tree", "rock"], app.foliageasset || "grass", 'data-ter="asset"') +
-    u5row("Density", '<input class="inp num" type="range" min="0.2" max="3" step="0.1" value="' + (app.foliageden || 1) + '" data-ter="den">') +
-    u5row("Scale jitter", '<input class="inp num" type="range" min="0" max="1" step="0.05" value="' + (app.foliajitter === undefined ? 0.35 : app.foliajitter) + '" data-ter="jit">') +
-    '<div class="u5btns"><button class="btn' + (app.foliage ? " on" : "") + '" data-teract="foliage">' + (app.foliage ? "Stop painting" : "Start painting") + "</button>" +
+    sgrow("Density", '<input class="inp num" type="range" min="0.2" max="3" step="0.1" value="' + (app.foliageden || 1) + '" data-ter="den">') +
+    sgrow("Scale jitter", '<input class="inp num" type="range" min="0" max="1" step="0.05" value="' + (app.foliajitter === undefined ? 0.35 : app.foliajitter) + '" data-ter="jit">') +
+    '<div class="sgbtns"><button class="btn' + (app.foliage ? " on" : "") + '" data-teract="foliage">' + (app.foliage ? "Stop painting" : "Start painting") + "</button>" +
     '<button class="btn ghost" data-teract="foliageclear">Clear</button></div>');
   body += "</div>";
   openmodal({
@@ -456,17 +456,17 @@ function seedrand(seed) {
 function pcgpanel() {
   var s = app.pcg || {};
   var body = '<div class="modalpcg">';
-  body += u5sec("Procedural Content Generation", "Scatter generated content with deterministic seeds",
+  body += sgsec("Procedural Content Generation", "Scatter generated content with deterministic seeds",
     selectrow("Pattern", ["random", "ring", "grid"], s.pattern || "random", 'data-pcg="pattern"') +
     selectrow("Asset", [{ value: "cube", label: "Cube" }, { value: "sphere", label: "Sphere" }, { value: "cylinder", label: "Cylinder" }, { value: "cone", label: "Cone" }, { value: "torus", label: "Torus" }], s.type || "cube", 'data-pcg="type"') +
-    u5row("Count", '<input class="inp num" type="range" min="1" max="300" step="1" value="' + (s.count || 40) + '" data-pcg="count">') +
-    u5row("Radius", '<input class="inp num" type="range" min="1" max="60" step="1" value="' + (s.radius || 8) + '" data-pcg="radius">') +
-    u5row("Scale min", '<input class="inp num" type="range" min="0.1" max="3" step="0.05" value="' + (s.smin === undefined ? 0.6 : s.smin) + '" data-pcg="smin">') +
-    u5row("Scale max", '<input class="inp num" type="range" min="0.1" max="4" step="0.05" value="' + (s.smax === undefined ? 1.4 : s.smax) + '" data-pcg="smax">') +
-    u5row("Seed", '<input class="inp num" type="number" min="1" max="99999" step="1" value="' + (s.seed || 3) + '" data-pcg="seed">') +
-    u5row("Color", '<input class="inp swatch" type="color" value="' + (s.color || "#c8b48a") + '" data-pcg="color">'));
-  body += '<div class="u5btns"><button class="btn" data-pcgact="build">' + ic("sparkle", "ico-sm") + " Generate</button></div>";
-  body += '<div class="u5note">Generated actors land in a PCG group so you can move, lock or delete them as one.</div>';
+    sgrow("Count", '<input class="inp num" type="range" min="1" max="300" step="1" value="' + (s.count || 40) + '" data-pcg="count">') +
+    sgrow("Radius", '<input class="inp num" type="range" min="1" max="60" step="1" value="' + (s.radius || 8) + '" data-pcg="radius">') +
+    sgrow("Scale min", '<input class="inp num" type="range" min="0.1" max="3" step="0.05" value="' + (s.smin === undefined ? 0.6 : s.smin) + '" data-pcg="smin">') +
+    sgrow("Scale max", '<input class="inp num" type="range" min="0.1" max="4" step="0.05" value="' + (s.smax === undefined ? 1.4 : s.smax) + '" data-pcg="smax">') +
+    sgrow("Seed", '<input class="inp num" type="number" min="1" max="99999" step="1" value="' + (s.seed || 3) + '" data-pcg="seed">') +
+    sgrow("Color", '<input class="inp swatch" type="color" value="' + (s.color || "#c8b48a") + '" data-pcg="color">'));
+  body += '<div class="sgbtns"><button class="btn" data-pcgact="build">' + ic("sparkle", "ico-sm") + " Generate</button></div>";
+  body += '<div class="sgnote">Generated actors land in a PCG group so you can move, lock or delete them as one.</div>';
   body += "</div>";
   openmodal({
     title: "PCG - Procedural Content Generation",
@@ -503,19 +503,19 @@ function layerpanel() {
   var body = '<div class="modallayer">';
   var layerhtml = keys.length ? keys.map(function (k) {
     var off = app.hiddenlayers && app.hiddenlayers[k];
-    return '<div class="u5row"><span class="u5lbl">' + esc(k) + " \u00b7 " + list[k] + " actors</span>" +
-      '<span class="u5btns"><button class="btn ghost' + (off ? "" : " on") + '" data-layer="' + esc(k) + '">' + (off ? "Hidden" : "Visible") + "</button></span></div>";
-  }).join("") : '<div class="u5note">No data layers yet. Assign the selected actors to a layer below.</div>';
-  layerhtml += '<div class="u5btns"><button class="btn" data-layeract="assign">Assign selection to new layer</button></div>';
-  body += u5sec("Data Layers", "Stream groups of actors on and off", layerhtml);
-  body += u5sec("Level Instances", "Save a selection as a prefab and place copies",
-    '<div class="u5btns"><button class="btn" data-layeract="prefab">Save selection as prefab</button></div>' +
+    return '<div class="sgrow"><span class="sglbl">' + esc(k) + " \u00b7 " + list[k] + " actors</span>" +
+      '<span class="sgbtns"><button class="btn ghost' + (off ? "" : " on") + '" data-layer="' + esc(k) + '">' + (off ? "Hidden" : "Visible") + "</button></span></div>";
+  }).join("") : '<div class="sgnote">No data layers yet. Assign the selected actors to a layer below.</div>';
+  layerhtml += '<div class="sgbtns"><button class="btn" data-layeract="assign">Assign selection to new layer</button></div>';
+  body += sgsec("Data Layers", "Stream groups of actors on and off", layerhtml);
+  body += sgsec("Level Instances", "Save a selection as a prefab and place coplays",
+    '<div class="sgbtns"><button class="btn" data-layeract="prefab">Save selection as prefab</button></div>' +
     (app.project.prefabs && app.project.prefabs.length ? app.project.prefabs.map(function (p, i) {
-      return '<div class="u5row"><span class="u5lbl">' + esc(p.name) + " · " + p.nodes.length + ' actors</span><span class="u5btns"><button class="btn ghost" data-prefab="' + i + '">Place</button></span></div>';
-    }).join("") : '<div class="u5note">No prefabs saved yet.</div>'));
-  body += u5sec("Level of Detail", "Distance based culling per actor",
-    u5row("LOD distance", '<input class="inp num" type="range" min="0" max="120" step="1" value="' + (selected() && selected().lodfar || 60) + '" data-layer="lod">') +
-    '<div class="u5btns"><button class="btn ghost" data-layeract="lodapply">Apply to selection</button><button class="btn ghost" data-layeract="lodclear">Clear</button></div>');
+      return '<div class="sgrow"><span class="sglbl">' + esc(p.name) + " · " + p.nodes.length + ' actors</span><span class="sgbtns"><button class="btn ghost" data-prefab="' + i + '">Place</button></span></div>';
+    }).join("") : '<div class="sgnote">No prefabs saved yet.</div>'));
+  body += sgsec("Level of Detail", "Distance based culling per actor",
+    sgrow("LOD distance", '<input class="inp num" type="range" min="0" max="120" step="1" value="' + (selected() && selected().lodfar || 60) + '" data-layer="lod">') +
+    '<div class="sgbtns"><button class="btn ghost" data-layeract="lodapply">Apply to selection</button><button class="btn ghost" data-layeract="lodclear">Clear</button></div>');
   body += "</div>";
   openmodal({
     title: "World - Data Layers, Prefabs & LOD",

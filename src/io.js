@@ -73,7 +73,7 @@ function texcompress(rec, mode) {
 
 function texpanel() {
   var list = iosys.textures;
-  var body = '<div class="iobody">' + u5sec("Texture import", "Drop in images then compress them for the platform",
+  var body = '<div class="iobody">' + sgsec("Texture import", "Drop in images then compress them for the platform",
     '<label class="filebtn"><input type="file" id="texfile" accept="image/*" multiple hidden>' + ic("upload", "ico-sm") + " Choose images</label>" +
     (list.length ? '<div class="texgrid">' + list.map(function (t, i) {
       return '<div class="texcard"><div class="texthumb" style="background-image:url(' + t.data + ')"></div><div class="texmeta"><b>' + esc(t.name) + "</b><span>" + t.w + " x " + t.h + ", " + iokb(t.bytes) + "</span>" +
@@ -82,7 +82,7 @@ function texpanel() {
         '<button class="btn sm ghost" data-texmode="bc7|' + i + '">BC7</button>' +
         '<button class="btn sm ghost" data-texmode="half|' + i + '">Half</button>' +
         '<button class="btn sm ghost" data-texuse="' + i + '">Use</button></div></div>';
-    }).join("") + "</div>" : u5note("No textures imported yet.")) +
+    }).join("") + "</div>" : sgnote("No textures imported yet.")) +
     '<div class="landout" id="texout">' + list.length + " textures staged.</div>");
   body += "</div>";
   openmodal({
@@ -143,10 +143,10 @@ function animimportjson(json) {
 }
 
 function animimportpanel() {
-  var body = '<div class="iobody">' + u5sec("Animation import", "glTF animation channels onto a new skeletal actor",
+  var body = '<div class="iobody">' + sgsec("Animation import", "glTF animation channels onto a new skeletal actor",
     '<label class="filebtn"><input type="file" id="animfile" accept=".gltf,.json" hidden>' + ic("upload", "ico-sm") + " Choose a glTF file</label>" +
     '<div class="landout" id="animout">' + iosys.clips.length + " clips imported.</div>" +
-    u5note("Joint nodes become bones, samplers become key tracks, and the first clip plays on the new actor."));
+    sgnote("Joint nodes become bones, samplers become key tracks, and the first clip plays on the new actor."));
   body += "</div>";
   openmodal({
     title: "Animation Import",
@@ -209,13 +209,13 @@ function audioimportfile(file) {
 }
 
 function audioimportpanel() {
-  var body = '<div class="iobody">' + u5sec("Audio import and streaming", "Load once or stream progressively",
+  var body = '<div class="iobody">' + sgsec("Audio import and streaming", "Load once or stream progressively",
     '<label class="filebtn"><input type="file" id="audiofile" accept="audio/*" hidden>' + ic("upload", "ico-sm") + " Choose audio</label>" +
     (iosys.audio.length ? '<div class="aurows">' + iosys.audio.map(function (a, i) {
       return '<div class="aurow"><span class="an">' + esc(a.name) + '</span><span class="ad">' + (a.dur ? a.dur.toFixed(2) + " s" : "unknown") + '</span><span class="ab">' + iokb(a.bytes) + "</span>" +
         '<button class="btn sm" data-austream="' + i + '">' + (a.stream ? "Streaming" : "Stream") + "</button>" +
         '<button class="btn sm ghost" data-auplay="' + i + '">Play</button></div>';
-    }).join("") + "</div>" : u5note("No audio imported yet.")) +
+    }).join("") + "</div>" : sgnote("No audio imported yet.")) +
     '<div class="landout" id="auout">' + iosys.audio.length + " clips staged.</div>");
   body += "</div>";
   openmodal({
@@ -292,17 +292,17 @@ function depgraph() {
 
 function depspanel() {
   var d = depgraph();
-  var body = '<div class="depbody">' + u5sec("Asset dependency graph", "What uses what across the level",
-    u5row("Nodes", '<span class="u5val">' + d.nodes.length + "</span>") +
-    u5row("Links", '<span class="u5val">' + d.edges.length + "</span>") +
-    u5row("Unused", '<span class="u5val">' + d.orphans.length + "</span>") +
+  var body = '<div class="depbody">' + sgsec("Asset dependency graph", "What uses what across the level",
+    sgrow("Nodes", '<span class="sgval">' + d.nodes.length + "</span>") +
+    sgrow("Links", '<span class="sgval">' + d.edges.length + "</span>") +
+    sgrow("Unused", '<span class="sgval">' + d.orphans.length + "</span>") +
     '<div class="depgrid">' + d.nodes.slice(0, 60).map(function (n) {
       var refs = d.edges.filter(function (e) {
         return e[1] === n.id;
       }).length;
       return '<div class="depchip ' + esc(n.kind) + '"><b>' + esc(n.label) + "</b><span>" + esc(n.kind) + "</span><i>" + refs + "</i></div>";
     }).join("") + "</div>" +
-    (d.orphans.length ? '<div class="u5note">Unused: ' + d.orphans.map(function (o) {
+    (d.orphans.length ? '<div class="sgnote">Unused: ' + d.orphans.map(function (o) {
       return o.label;
     }).join(", ") + "</div>" : ""));
   body += "</div>";
@@ -332,15 +332,15 @@ function paintnew() {
 function paintpanel() {
   if (!iosys.paint) paintnew();
   var p = iosys.paint;
-  var body = '<div class="paintbody">' + u5sec("Texture painting", "Paint directly onto a texture and assign it to the selection",
+  var body = '<div class="paintbody">' + sgsec("Texture painting", "Paint directly onto a texture and assign it to the selection",
     '<div class="paintwrap"><canvas id="paintcanvas" width="256" height="256" class="paintcanvas"></canvas></div>' +
-    u5row("Colour", '<input class="inp swatch" type="color" value="' + esc(p.color) + '" data-paint="color">') +
+    sgrow("Colour", '<input class="inp swatch" type="color" value="' + esc(p.color) + '" data-paint="color">') +
     sliderrow("Brush size", p.size, 1, 60, 1, 'data-paint="size"') +
     selectrow("Mode", ["brush", "erase", "blur", "fill"], p.mode, 'data-paint="mode"') +
-    u5row("Layers", '<span class="u5val">' + p.layers.map(function (l) {
+    sgrow("Layers", '<span class="sgval">' + p.layers.map(function (l) {
       return l.name;
     }).join(", ") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-paintact="addlayer">Add layer</button>' +
+    '<div class="sgbtns"><button class="btn" data-paintact="addlayer">Add layer</button>' +
     '<button class="btn ghost" data-paintact="apply">Apply to selection</button>' +
     '<button class="btn ghost" data-paintact="clear">Clear</button></div>' +
     '<div class="landout" id="paintout">Paint with the pointer, then apply.</div>');
@@ -429,13 +429,13 @@ function paintpanel() {
 }
 
 function hairlabpanel() {
-  var body = '<div class="hairbody">' + u5sec("Cloth, hair, fur and eyes", "Strand, shell and cloth solvers",
-    '<div class="u5btns"><button class="btn" data-hairact="cloth">Add cloth</button>' +
+  var body = '<div class="hairbody">' + sgsec("Cloth, hair, fur and eyes", "Strand, shell and cloth solvers",
+    '<div class="sgbtns"><button class="btn" data-hairact="cloth">Add cloth</button>' +
     '<button class="btn ghost" data-hairact="hair">Add groom hair</button>' +
     '<button class="btn ghost" data-hairact="fur">Add fur shell</button>' +
     '<button class="btn ghost" data-hairact="eye">Add eye</button></div>' +
     '<div class="landout">Cloth simulates with a mass spring grid pinned at the top edge. Fur renders as stacked shells. Eyes use a parallax iris.</div>');
-  body += u5sec("Solver settings", "Iterations and damping",
+  body += sgsec("Solver settings", "Iterations and damping",
     sliderrow("Cloth damping", 0.96, 0.5, 1, 0.01, 'data-clothdamp="damp"') +
     sliderrow("Cloth wind", 0.4, 0, 3, 0.05, 'data-clothdamp="wind"') +
     sliderrow("Fur shells", 6, 1, 24, 1, 'data-clothdamp="shells"') +

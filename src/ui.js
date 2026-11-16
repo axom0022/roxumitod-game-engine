@@ -297,6 +297,6 @@ function shortcutsmodal() {
   openmodal({ title: "Keyboard shortcuts", icon: "key", body: body, width: "narrow" });
 }
 
-function u5note(text) {
-  return '<div class="u5note">' + esc(text) + "</div>";
+function sgnote(text) {
+  return '<div class="sgnote">' + esc(text) + "</div>";
 }

@@ -467,38 +467,38 @@ function skypanel() {
   var e = fxenv();
   var pp = ppget();
   var body = '<div class="modalsky">';
-  body += u5sec("Sky Atmosphere", "Sun, sky light and aerial perspective", 
-    u5row("Sun elevation", '<input class="inp num" type="range" min="-10" max="90" step="1" value="' + e.sunel + '" data-fx="sunel">') +
-    u5row("Sun azimuth", '<input class="inp num" type="range" min="0" max="360" step="1" value="' + e.sunaz + '" data-fx="sunaz">') +
-    u5row("Sun color", '<input class="inp swatch" type="color" value="' + e.suncolor + '" data-fx="suncolor">') +
-    u5row("Sky light color", '<input class="inp swatch" type="color" value="' + e.skylight + '" data-fx="skylight">') +
-    u5row("Sky intensity", '<input class="inp num" type="range" min="0" max="2" step="0.05" value="' + e.skyintensity + '" data-fx="skyintensity">'));
-  body += u5sec("Exponential Height Fog", "Atmospheric scattering and depth haze",
-    u5row("Fog density", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.fog + '" data-fx="fog">') +
-    u5row("Fog color", '<input class="inp swatch" type="color" value="' + e.fogcolor + '" data-fx="fogcolor">'));
-  body += u5sec("Volumetric Clouds", "Sprite volume layer",
-    u5row("Coverage", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.clouds + '" data-fx="clouds">') +
-    u5row("Altitude", '<input class="inp num" type="range" min="8" max="60" step="1" value="' + e.cloudh + '" data-fx="cloudh">') +
-    u5row("Star density", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.stars + '" data-fx="stars">'));
-  body += u5sec("Water", "Single-layer water body with gerstner waves",
-    u5row("Coverage", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.water + '" data-fx="water">') +
-    u5row("Wave amplitude", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.waterv + '" data-fx="waterv">') +
-    u5row("Water color", '<input class="inp swatch" type="color" value="' + e.watercol + '" data-fx="watercol">'));
-  body += u5sec("Post Process Volume", "Camera grading and screen effects",
-    u5row("Exposure", '<input class="inp num" type="range" min="0.2" max="2.5" step="0.01" value="' + pp.exposure + '" data-fx="pp.exposure">') +
-    u5row("Bloom", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.bloom + '" data-fx="pp.bloom">') +
-    u5row("Vignette", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.vignette + '" data-fx="pp.vignette">') +
-    u5row("Film grain", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.grain + '" data-fx="pp.grain">') +
-    u5row("Chromatic aberration", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.chroma + '" data-fx="pp.chroma">') +
-    u5row("Saturation", '<input class="inp num" type="range" min="0" max="2" step="0.01" value="' + pp.sat + '" data-fx="pp.sat">') +
-    u5row("Contrast", '<input class="inp num" type="range" min="0.5" max="2" step="0.01" value="' + pp.contrast + '" data-fx="pp.contrast">') +
-    u5row("Temperature", '<input class="inp num" type="range" min="-1" max="1" step="0.01" value="' + pp.temp + '" data-fx="pp.temp">') +
-    u5row("Motion blur", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.motion + '" data-fx="pp.motion">'));
-  body += u5sec("Global Illumination Bake", "Lightmass GPU - sun occlusion into actor shading",
-    '<div class="u5note">' + (app.scene.env.baked ? "Built · " + app.scene.env.bakecount + " actors · " + Math.round(app.scene.env.baketime || 0) + " ms" : "Preview - lighting not built") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-fxact="bake">' + ic("sun", "ico-sm") + " Build lighting</button>" +
+  body += sgsec("Sky Atmosphere", "Sun, sky light and aerial perspective", 
+    sgrow("Sun elevation", '<input class="inp num" type="range" min="-10" max="90" step="1" value="' + e.sunel + '" data-fx="sunel">') +
+    sgrow("Sun azimuth", '<input class="inp num" type="range" min="0" max="360" step="1" value="' + e.sunaz + '" data-fx="sunaz">') +
+    sgrow("Sun color", '<input class="inp swatch" type="color" value="' + e.suncolor + '" data-fx="suncolor">') +
+    sgrow("Sky light color", '<input class="inp swatch" type="color" value="' + e.skylight + '" data-fx="skylight">') +
+    sgrow("Sky intensity", '<input class="inp num" type="range" min="0" max="2" step="0.05" value="' + e.skyintensity + '" data-fx="skyintensity">'));
+  body += sgsec("Exponential Height Fog", "Atmospheric scattering and depth haze",
+    sgrow("Fog density", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.fog + '" data-fx="fog">') +
+    sgrow("Fog color", '<input class="inp swatch" type="color" value="' + e.fogcolor + '" data-fx="fogcolor">'));
+  body += sgsec("Volumetric Clouds", "Sprite volume layer",
+    sgrow("Coverage", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.clouds + '" data-fx="clouds">') +
+    sgrow("Altitude", '<input class="inp num" type="range" min="8" max="60" step="1" value="' + e.cloudh + '" data-fx="cloudh">') +
+    sgrow("Star density", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.stars + '" data-fx="stars">'));
+  body += sgsec("Water", "Single-layer water body with gerstner waves",
+    sgrow("Coverage", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.water + '" data-fx="water">') +
+    sgrow("Wave amplitude", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + e.waterv + '" data-fx="waterv">') +
+    sgrow("Water color", '<input class="inp swatch" type="color" value="' + e.watercol + '" data-fx="watercol">'));
+  body += sgsec("Post Process Volume", "Camera grading and screen effects",
+    sgrow("Exposure", '<input class="inp num" type="range" min="0.2" max="2.5" step="0.01" value="' + pp.exposure + '" data-fx="pp.exposure">') +
+    sgrow("Bloom", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.bloom + '" data-fx="pp.bloom">') +
+    sgrow("Vignette", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.vignette + '" data-fx="pp.vignette">') +
+    sgrow("Film grain", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.grain + '" data-fx="pp.grain">') +
+    sgrow("Chromatic aberration", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.chroma + '" data-fx="pp.chroma">') +
+    sgrow("Saturation", '<input class="inp num" type="range" min="0" max="2" step="0.01" value="' + pp.sat + '" data-fx="pp.sat">') +
+    sgrow("Contrast", '<input class="inp num" type="range" min="0.5" max="2" step="0.01" value="' + pp.contrast + '" data-fx="pp.contrast">') +
+    sgrow("Temperature", '<input class="inp num" type="range" min="-1" max="1" step="0.01" value="' + pp.temp + '" data-fx="pp.temp">') +
+    sgrow("Motion blur", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + pp.motion + '" data-fx="pp.motion">'));
+  body += sgsec("Global Illumination Bake", "Lightmass GPU - sun occlusion into actor shading",
+    '<div class="sgnote">' + (app.scene.env.baked ? "Built · " + app.scene.env.bakecount + " actors · " + Math.round(app.scene.env.baketime || 0) + " ms" : "Preview - lighting not built") + "</div>" +
+    '<div class="sgbtns"><button class="btn" data-fxact="bake">' + ic("sun", "ico-sm") + " Build lighting</button>" +
     '<button class="btn ghost" data-fxact="unbake">Clear</button></div>');
-  body += '<div class="u5btns presets"><button class="btn ghost" data-fxact="preset:day">Day</button><button class="btn ghost" data-fxact="preset:dusk">Dusk</button><button class="btn ghost" data-fxact="preset:night">Night</button><button class="btn ghost" data-fxact="preset:storm">Storm</button><button class="btn ghost" data-fxact="preset:none">Reset</button></div>';
+  body += '<div class="sgbtns presets"><button class="btn ghost" data-fxact="preset:day">Day</button><button class="btn ghost" data-fxact="preset:dusk">Dusk</button><button class="btn ghost" data-fxact="preset:night">Night</button><button class="btn ghost" data-fxact="preset:storm">Storm</button><button class="btn ghost" data-fxact="preset:none">Reset</button></div>';
   body += "</div>";
   openmodal({
     title: "Sky Atmosphere, Fog & Post Process",

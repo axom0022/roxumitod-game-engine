@@ -1,6 +1,6 @@
 # Plugins
 
-Roxumitod Game Engine ships a plugin system modelled on Roblox Studio's: a plugin is a named bundle of code that adds toolbar buttons, menu commands, docked widgets and event handlers to the editor, and can be enabled, disabled, exported and imported without reloading the engine.
+Roxumitod Game Engine ships a plugin system built around one idea: a plugin is a named bundle of code that adds toolbar buttons, menu commands, docked widgets and event handlers to the editor, and can be enabled, disabled, exported and imported without reloading the engine.
 
 ## Opening the plugin manager
 

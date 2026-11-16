@@ -28,6 +28,10 @@ function startplay() {
   }
   if (!view.stage) return;
   if (typeof plugfire === "function") plugfire("playstart", null);
+  if (typeof scriptrunall === "function") {
+    var codes = (app.project.scripts || []).length + (typeof actorscripts === "function" ? actorscripts().length : 0);
+    if (codes) scriptrunall();
+  }
   var orient = app.project.orientation || "landscape";
   if (orient === "portrait") setplayres(720, 1280);
   else if (orient === "auto") setplayres(1024, 1024);
@@ -50,6 +54,11 @@ function startplay() {
       return /Move/i.test(b.name || "") || b.type === "mover" || b.type === "patrol";
     })) movers.push(n);
   });
+  var spawnnode = null;
+  walk(app.scene.objects, function (n) {
+    if (n.type === "spawn" && !spawnnode) spawnnode = n;
+  });
+  if (spawnnode && hero && !hero.tags_moved) hero.pos = [spawnnode.pos[0], spawnnode.pos[1] + 0.4, spawnnode.pos[2] || hero.pos[2]];
   physreset();
   phys.bodies.forEach(function (b) {
     if (!b.static) return;
@@ -78,7 +87,24 @@ function startplay() {
     if (!hasui) toast("No hero in this scene · playing in spectator mode", "warn");
   }
   var hs = nodesize(hero);
+  var zones = [];
+  var portals = [];
+  var doors = [];
+  var checkpoints = [];
+  var seats = [];
+  walk(app.scene.objects, function (n) {
+    if (n.type === "zone") zones.push({ node: n, inside: false });
+    else if (n.type === "portal") portals.push(n);
+    else if (n.type === "door") doors.push(n);
+    else if (n.type === "checkpoint") checkpoints.push({ node: n, hit: false });
+    else if (n.type === "seat") seats.push(n);
+  });
   game = {
+    zones: zones,
+    portals: portals,
+    doors: doors,
+    checkpoints: checkpoints,
+    seats: seats,
     hero: hero,
     hw: hs[0] * 0.42,
     hh: hs[1] * 0.5,
@@ -146,6 +172,7 @@ function stopplay() {
   }
   app.play = false;
   game = null;
+  if (typeof scriptstopall === "function") scriptstopall();
   if (typeof plugfire === "function") plugfire("playstop", null);
   gameover = null;
   document.body.classList.remove("playing");
@@ -172,7 +199,7 @@ function stopplay() {
   var playbtn = qs("#playbtn");
   if (playbtn) {
     playbtn.classList.remove("running");
-    playbtn.innerHTML = '<span class="tri">' + ic("play", "ico-sm") + "</span>Play In Editor";
+    playbtn.innerHTML = '<span class="tri">' + ic("play", "ico-sm") + "</span>Play in viewport";
   }
 }
 
@@ -404,7 +431,7 @@ function runevents(kind, node) {
 function tickgame(dt) {
   if (!game) return;
   if (typeof nettick === "function") nettick(dt);
-  if (typeof ue5pie === "function") ue5pie(dt);
+  if (typeof studioplay === "function") studioplay(dt);
   game.time += dt;
   if (game.paused) return;
   if (game.status !== "playing") {
@@ -581,6 +608,69 @@ function tickgame(dt) {
       }
     });
   }
+  (function parts() {
+    var hx = g.x;
+    var hy = g.y;
+    g.checkpoints.forEach(function (c) {
+      var cn = c.node;
+      if (Math.abs(cn.pos[0] - hx) < 1 && Math.abs(cn.pos[1] - hy) < 1.2) {
+        if (!c.hit) {
+          c.hit = true;
+          g.start = [cn.pos[0], cn.pos[1] + 0.4];
+          toast("Checkpoint reached", "ok");
+          if (typeof fireevent === "function") fireevent("checkpoint", cn);
+        }
+      }
+    });
+    g.portals.forEach(function (pn) {
+      var rad = pn.radius || 1.4;
+      if (Math.abs(pn.pos[0] - hx) < rad && Math.abs(pn.pos[1] - hy) < rad) {
+        var tg = pn.target || [pn.pos[0] + 4, pn.pos[1], pn.pos[2]];
+        g.x = tg[0];
+        g.y = tg[1];
+        g.vy = 0;
+        if (typeof fireevent === "function") fireevent("portal", pn);
+        playsound("power");
+      }
+    });
+    g.doors.forEach(function (dn) {
+      if (Math.abs(dn.pos[0] - hx) < 1.2 && Math.abs(dn.pos[1] - hy) < 1.6) {
+        if (!dn.open) {
+          dn.open = true;
+          gameover[dn.id] = { scl: [dn.scl[0], dn.scl[1], 0.08], opacity: 0.4 };
+          toast("Door opened", "ok");
+          if (typeof fireevent === "function") fireevent("door", dn);
+        }
+      } else if (dn.open) {
+        dn.open = false;
+        gameover[dn.id] = { scl: [dn.scl[0], dn.scl[1], dn.scl[2]], opacity: 1 };
+      }
+    });
+    g.seats.forEach(function (sn) {
+      var top = sn.pos[1] + (sn.scl ? sn.scl[1] * 0.5 : 0.15);
+      if (Math.abs(sn.pos[0] - hx) < 0.9 && Math.abs(top - hy) < 1.1) {
+        if (g.sat !== sn.id) {
+          g.sat = sn.id;
+          if (typeof fireevent === "function") fireevent("seat", sn);
+        }
+      } else if (g.sat === sn.id) {
+        g.sat = null;
+      }
+    });
+    g.zones.forEach(function (z) {
+      var zn = z.node;
+      var w = (zn.scl && zn.scl[0] ? zn.scl[0] : 1) * 1.5;
+      var h = (zn.scl && zn.scl[1] ? zn.scl[1] : 1) * 1;
+      var inside = Math.abs(zn.pos[0] - hx) < w && Math.abs(zn.pos[1] - hy) < h;
+      if (inside !== z.inside) {
+        z.inside = inside;
+        if (inside) {
+          if (typeof fireevent === "function") fireevent(zn.event || "zone", zn);
+          toast("Entered " + zn.name, "ok");
+        }
+      }
+    });
+  })();
   if (g.goal) {
     var gs = nodesize(g.goal);
     if (Math.abs(g.goal.pos[0] - g.x) < gs[0] * 0.5 + g.hw && Math.abs(g.goal.pos[1] - g.y) < gs[1] * 0.6 + g.hh) {

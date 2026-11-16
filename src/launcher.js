@@ -9,7 +9,7 @@ function renderlauncher(kind) {
     { id: "templates", label: "Templates", icon: "grid" },
     { id: "learn", label: "Learn", icon: "trophy" }
   ];
-  var html = '<aside class="launchside"><div class="brand"><span class="t">Roxumitod Game Engine</span><span class="s" style="display:block;font-size:11px;opacity:.55;margin-top:2px">Unreal-style editor · v5 feature set</span></div>';
+  var html = '<aside class="launchside"><div class="brand"><span class="t">Roxumitod Game Engine</span><span class="s" style="display:block;font-size:11px;opacity:.55;margin-top:2px">Realtime editor · v5 feature set</span></div>';
   navs.forEach(function (n) {
     html += '<button class="navitem' + (launchview === n.id ? " on" : "") + '" data-act="launchview" data-view="' + n.id + '">' + ic(n.icon) + "<span>" + n.label + "</span></button>";
   });

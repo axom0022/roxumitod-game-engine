@@ -71,30 +71,30 @@ function rigsolve(node, target) {
 function rigpanel() {
   var node = sknode(false);
   var body = '<div class="rigbody">';
-  body += u5sec("Control Rig", "Two bone IK with pole vector",
-    u5row("Target rig", '<span class="u5val">' + (node ? esc(node.name) : "none, add a skeletal mesh") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-rigact="solve">Solve IK to camera target</button>' +
+  body += sgsec("Rig solver", "Two bone IK with pole vector",
+    sgrow("Target rig", '<span class="sgval">' + (node ? esc(node.name) : "none, add a skeletal mesh") + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-rigact="solve">Solve IK to camera target</button>' +
     '<button class="btn ghost" data-rigact="reset">Reset pose</button>' +
     '<button class="btn ghost" data-rigact="human">Add humanoid rig</button></div>' +
     sliderrow("Iterations", rigstate.iters, 1, 32, 1, 'data-rig="iters"') +
     '<div class="landout" id="rigout">Ready.</div>');
-  body += u5sec("Ragdoll", "Bone particles with distance constraints",
-    u5row("Ragdoll", check("Enable physics bones", node && node.ragdollon, 'data-ragdoll="on"')) +
+  body += sgsec("Ragdoll", "Bone particles with distance constraints",
+    sgrow("Ragdoll", check("Enable physics bones", node && node.ragdollon, 'data-ragdoll="on"')) +
     sliderrow("Damping", node && node.ragdamp !== undefined ? node.ragdamp : 0.94, 0.5, 0.999, 0.001, 'data-ragdoll="damp"') +
     sliderrow("Gravity", node && node.raggrav !== undefined ? node.raggrav : 9.8, 0, 30, 0.1, 'data-ragdoll="grav"') +
-    '<div class="u5btns"><button class="btn" data-rigact="ragdrop">Drop ragdoll</button>' +
+    '<div class="sgbtns"><button class="btn" data-rigact="ragdrop">Drop ragdoll</button>' +
     '<button class="btn ghost" data-rigact="ragreset">Reset bones</button></div>');
-  body += u5sec("Joints and constraints", "Limit bone rotation per axis",
+  body += sgsec("Joints and constraints", "Limit bone rotation per axis",
     node ? '<div class="jointlist">' + skindef(node).bones.slice(0, 16).map(function (b) {
       var lim = b.limit || { x: 90, y: 90, z: 45 };
       return '<div class="jointrow"><span class="jn">' + esc(b.name) + "</span>" +
         '<input class="inp num" type="number" value="' + lim.x + '" data-jlimit="' + b.id + '|x">' +
         '<input class="inp num" type="number" value="' + lim.y + '" data-jlimit="' + b.id + '|y">' +
         '<input class="inp num" type="number" value="' + lim.z + '" data-jlimit="' + b.id + '|z"></div>';
-    }).join("") + "</div>" : u5note("No rig loaded."));
+    }).join("") + "</div>" : sgnote("No rig loaded."));
   body += "</div>";
   openmodal({
-    title: "Control Rig and Ragdoll",
+    title: "Rig solver and Ragdoll",
     icon: "target",
     width: "wide",
     body: body,
@@ -276,13 +276,13 @@ function animnotifypanel() {
     commit("skinned");
   }
   var list = animnotifylist(n);
-  var body = '<div class="notifybody">' + u5sec("Animation events", "Notifies fired at clip times",
+  var body = '<div class="notifybody">' + sgsec("Animation events", "Notifies fired at clip times",
     '<div class="notifylist">' + list.map(function (nt, i) {
       return '<div class="notifyrow"><span class="nn">' + esc(nt.event) + '</span><span class="nc">' + esc(nt.clip) + "</span><span class=\"nt\">" + nt.time.toFixed(2) + " s</span>" +
         '<button class="iconbtn" data-notifydel="' + i + '">' + ic("trash", "ico-xs") + "</button></div>";
     }).join("") + "</div>" +
-    '<div class="u5btns"><button class="btn" data-notifyact="add">Add notify</button></div>' +
-    u5note("Notifies call the same event bus as the gameplay event nodes, so any handler bound to the event name fires.")) + "</div>";
+    '<div class="sgbtns"><button class="btn" data-notifyact="add">Add notify</button></div>' +
+    sgnote("Notifies call the same event bus as the gameplay event nodes, so any handler bound to the event name fires.")) + "</div>";
   openmodal({
     title: "Animation Notifies",
     icon: "events",
@@ -320,17 +320,17 @@ function facialpanel() {
   if (!Object.keys(s.morph).length) {
     s.morph = { "Jaw open": 0, "Smile": 0, "Brow raise": 0, "Blink": 0 };
   }
-  var body = '<div class="facebody">' + u5sec("Facial animation", "Morph target weights",
+  var body = '<div class="facebody">' + sgsec("Facial animation", "Morph target weights",
     Object.keys(s.morph).map(function (k) {
       return sliderrow(k, s.morph[k], 0, 1, 0.01, 'data-face="' + esc(k) + '"');
     }).join("") +
-    '<div class="u5btns"><button class="btn" data-faceact="add">Add morph target</button>' +
+    '<div class="sgbtns"><button class="btn" data-faceact="add">Add morph target</button>' +
     '<button class="btn ghost" data-faceact="blink">Blink burst</button>' +
     '<button class="btn ghost" data-faceact="talk">Talking loop</button></div>' +
     '<div class="landout" id="faceout">Blend weights applied to the head bone scale and jaw offset.</div>');
-  body += u5sec("Eyes and gaze", "Parallax iris and catch lights",
-    u5row("Eye actor", '<button class="btn ghost" data-faceact="eye">Add eye actor</button>') +
-    u5note("Eye actors render a parallax iris disc with a moving catch light."));
+  body += sgsec("Eyes and gaze", "Parallax iris and catch lights",
+    sgrow("Eye actor", '<button class="btn ghost" data-faceact="eye">Add eye actor</button>') +
+    sgnote("Eye actors render a parallax iris disc with a moving catch light."));
   body += "</div>";
   openmodal({
     title: "Facial and Morph Animation",

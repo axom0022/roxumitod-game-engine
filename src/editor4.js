@@ -867,7 +867,7 @@ function buildlibrarypage(host) {
 function openaddobject(cb) {
   app.addobjcb = cb || null;
   var groups = [
-    { head: "Shapes", items: ["cube", "sphere", "plane", "capsule", "cylinder", "cone", "torus"] },
+    { head: "Shapes", items: ["cube", "sphere", "plane", "capsule", "cylinder", "cone", "torus", "wedge"] },
     { head: "Objects", items: ["empty", "terrain", "water", "curve", "text3d", "camera", "tilemap", "model"] },
     { head: "UI", items: ["canvas", "label", "button", "slider", "bar", "joystick"] },
     { head: "Models", items: modellib.map(function (m) {
@@ -940,15 +940,19 @@ function openaddobject(cb) {
           return;
         }
         var node;
-        if (typeof featactor === "function" && featactor(type)) return;
-        if (type.indexOf("sprite:") === 0) {
+        if (typeof partdefaults === "object" && partdefaults[type]) {
+          node = basenode(type, { pos: [0, 1, 0] });
+          partinit(node);
+        } else if (typeof featactor === "function" && featactor(type)) {
+          return;
+        } else if (type.indexOf("sprite:") === 0) {
           var sp = type.slice(7);
           node = basenode("sprite", { name: spriteinfo[sp].name, sprite: sp, pos: [0, 0.2, 0] });
         } else {
           node = basenode(type, { pos: [0, 1, 0] });
         }
         var target = app.cam.target;
-        node.pos = [Math.round(target[0] * 10) / 10, Math.max(0.4, Math.round(target[1] * 10) / 10), 0];
+        node.pos = [Math.round(target[0] * 10) / 10, Math.max(0.4, Math.round(target[1] * 10) / 10), Math.round((target[2] || 0) * 10) / 10];
         if (app.addobjcb) {
           var cb2 = app.addobjcb;
           app.addobjcb = null;

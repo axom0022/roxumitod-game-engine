@@ -1,116 +1,110 @@
 # Roxumitod Game Engine
 
-**An Unreal Engine 5 style editor that runs on the open web.**
+**A realtime game editor that runs in the browser.**
 
-Roxumitod Game Engine is a level editor, a runtime and a packaging pipeline for browser games. It borrows the language, the panel layout and the feature vocabulary of Unreal Engine 5 so that anyone who has opened UE5 can sit down and start working immediately - while every feature runs in plain HTML, CSS and JavaScript, with no install and no build server.
+Roxumitod Game Engine is a level editor, a runtime and a packaging pipeline for browser games, written in plain HTML, CSS and JavaScript. There is nothing to install and no build server: open the page, pick a template, and press Play.
 
-The editor drives two interchangeable renderers: **three.js** and **faoxomjs**. The level, the physics, the effects, the audio, the cinematics and the networking are engine-side, so switching renderer never changes how a level behaves.
+The editor drives two interchangeable renderers, **three.js** and **faoxomjs**. Levels, physics, effects, audio, cinematics and networking are engine side, so switching renderer never changes how a level behaves.
 
 ---
 
-## The framework at a glance
+## Concepts
 
-| Unreal Engine 5 | Roxumitod Game Engine | Where it lives |
+| Concept | What it is | Where it lives |
 | --- | --- | --- |
-| Actor | Actor - any object placed in a level | World Outliner |
-| Component | Component - Sprite Renderer, Collider, Rigid Body, Particle System, Audio | Details |
-| Level | Level - a scene with its own actors, world settings and sequences | Level tabs |
-| World Outliner | World Outliner - hierarchy of every actor | Left dock |
-| Details | Details - transform, components, tags, variables | Right dock |
-| Content Browser | Content Browser - models, sprites, materials, audio | Left dock |
-| Play In Editor (PIE) | Play In Editor - simulate in the viewport, with netcode live | Play In Editor |
-| Blueprint | Blueprint - event graph logic per actor or level | Left dock → Blueprint |
-| Lumen | Lumen - probe based global illumination and bounce light | World Settings → Rendering |
-| Nanite | Nanite - virtualized geometry, meshlet LOD and pixel culling | World Settings → Rendering |
-| Virtual Shadow Maps | Virtual Shadow Maps - two cascaded shadow pages | World Settings → Rendering |
-| World Partition | World Partition - actor cells streamed around the camera | World Settings → Rendering |
-| Chaos | Chaos - sub-stepped rigid bodies, joints, geometry collections | Window → Chaos |
-| Niagara | Niagara - modular particle systems | Window → Niagara |
-| Sequencer | Sequencer - camera and actor tracks with keyframes | Window → Sequencer |
-| MetaSounds | MetaSounds - procedural audio graphs | Window → MetaSounds |
-| Control Rig | Control Rig - analytic two-bone IK | Window → Control Rig |
-| Online Subsystem | Online Subsystem - PeerJS sessions | Window → Online Subsystem |
+| Actor | Any object placed in a level | Outliner |
+| Component | A reusable behaviour attached to an actor | Details |
+| Level | A scene with its own actors, world settings and cinematics | Level tabs |
+| Outliner | The hierarchy of every actor in the level | Left dock |
+| Content | Models, sprites, materials, audio and prefabs | Left dock |
+| Logic graph | Event driven behaviour for an actor or a level | Left dock |
+| Details | Transform, components, tags and variables for the selection | Right dock |
+| World settings | Environment, rendering, streaming and lighting | Right dock |
+| Play in viewport | Runs the level in place, with physics, audio and netcode live | Toolbar |
+| Global illumination | Sky and ground light with a ground bounce | World settings, rendering |
+| Virtual geometry | Meshlet LOD with sub pixel cluster culling | World settings, rendering |
+| Cascaded shadows | Two shadow pages retargeted to the camera | World settings, rendering |
+| World streaming | Cells loaded around the camera | World settings, rendering |
+| Physics solver | Sub stepped rigid bodies, joints and fracture | Window, physics |
+| Effect graph | Modular particle systems wired as nodes | Window, effect graph |
+| Audio graph | Procedural audio wired as nodes | Window, audio graph |
+| Cinematic timeline | Camera and actor tracks with keyframes | Window, cinematics |
+| Rig solver | Analytic two bone IK | Window, rig solver |
+| Online subsystem | Peer sessions over WebRTC | Window, online |
 
 ---
 
 ## First ten minutes
 
-1. **Create a level.** Open the launcher, choose a template, press **New project**. The level opens in the editor with a starter scene.
-2. **Look around.** Drag with the left mouse button to orbit, with the right button to pan, wheel to zoom. `F` focuses the selection.
-3. **Place an actor.** Press **Add** in the World Outliner, or use **Tools → Add actor…**. The new actor appears in the outliner and is selected.
-4. **Edit it.** The **Details** panel shows the transform, the component stack and the tags. Change the position, add a Collider, then add a Sprite Renderer.
-5. **Give it behaviour.** Open the **Blueprint** tab and add an event: *on start*, *each frame*, *on collide*, *on trigger*.
-6. **Play.** Press **Play In Editor**. The level simulates inside the viewport; `Esc` returns to editing.
-7. **Light it.** Open **World Settings → Rendering** and turn on **Lumen**, **Nanite** and **Virtual Shadow Maps**. The same switches exist in the packaged build.
-8. **Package.** **File → Package game (HTML)** writes a single self-contained file you can upload anywhere.
+1. **Create a level.** Open the launcher, choose a template, press **New project**.
+2. **Look around.** Drag the left mouse button to orbit, the right button to pan, the wheel to zoom. `F` focuses the selection.
+3. **Place an actor.** Press **Add** in the Outliner, or use **Tools → Add actor…**. The Add menu is grouped: shapes, lighting, sound, effects, gameplay, scripting, screen UI and the advanced world actors.
+4. **Move it.** `W` move, `E` rotate, `R` scale. Drag the box handles to resize a face; hold `Alt` to resize from the centre.
+5. **Give it behaviour.** Add a `Script` actor and write code, or open the **Logic graph** tab and add an event: on start, each frame, on collision, on event.
+6. **Light it.** Add point, spot or area lights from the Add menu, then open **World settings → Rendering** for global illumination and cascaded shadows.
+7. **Press Play.** Physics, scripts, particles, audio and the network stack start. `Esc` stops and restores the editor.
 
 ---
 
-## What is actually simulated
+## What is in the box
 
-- **Rendering** - three.js or faoxomjs, both fed by the same item list, camera state and environment block.
-- **Geometry** - meshes, sprites, tilemaps, terrain, water, curves, 3D text and imported models.
-- **Physics** - an oriented-box character controller with slopes, plus a rigid-body solver with joints, sub-stepping and fracture.
-- **Effects** - a modular particle system with presets, colour over life, gravity, collision and additive glow.
-- **Audio** - procedural MetaSounds graphs rendered by WebAudio, plus per-actor audio components.
-- **Logic** - event sheets evaluated per actor and per level, with variables, globals and actions.
-- **Cinematics** - Sequencer tracks that drive the camera and actor transforms during PIE.
-- **Networking** - PeerJS sessions with replicated actors, RPCs and interpolation.
-- **Persistence** - projects, levels and assets saved in the browser, exportable as `.ugm` backups or folders.
-
----
-
-## Reading order
-
-- [Levels and actors](levels-and-actors.md) - the object model, components and the World Outliner.
-- [Rendering](rendering.md) - Lumen, Nanite, Virtual Shadow Maps, World Partition and the renderer switch.
-- [Physics and destruction](physics.md) - Chaos bodies, joints, geometry collections.
-- [Niagara effects](niagara.md) - particle systems and their modules.
-- [MetaSounds](metasounds.md) - procedural audio graphs.
-- [Sequencer](sequencer.md) - camera and actor tracks.
-- [Control Rig](controlrig.md) - two-bone IK.
-- [Blueprints](blueprints.md) - event graph logic.
-- [Multiplayer](multiplayer.md) - PeerJS sessions, rooms, replication and RPCs.
-- [Packaging](packaging.md) - HTML, itch.io, Android and backup exports.
-
+- **Levels** built from actors and components, with full undo, copy and paste, nesting, locking, hide and show, and a lighting aware viewport.
+- **Scripting** in JavaScript with modules, imports, live bindings and hooks: `start`, `update`, `onevent`, `oncollision`, `oncollect`. Every script actor receives its own actor as `entity`.
+- **Rendering** with two backends, tone mapping, bloom, depth of field, ambient occlusion, fog, sky, shadows and per level environment settings.
+- **World building** with CSG solids, mesh editing and sculpting, landscape layers, splines and roads, foliage instancing, world streaming and level instances.
+- **Physics** with rigid bodies, joints, vehicles, a character controller, collision channels, continuous collision, fields, fracture, cloth and fluid.
+- **Effects** with a node graph, a GPU style particle simulation, decals, screen space reflections, volumetric light and lens effects.
+- **Audio** with a node graph, spatialisation, mixer routing, voice chat and a music machine.
+- **Cinematics** with keyframed camera and actor tracks.
+- **Multiplayer** over WebRTC with rooms, replication, RPCs and chat.
+- **Packaging** to a single HTML file, an itch.io zip, an Android project or a project backup.
 
 ---
 
-## Systems added in this pass
+## Where to read next
 
-| System | What it does | Where it lives | Reference |
-| --- | --- | --- | --- |
-| Physical transform handles | Box corner and edge handles for scale, spin ring for rotation, axis arrows for move - all draggable in the viewport | Viewport | `docs/controls.md` |
-| Actor lock | A locked actor cannot be picked, marqueed, transformed or deleted | Outliner, Details, Tools | `docs/controls.md` |
-| Plugin system | Roblox Studio style plugins with toolbar buttons, commands, widgets and an API | Tools → Plugins | `docs/plugins.md` |
-| Sky atmosphere | Sun vector, sky light, height fog, volumetric clouds, stars, water | Tools → Sky atmosphere | `docs/rendering.md` |
-| Post process | Exposure, bloom, vignette, grain, chromatic aberration, saturation, contrast, temperature, motion blur | Tools → Sky atmosphere | `docs/rendering.md` |
-| Lightmass bake | Traces sun occlusion per actor and writes it into shading | Tools → Sky atmosphere | `docs/rendering.md` |
-| Landscape | Real heightmap terrain with a sculpt brush and resolution control | Tools → Landscape | `docs/levels-and-actors.md` |
-| Foliage mode | Paint instances onto the surface | Tools → Landscape | `docs/levels-and-actors.md` |
-| PCG | Deterministic scatter of generated content into a group | Tools → PCG | `docs/levels-and-actors.md` |
-| Data layers, prefabs, LOD | Stream actor groups, save selections as level instances, per actor LOD distance | Tools → Data layers | `docs/levels-and-actors.md` |
-| Cine camera, take recorder, movie render queue | Camera actor with focal length, camera key baking, WebM and PNG capture | Tools → Cinematics | `docs/sequencer.md` |
-| UE5 navigation | Right mouse look, WASD fly, ortho views, bookmarks, pilot, immersive | Viewport | `docs/controls.md` |
-| GUI service | ScreenGui actors with screen space elements, plus a Physical toggle for world space GUI | Tools -> GUI service | `docs/levels-and-actors.md` |
-| Closeable sections | Every section header has an X and can be restored from its strip | Every panel | `docs/controls.md` |
+- [Controls & shortcuts](controls.md)
+- [Levels and actors](levels-and-actors.md)
+- [Rendering](rendering.md)
+- [Physics and destruction](physics.md)
+- [Effects](effects.md)
+- [Audio](audio.md)
+- [Cinematics](cinematics.md)
+- [Rigging](rigging.md)
+- [Logic graph](logic.md)
+- [Plugins](plugins.md)
+- [Multiplayer](multiplayer.md)
+- [Packaging](packaging.md)
+- [Advanced systems reference](advanced-systems.md)
 
 ---
 
-## Advanced systems
+## Editor map
 
-The engine ships a second layer of systems on top of the framework above. Every one of them is wired into the editor and reachable from the **Feature hub** in the Window and Tools menus, or from the command bar.
+| Area | What it covers | Location |
+| --- | --- | --- |
+| Outliner | Every actor, grouped and searchable | Left dock |
+| Content | Imported models, sprites, sounds, prefabs | Left dock |
+| Logic graph | Event sheets per actor and per level | Left dock |
+| Details | Transform, components, tags, variables | Right dock |
+| World settings | Environment, streaming, lighting, collisions | Right dock |
+| Feature hub | A searchable list of every system in the engine | Window, Feature hub (`Ctrl+Shift+F`) |
+| Command bar | Runs any action or panel by name | `Ctrl+K` |
+| Device emulator | Five device profiles for play testing | Window, device emulator |
+| Multi client test | Up to four clients in tiles | Window, multi client |
 
-| Domain | Systems |
-| --- | --- |
-| Rendering | Skeletal mesh rendering, material system, shader authoring, decals, screen space reflections, ray tracing, temporal and upscaler presets, lightmaps, virtual textures, LOD and HLOD, post materials with stencils, lens effects, volumetric lighting, refraction, cloth, hair, fur and eyes |
-| World | CSG solids, mesh editing, sculpting, landscape layers, splines and roads, foliage instancing, world partition, level instances, procedural meshes, terrain collision fidelity |
-| Animation | Clip editor, blend spaces, montages, bone limits, control rig, ragdoll, notifies, root motion, facial morphs |
-| Physics | Constraints, vehicles, character controller, collision channels, continuous collision, fields, destruction, soft bodies, fluid, buoyancy |
-| Effects and audio | Effect graph, GPU style simulation, audio graph, spatialisation, voice chat, music sequencer |
-| Logic | Visual scripting, script runtime, lint and type checking, hot reload, debugger, profiler |
-| Pipeline | Packages, version history, source control, marketplace, device emulator, play testing, command bar, dock layouts, themes, keybinds, crash recovery, accessibility |
-| Live | Anti cheat, teleport, leaderboards, stats, experiments, remote config, lag compensation |
-| Input and assets | Touch, gamepad, VR, localisation, texture import and compression, animation import, audio import, dependency graph, texture painting |
+## Systems index
 
-The per system reference, including the exact algorithm and the stated hardware approximation for ray tracing, upscaling and GPU simulation, is in [`advanced-systems.md`](advanced-systems.md).
+| Domain | What it includes | Documentation |
+| --- | --- | --- |
+| Rendering | Global illumination, virtual geometry, cascaded shadows, streaming, post effects, decals, reflections, volumetrics, lens | `rendering.md` |
+| World | CSG, sculpting, landscapes, splines, foliage, streaming, instances | `advanced-systems.md` |
+| Animation | Clips, blend spaces, montages, bone limits, rig solver, ragdoll, notifies, morphs | `advanced-systems.md` |
+| Physics | Bodies, joints, vehicles, character, channels, CCD, fields, fracture, cloth, fluid | `physics.md` |
+| Effects | Effect graph, GPU simulation, decals, volumetrics | `effects.md` |
+| Audio | Audio graph, spatialisation, voice, music | `audio.md` |
+| Logic | Script runtime, logic graph, lint, types, hot reload, debugger, profiler | `logic.md` |
+| Pipeline | Packages, versions, source control, marketplace, devices, command bar, themes, keys, recovery, accessibility | `advanced-systems.md` |
+| Live | Anti cheat, teleport, leaderboards, experiments, lag compensation | `advanced-systems.md` |
+| Input | Touch, gamepad, VR, localisation | `advanced-systems.md` |
+| Assets | Texture import and compression, animation import, audio streaming, dependency graph, texture painting | `advanced-systems.md` |

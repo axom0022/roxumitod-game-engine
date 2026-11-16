@@ -299,9 +299,9 @@ function skinpanel() {
   var is = node && node.type === "skinned";
   var s = is ? skindef(node) : null;
   var body = '<div class="skinbody">';
-  body += u5sec("Skeletal Mesh", "Bones, skin weights and clips",
-    u5row("Selected", '<span class="u5val">' + (is ? esc(node.name) : "none") + "</span>") +
-    '<div class="u5btns"><button class="btn" data-skinact="human">' + ic("target", "ico-sm") + " Humanoid rig</button>" +
+  body += sgsec("Skeletal Mesh", "Bones, skin weights and clips",
+    sgrow("Selected", '<span class="sgval">' + (is ? esc(node.name) : "none") + "</span>") +
+    '<div class="sgbtns"><button class="btn" data-skinact="human">' + ic("target", "ico-sm") + " Humanoid rig</button>" +
     '<button class="btn ghost" data-skinact="quad">Quadruped rig</button>' +
     '<button class="btn ghost" data-skinact="clips">Generate clips</button></div>' +
     (is ? '<div class="bonelist">' + s.bones.map(function (b) {
@@ -309,24 +309,24 @@ function skinpanel() {
     }).join("") + "</div>" : ""));
   if (is) {
     var clipnames = Object.keys(s.clips);
-    body += u5sec("Animation Editor", "Clips, blend space and montages",
+    body += sgsec("Animation Editor", "Clips, blend space and montages",
       selectrow("Active clip", clipnames.length ? clipnames : ["none"], s.current || (clipnames[0] || "none"), 'data-skinfield="current"') +
-      u5row("Blend speed", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + (s.blendspeed || 0) + '" data-skinfield="blendspeed">') +
-      u5row("Blend space", '<span class="u5val">' + (function () {
+      sgrow("Blend speed", '<input class="inp num" type="range" min="0" max="1" step="0.01" value="' + (s.blendspeed || 0) + '" data-skinfield="blendspeed">') +
+      sgrow("Blend space", '<span class="sgval">' + (function () {
         var e = blendspaceeval(s);
         return "idle " + Math.round((1 - e.k) * 100) + "% + " + e.b + " " + Math.round(e.k * 100) + "%";
       })() + "</span>") +
-      u5row("Montage slot", '<input class="inp" value="' + esc(s.montage || "DefaultSlot") + '" data-skinfield="montage">') +
-      '<div class="u5btns"><button class="btn ghost" data-skinact="addkey">Add pose key</button><button class="btn ghost" data-skinact="events">Animation events</button></div>');
-    body += u5sec("Root Motion and Morphs", "Root motion extraction and facial morph targets",
-      u5row("Root motion", check("Extract root motion", s.rootmotion, 'data-skinfield="rootmotion"')) +
-      '<div class="u5btns"><button class="btn ghost" data-skinact="morphadd">Add morph target</button></div>' +
+      sgrow("Montage slot", '<input class="inp" value="' + esc(s.montage || "DefaultSlot") + '" data-skinfield="montage">') +
+      '<div class="sgbtns"><button class="btn ghost" data-skinact="addkey">Add pose key</button><button class="btn ghost" data-skinact="events">Animation events</button></div>');
+    body += sgsec("Root Motion and Morphs", "Root motion extraction and facial morph targets",
+      sgrow("Root motion", check("Extract root motion", s.rootmotion, 'data-skinfield="rootmotion"')) +
+      '<div class="sgbtns"><button class="btn ghost" data-skinact="morphadd">Add morph target</button></div>' +
       (Object.keys(s.morph).length ? Object.keys(s.morph).map(function (k) {
         return sliderrow(esc(k), s.morph[k], 0, 1, 0.01, 'data-morph="' + esc(k) + '"');
-      }).join("") : '<div class="u5note">No morph targets. Add one for facial animation.</div>'));
-    body += u5sec("LOD Chain", "Auto generated skeletal LODs",
-      u5row("LOD distances", '<span class="u5val">' + (s.lodfar || []).join(", ") + "</span>") +
-      '<div class="u5btns"><button class="btn ghost" data-skinact="lod">Auto generate LODs</button></div>');
+      }).join("") : '<div class="sgnote">No morph targets. Add one for facial animation.</div>'));
+    body += sgsec("LOD Chain", "Auto generated skeletal LODs",
+      sgrow("LOD distances", '<span class="sgval">' + (s.lodfar || []).join(", ") + "</span>") +
+      '<div class="sgbtns"><button class="btn ghost" data-skinact="lod">Auto generate LODs</button></div>');
   }
   body += "</div>";
   openmodal({

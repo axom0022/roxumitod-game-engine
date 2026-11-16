@@ -22,7 +22,7 @@ Produces an Android Studio project: a WebView wrapper, `AndroidManifest.xml` con
 
 ## Backup (.ugm)
 
-A JSON backup of the whole project - levels, actors, assets, graphics settings, MetaSounds. This is the file to keep in version control.
+A JSON backup of the whole project - levels, actors, assets, graphics settings, audio graphs. This is the file to keep in version control.
 
 ## Folder export (.zip)
 
@@ -31,10 +31,10 @@ The project as a folder tree with separate level files, which is convenient for 
 ## What travels with the level
 
 - Actors, components, tags and variables.
-- World Settings: background, ambient, tone mapping, and the whole Rendering stack (Lumen, Nanite, Virtual Shadow Maps, World Partition, Chaos).
-- Sequencer tracks and their keys.
-- Blueprint event sheets.
-- MetaSounds.
+- World Settings: background, ambient, tone mapping, and the whole rendering stack (global illumination, virtual geometry, cascaded shadow maps, world streaming, physics solver).
+- Cinematic tracks and their keys.
+- Logic graph event sheets.
+- Audio graphs.
 - Multiplayer settings: the room code can be supplied by URL at runtime.
 
 ## Multiplayer in packaged builds

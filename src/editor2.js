@@ -41,7 +41,7 @@ function inspectorhtml() {
       srow("Background", '<select class="inp" data-sfield="env.bgtype"><option value="color"' + (app.scene.env.bgtype !== "sky" ? " selected" : "") + '>Color</option><option value="sky"' + (app.scene.env.bgtype === "sky" ? " selected" : "") + ">Sky image (360°)</option></select>") +
       srow("Ambient strength", '<input class="slider" type="range" min="0" max="2" step="0.05" value="' + (app.scene.env.strength || 0.6) + '" data-sfield="env.strength"><input class="inp num numin" type="number" min="0" max="2" step="0.05" value="' + (app.scene.env.strength || 0.6) + '" data-sfield="env.strength">') +
       "</div></div>" +
-      '<div class="emptystate">Select an actor in the viewport or the World Outliner to inspect it.</div>';
+      '<div class="emptystate">Select an actor in the viewport or the Outliner to inspect it.</div>';
   }
   var html = '<div class="insphead"><button class="name" data-act="renamesel">' + ic(sceneicon(node.type, node.sprite), "ico-sm") + "<span>" + esc(node.name) + '</span><span class="dim">' + ic("chevd", "ico-xs") + '</span></button><button class="iconbtn star" data-act="markstart" title="Start scene">' + ic("star") + "</button>" + '<button class="btn sm projbtn" data-act="projectsettings">' + ic("gear", "ico-sm") + "Project</button></div>";
   html += '<div class="checkrow">' + check("Visible", node.visible !== false, 'data-node="' + node.id + '" data-field="visible"') + check("Active", node.active !== false, 'data-node="' + node.id + '" data-field="active"') + check("Locked", !!node.lock, 'data-node="' + node.id + '" data-field="lock"') + "</div>";
@@ -51,6 +51,7 @@ function inspectorhtml() {
 
   html += '<div class="sec">' + sechead("move", "Transform", "transform", '<button class="iconbtn" data-act="resettransform" title="Reset">' + ic("rotate", "ico-xs") + "</button>") + secopen("transform") + vectorrow("Position", node, "pos", ["x", "y", "z"]) + vectorrow("Rotation (°)", node, "rot", ["x", "y", "z"]) + vectorrow("Scale", node, "scl", ["x", "y", "z"]) + "</div>";
 
+  html += partsection(node);
   (node.comps || []).forEach(function (c) {
     html += compsection(node, c);
   });
@@ -64,6 +65,68 @@ function inspectorhtml() {
   });
   html += '<button class="addrow" data-act="addvar">' + ic("plus", "ico-xs") + "Add variable</button></div></div>";
   return html;
+}
+
+function partsection(node) {
+  if (!node || typeof partdefaults !== "object" || !partdefaults[node.type]) return "";
+  var t = node.type;
+  var body = "";
+  var num = function (label, key, min, max, step) {
+    return srow(label, '<input class="slider" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '"><input class="inp num numin" type="number" min="' + min + '" max="' + max + '" step="' + step + '" value="' + (node[key] === undefined ? 0 : node[key]) + '" data-part="' + key + '">');
+  };
+  var text = function (label, key) {
+    return srow(label, '<input class="inp" value="' + esc(node[key] === undefined ? "" : node[key]) + '" data-part="' + key + '">');
+  };
+  var col = function () {
+    return srow("Colour", '<div class="colorbox"><input type="color" value="' + esc(node.color || "#ffffff") + '" data-part="color"></div><input class="inp" value="' + esc(node.color || "#ffffff") + '" data-part="color">');
+  };
+  if (t === "pointlight" || t === "spotlight" || t === "arealight") {
+    body += col() + num("Intensity", "intensity", 0, 4, 0.05) + num("Range", "range", 0.5, 40, 0.5);
+    if (t === "spotlight") body += num("Cone angle", "spread", 0.1, 1.4, 0.02);
+    if (t === "arealight") body += num("Width", "width", 0.5, 12, 0.1) + num("Height", "height", 0.5, 12, 0.1);
+  } else if (t === "soundemitter" || t === "musiczone") {
+    body += col() + text("Asset", "asset") + text("Mixer group", "group") + num("Volume", "volume", 0, 1, 0.05) + check("Loop", !!node.loop, 'data-partcheck="loop"');
+  } else if (t === "emitter") {
+    body += col() + srow("Preset", '<select class="inp" data-part="preset">' + Object.keys(fxpresets).map(function (k) {
+      return '<option value="' + k + '"' + ((node.preset || "sparkles") === k ? " selected" : "") + ">" + k + "</option>";
+    }).join("") + "</select>") + num("Rate", "rate", 0, 120, 1);
+  } else if (t === "checkpoint") {
+    body += col() + num("Radius", "radius", 0.5, 8, 0.1);
+  } else if (t === "portal") {
+    body += col() + num("Radius", "radius", 0.5, 8, 0.1) + srow("Target", vectorrow("", node, "target", ["x", "y", "z"]));
+  } else if (t === "door") {
+    body += col() + check("Open on touch", node.opentouch !== false, 'data-partcheck="opentouch"');
+  } else if (t === "hazard") {
+    body += col() + num("Damage", "damage", 0, 5, 1);
+  } else if (t === "pickup") {
+    body += col() + srow("Kind", '<select class="inp" data-part="kind">' + ["coin", "heart", "gem", "key"].map(function (k) {
+      return '<option value="' + k + '"' + ((node.kind || "coin") === k ? " selected" : "") + ">" + k + "</option>";
+    }).join("") + "</select>") + num("Value", "value", 1, 50, 1);
+  } else if (t === "zone") {
+    body += col() + text("Event name", "event") + check("Fires once", !!node.once, 'data-partcheck="once"');
+  } else if (t === "platform") {
+    body += col() + srow("Axis", '<select class="inp" data-part="axis">' + ["x", "y", "z"].map(function (k) {
+      return '<option value="' + k + '"' + ((node.axis || "x") === k ? " selected" : "") + ">" + k + "</option>";
+    }).join("") + "</select>") + num("Distance", "dist", 0.5, 20, 0.5) + num("Speed", "speed", 0.1, 6, 0.1);
+  } else if (t === "script" || t === "modulescript" || t === "scenescript" || t === "clientscript" || t === "serverscript" || t === "toolscript") {
+    body += '<div class="emptyhint">' + (node.code ? node.code.split("\n").length + " lines of code" : "No code yet") + '</div><button class="addrow" data-act="editscript" data-id="' + node.id + '">' + ic("script", "ico-xs") + "Open script editor</button>";
+  } else if (t === "textbutton" || t === "textbox") {
+    body += col() + text("Text", "text");
+  } else if (t === "billboard") {
+    body += col() + text("Text", "text");
+  } else if (t === "remote") {
+    body += text("Event name", "event") + sgnote("Scripts fire this name with fireevent and listen for it in onevent.");
+  } else if (t === "numbervalue") {
+    body += col() + num("Value", "value", -1000, 1000, 1);
+  } else if (t === "stringvalue") {
+    body += col() + text("Value", "text");
+  } else if (t === "imagelabel") {
+    body += col() + text("Sprite key", "sprite");
+  } else {
+    body += col();
+  }
+  return '<div class="sec"><div class="sechead"><span class="tw">' + ic("chevd", "ico-xs") + '</span>' + ic(nodemeta[t] ? nodemeta[t].icon : "cube", "ico-sm") + "<span>" + esc(nodemeta[t] ? nodemeta[t].label : t) + "</span></div>" +
+    '<div class="secbody">' + body + '<div class="emptyhint" id="partout">Changes apply to the level and to play mode.</div></div></div>';
 }
 
 function compsection(node, comp) {
@@ -267,7 +330,7 @@ function scenesettingshtml() {
   html += sliderrow("Ambient strength", env.strength === undefined ? 0.6 : env.strength, 0, 2, 0.05, 'data-sfield="env.strength"');
   html += '<div class="frow"><div class="flabel">Fog</div><div class="fctrl">' + check("", !!env.fog, 'data-sfield="env.fog"') + "</div></div>";
   html += "</div></div>";
-  if (typeof u5section === "function") html += u5section();
+  if (typeof sgsection === "function") html += sgsection();
   html += '<div class="sec"><div class="sechead"><span class="tw">' + ic("chevd", "ico-xs") + '</span>' + ic("variable", "ico-sm") + '<span>Scene variables</span></div><div class="secbody">';
   if (!(sc.vars || []).length) html += '<div class="emptyhint">No scene variables yet.</div>';
   (sc.vars || []).forEach(function (v, i) {
@@ -1136,7 +1199,7 @@ function aboutmodal() {
     title: "About",
     icon: "info",
     width: "narrow",
-    body: '<div style="display:flex;gap:14px;align-items:center"><img src="' + arturln("logo") + '" style="width:54px;height:54px;image-rendering:pixelated"><div><div style="font-size:14px;font-weight:600">Roxumitod Game Engine</div><div class="tiny muted" style="margin-top:4px">An Unreal Engine 5 style editor for the open web.<br>three.js r149 and faoxomjs v6 render backends.</div></div></div><div class="tiny dim" style="margin-top:12px">Levels, actors and components · Lumen, Nanite, Virtual Shadow Maps and World Partition · Chaos physics and geometry collections · Niagara effects · Sequencer cinematics · MetaSounds · Control Rig · Blueprints · PeerJS multiplayer · HTML, itch.io and Android packaging.</div>'
+    body: '<div style="display:flex;gap:14px;align-items:center"><img src="' + arturln("logo") + '" style="width:54px;height:54px;image-rendering:pixelated"><div><div style="font-size:14px;font-weight:600">Roxumitod Game Engine</div><div class="tiny muted" style="margin-top:4px">A realtime game editor that runs in the browser.<br>three.js r149 and faoxomjs v6 render backends.</div></div></div><div class="tiny dim" style="margin-top:12px">Levels, actors and components · Global illumination, Virtual geometry, Cascaded shadow maps and World streaming · Physics solver and geometry collections · Effect graph · Cinematic timeline · Audio graph · Rig solver · Logic graphs · PeerJS multiplayer · HTML, itch.io and Android packaging.</div>'
   });
 }
 

@@ -823,7 +823,7 @@ function plugmanager() {
     '<div class="plugstep"><b>API surface</b><div><code>createPlugin</code> <code>toolbarButton</code> <code>menuCommand</code> <code>panel</code> <code>widget</code> <code>command</code> <code>on</code> <code>onTick</code> <code>onKey</code> <code>emit</code> <code>selection.*</code> <code>scene.*</code> <code>transform.*</code> <code>play.*</code> <code>ui.*</code> <code>prefs.*</code> <code>state.*</code> <code>storage.*</code> <code>http.*</code></div></div></div>' +
     '<div class="plugdochead" style="margin-top:12px">' + ic("table", "ico-sm") + ' Console</div><div class="plugconsole" id="plugconsole">' + plugconsolehtml() + "</div>";
   openmodal({
-    title: "Plugin Manager - Roblox Studio style",
+    title: "Plugin Manager",
     icon: "layers",
     width: "wide",
     body: body,

@@ -518,6 +518,7 @@ function makethreeview(canvas) {
   v.geos.cone = new lib.ConeGeometry(0.5, 1, 24);
   v.geos.torus = new lib.TorusGeometry(0.4, 0.16, 12, 28);
   v.geos.capsule = lib.CapsuleGeometry ? new lib.CapsuleGeometry(0.35, 0.5, 8, 16) : new lib.CylinderGeometry(0.35, 0.35, 1, 20);
+  v.geos.wedge = wedgegeo(lib);
 
   v.resize = function (w, h) {
     var pr = Math.min(window.devicePixelRatio || 1, gfx.ratio || 1);
@@ -583,9 +584,11 @@ function makethreeview(canvas) {
     }
     v.renderer.toneMapping = gfxopt.tonemap === "aces" ? lib.ACESFilmicToneMapping : gfxopt.tonemap === "reinhard" ? lib.ReinhardToneMapping : lib.NoToneMapping;
     v.renderer.toneMappingExposure = 1;
+    lightsync(v, items, lib);
     var seen = {};
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
+      if (it.light) continue;
       seen[it.id] = true;
       var rec = v.meshes[it.id];
       var matkey = itemkey(it);
@@ -623,7 +626,7 @@ function makethreeview(canvas) {
         delete v.meshes[key];
       }
     }
-    if (typeof view5sync === "function") view5sync(v, items, cam, env);
+    if (typeof viewsync === "function") viewsync(v, items, cam, env);
     if (v.post && v.post.active) v.post.render(v.renderer, v.scene, v.activecam || v.camera, viewportw(v), viewporth(v));
     else {
       v.renderer.setRenderTarget(null);
@@ -638,6 +641,76 @@ function makethreeview(canvas) {
   };
   return v;
 }
+
+function lightsync(v, items, lib, tag) {
+  v.lights = v.lights || {};
+  var seen = {};
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    if (!it.light) continue;
+    seen[it.id] = true;
+    var rec = v.lights[it.id];
+    var type = it.light;
+    if (!rec || rec.type !== type) {
+      if (rec && rec.obj) v.scene.remove(rec.obj);
+      var obj = null;
+      if (type === "spot" && lib.SpotLight) obj = new lib.SpotLight(it.color || "#ffffff", it.range || 8, it.spread || 0.6);
+      else if (type === "area" && lib.RectAreaLight) obj = new lib.RectAreaLight(it.color || "#ffffff", it.range || 6, it.width || 3, it.height || 2);
+      else if (lib.PointLight) obj = new lib.PointLight(it.color || "#ffffff", it.range || 8);
+      if (!obj) continue;
+      obj.castShadow = false;
+      v.scene.add(obj);
+      rec = v.lights[it.id] = { type: type, obj: obj };
+    }
+    var d = m4decompose(it.matrix);
+    rec.obj.position.set(d.pos[0], d.pos[1], d.pos[2]);
+    rec.obj.intensity = it.intensity === undefined ? 1 : it.intensity;
+    if (rec.obj.distance !== undefined && it.range) rec.obj.distance = it.range;
+    if (rec.obj.angle !== undefined && it.spread) rec.obj.angle = it.spread;
+    if (rec.obj.color && rec.obj.color.set) rec.obj.color.set(it.color || "#ffffff");
+    rec.obj.visible = it.visible !== false;
+    if (type === "area" && rec.obj.lookAt) rec.obj.lookAt(d.pos[0], d.pos[1] - 1, d.pos[2]);
+    if (type === "spot" && rec.obj.target) {
+      rec.obj.target.position.set(d.pos[0], d.pos[1] - 1, d.pos[2]);
+      if (rec.obj.target.parent !== v.scene) v.scene.add(rec.obj.target);
+    }
+  }
+  for (var k in v.lights) {
+    if (!seen[k]) {
+      v.scene.remove(v.lights[k].obj);
+      delete v.lights[k];
+    }
+  }
+}
+
+
+function wedgegeo(lib) {
+  var a = [-0.5, -0.5, 0.5];
+  var b = [0.5, -0.5, 0.5];
+  var c = [0.5, 0.5, 0.5];
+  var d = [-0.5, 0.5, 0.5];
+  var e = [-0.5, -0.5, -0.5];
+  var f = [0.5, -0.5, -0.5];
+  var tris = [
+    a, b, c, a, c, d,
+    a, f, b, a, e, f,
+    e, a, d,
+    b, f, c,
+    d, c, f, d, f, e
+  ];
+  var pos = new Float32Array(tris.length * 3);
+  for (var i = 0; i < tris.length; i++) {
+    pos[i * 3] = tris[i][0];
+    pos[i * 3 + 1] = tris[i][1];
+    pos[i * 3 + 2] = tris[i][2];
+  }
+  var g = new lib.BufferGeometry();
+  if (lib.BufferAttribute) g.setAttribute("position", new lib.BufferAttribute(pos, 3));
+  else g.setAttribute("position", pos, 3);
+  g.computeVertexNormals();
+  return g;
+}
+
 
 function customgeo(v, it) {
   v.customgeos = v.customgeos || {};
@@ -764,6 +837,7 @@ function makefaoxview(canvas) {
   v.geos.cylinder = new fxj.CylinderGeometry(0.5, 0.5, 1, 22);
   v.geos.cone = new fxj.ConeGeometry(0.5, 1, 22);
   v.geos.torus = new fxj.TorusGeometry(0.4, 0.16, 10, 24);
+  v.geos.wedge = wedgegeo(fxj);
   v.geos.grid = new fxj.PlaneGeometry(36, 36);
   var gridtex = new fxj.Texture(artmake("gridbaked"), { minFilter: "nearest", magFilter: "nearest", flipY: false, wrapS: "clamp", wrapT: "clamp" });
   v.gridmat = new fxj.BasicMaterial({ map: gridtex, side: "double" });
@@ -830,9 +904,11 @@ function makefaoxview(canvas) {
     fcam.position.set(cam.eye[0], cam.eye[1], cam.eye[2]);
     fcam.lookAt(new fxj.Vector3(cam.target[0], cam.target[1], cam.target[2]));
     v.fcam = fcam;
+    lightsync(v, items, fxj);
     var seen = {};
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
+      if (it.light) continue;
       seen[it.id] = true;
       var key = itemkey(it);
       var rec = v.meshes[it.id];
@@ -858,7 +934,7 @@ function makefaoxview(canvas) {
         delete v.meshes[k];
       }
     }
-    if (typeof view5sync === "function") view5sync(v, items, cam, env);
+    if (typeof viewsync === "function") viewsync(v, items, cam, env);
     if (v.post && v.post.active) v.post.render(v.renderer, v.scene, v.activecam || v.camera, viewportw(v), viewporth(v));
     else {
       v.renderer.setRenderTarget(null);

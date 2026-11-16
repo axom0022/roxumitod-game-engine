@@ -29,14 +29,14 @@ function featbuild() {
   featadd("landlayer", "Landscape material layers", "World", landpaintpanel, "Weighted layers painted into the terrain.");
   featadd("spline", "Landscape splines and roads", "World", splinepanel, "Catmull Rom spline with a road ribbon.");
   featadd("foliage", "Instanced foliage", "World", foliagepanel, "Seeded scattering with terrain conforming.");
-  featadd("wpd", "World partition", "World", partitionpanel, "Grid cells with a stream radius.");
+  featadd("wpd", "World streaming", "World", streampanel, "Grid cells with a stream radius.");
   featadd("levelinst", "Level instances", "World", levelinstpanel, "Nest another level as an instance.");
   featadd("procmesh", "Procedural mesh from script", "World", procmeshpanel, "Script builds vertex and index arrays.");
   featadd("terrainfid", "Terrain collision fidelity", "World", terrainfidpanel, "Bilinear sampling beats nearest cell by a measured margin.");
   featadd("skinan", "Skeletal animation editor", "Animation", skinpanel, "Clips, keys, playback and montage slots.");
   featadd("blendspace", "Blend spaces and montages", "Animation", skinpanel, "One dimensional blend space with montage slot.");
   featadd("bones", "Skeletal and bone control", "Animation", skinpanel, "Per bone rotation limits and poses.");
-  featadd("rig", "Control rig", "Animation", rigpanel, "Two bone IK with pole vector.");
+  featadd("rig", "Rig solver", "Animation", rigpanel, "Two bone IK with pole vector.");
   featadd("ragdoll", "Ragdoll", "Animation", rigpanel, "Bone particles with distance constraints.");
   featadd("notify", "Animation events and root motion", "Animation", animnotifypanel, "Notifies fire into the event bus.");
   featadd("facial", "Facial and morph animation", "Animation", facialpanel, "Morph weights with blink and talk drives.");
@@ -54,7 +54,7 @@ function featbuild() {
   featadd("audio", "Audio node graph", "Audio", audiopanel, "Oscillator, filter, gain, spatial and reverb.");
   featadd("spatial", "Audio spatialisation", "Audio", audiopanel, "Panner with three distance models.");
   featadd("voice", "Voice chat", "Audio", voicepanel, "Microphone capture through the peer session.");
-  featadd("music", "Music systems", "Audio", musicpanel, "Step sequencer with stingers and layers.");
+  featadd("music", "Music systems", "Audio", musicpanel, "Step cine with stingers and layers.");
   featadd("vis", "Visual scripting", "Logic", vispanel, "Event, branch and action nodes compiling to script.");
   featadd("lang", "Deep language depth", "Logic", scriptpanel, "Full JavaScript with classes, async and closures.");
   featadd("types", "Type checking and linting", "Logic", scriptpanel, "Flow type inference and a lint pass.");
@@ -235,7 +235,7 @@ function featactor(type) {
     levelinstancenew();
     return true;
   } else if (type === "clustercell") {
-    var c = basenode("empty", { name: "World partition cell", pos: [app.cam.target[0], 0, app.cam.target[2]] });
+    var c = basenode("empty", { name: "World cell", pos: [app.cam.target[0], 0, app.cam.target[2]] });
     c.cellgrid = [32, 0, 32];
     addnode(c, null);
     toast("Cell marker added, build the partition grid to fill it", "ok");

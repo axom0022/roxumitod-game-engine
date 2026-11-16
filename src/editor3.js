@@ -9,7 +9,7 @@ acts.openproject = function (el) {
 };
 acts.deleteproject = function (el) {
   var id = el.getAttribute("data-id");
-  confirmbox("Delete project", "This removes the project from this browser. Exported copies are not affected.", function () {
+  confirmbox("Delete project", "This removes the project from this browser. Exported coplays are not affected.", function () {
     app.projects = app.projects.filter(function (p) {
       return p.id !== id;
     });
@@ -69,8 +69,8 @@ acts.restartplay = function () {
 acts.playmenu = function (el) {
   var r = el.getBoundingClientRect();
   var items = [
-    { label: app.play ? "Stop Play In Editor" : "Play In Editor (PIE)", icon: app.play ? "stop" : "play", act: "play", key: "Space" },
-    { label: "Restart PIE", icon: "redo", act: "restartplay" },
+    { label: app.play ? "Stop play" : "Play in viewport", icon: app.play ? "stop" : "play", act: "play", key: "Space" },
+    { label: "Restart play", icon: "redo", act: "restartplay" },
     { sep: true },
     { label: "Preview resolution…", icon: "monitor", act: "playresmenu" },
     { label: (app.touch ? "Hide" : "Show") + " touch controls", icon: "hand", act: "toggletouch" },
@@ -758,7 +758,7 @@ acts.objcopy = function () {
   var n = selected();
   if (n) {
     app.clipboard = JSON.stringify(n);
-    toast("Copied " + n.name, "ok");
+    toast("Coplayd " + n.name, "ok");
   }
 };
 acts.objpaste = function () {
@@ -930,7 +930,7 @@ function keyspanel() {
       ["Shift + click", "Add to selection"]
     ]],
     ["Editor shortcuts", [
-      ["Space", "Play in editor / stop"],
+      ["Space", "Play in viewport / stop"],
       ["Delete", "Delete selected actor"],
       ["F2", "Rename actor"],
       ["Ctrl + Z / Ctrl + Y", "Undo / redo"],
@@ -945,11 +945,11 @@ function keyspanel() {
       ["Tools > Lock all", "Lock every actor"]
     ]]
   ];
-  var body = '<div class="u5keys">';
+  var body = '<div class="sgkeys">';
   groups.forEach(function (g) {
-    body += '<div class="u5keygroup"><div class="u5keyhead">' + esc(g[0]) + "</div>";
+    body += '<div class="sgkeygroup"><div class="sgkeyhead">' + esc(g[0]) + "</div>";
     g[1].forEach(function (row) {
-      body += '<div class="u5keyrow"><span class="u5key">' + esc(row[0]) + "</span><span class=\"u5kdesc\">" + esc(row[1]) + "</span></div>";
+      body += '<div class="sgkeyrow"><span class="sgkey">' + esc(row[0]) + "</span><span class=\"sgkdesc\">" + esc(row[1]) + "</span></div>";
     });
     body += "</div>";
   });
