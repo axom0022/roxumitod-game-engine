@@ -113,8 +113,18 @@ function numtiphide() {
 
 function numpress(ev) {
   var el = ev.target;
-  if (!el || !el.hasAttribute || !el.hasAttribute("data-num")) return;
+  if (!el || !el.hasAttribute) return;
   if (ev.button !== 0) return;
+  if (!el.hasAttribute("data-num") && el.hasAttribute("data-grip")) {
+    var near = el.parentElement ? el.parentElement.querySelector("input[data-num]") : null;
+    if (near) {
+      ev.preventDefault();
+      near.focus();
+      near.select();
+      return;
+    }
+  }
+  if (!el.hasAttribute("data-num")) return;
   numdrag = { el: el, x: ev.clientX, y: ev.clientY, base: parseFloat(el.value) || 0, live: false, step: numstep(el) };
 }
 
