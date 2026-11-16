@@ -1,0 +1,8 @@
+.cache/
+.local/
+libs/
+previews/
+refs/
+t.html
+tools_shot.py
+tools_test.py
